@@ -35,15 +35,15 @@ export default function MediaCard({ media, onAddToList, onRemoveFromList, isInLi
   return (
     <Card className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col h-full">
       <CardHeader className="p-0 relative">
-        <Link href={`/media/${media.mediaType}/${media.id}`} aria-label={`View details for ${media.title}`}>
+        <Link href={`/media/${media.mediaType}/${media.id}`} aria-label={`Voir les détails de ${media.title}`}>
           <div className="aspect-[2/3] w-full overflow-hidden">
             <Image
               src={media.posterUrl}
-              alt={`Poster for ${media.title}`}
+              alt={`Affiche de ${media.title}`}
               width={500}
               height={750}
               className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
-              data-ai-hint={`${media.mediaType === 'movie' ? 'movie poster' : 'series poster'}`}
+              data-ai-hint={`${media.mediaType === 'movie' ? 'affiche film' : 'affiche série'}`}
               onError={(e) => {
                 // Fallback for broken images
                 e.currentTarget.src = 'https://picsum.photos/500/750?grayscale&blur=2';
@@ -52,7 +52,7 @@ export default function MediaCard({ media, onAddToList, onRemoveFromList, isInLi
           </div>
         </Link>
         <Badge variant="secondary" className="absolute top-2 right-2">
-          {media.mediaType === 'movie' ? 'Movie' : 'Series'}
+          {media.mediaType === 'movie' ? 'Film' : 'Série'}
         </Badge>
       </CardHeader>
       <CardContent className="p-4 flex-grow">
@@ -79,20 +79,20 @@ export default function MediaCard({ media, onAddToList, onRemoveFromList, isInLi
             size="sm"
             onClick={() => handleToggleList('toWatch')}
             aria-pressed={isToWatch}
-            title={isToWatch ? "Remove from To Watch" : "Add to To Watch"}
+            title={isToWatch ? "Retirer de 'À Regarder'" : "Ajouter à 'À Regarder'"}
           >
             <Eye className="mr-1 h-4 w-4" />
-            To Watch
+            À Regarder
           </Button>
           <Button
             variant={isWatched ? "default" : "outline"}
             size="sm"
             onClick={() => handleToggleList('watched')}
             aria-pressed={isWatched}
-            title={isWatched ? "Remove from Watched" : "Mark as Unwatched"}
+            title={isWatched ? "Retirer de 'Vus'" : "Marquer comme 'Non Vu'"}
           >
             <CheckCircle className="mr-1 h-4 w-4" />
-            Watched
+            Vu
           </Button>
         </div>
       </CardFooter>

@@ -32,8 +32,8 @@ function SearchResults() {
         const results = await searchMedia(query);
         setSearchResults(results);
       } catch (err) {
-        console.error("Error fetching search results:", err);
-        setError("Failed to load search results. Please try again later.");
+        console.error("Erreur lors de la récupération des résultats de recherche:", err);
+        setError("Échec du chargement des résultats de recherche. Veuillez réessayer plus tard.");
       } finally {
         setIsLoading(false);
       }
@@ -47,7 +47,7 @@ function SearchResults() {
       <div className="flex flex-col items-center justify-center h-[calc(100vh-200px)]">
         <Alert variant="destructive" className="max-w-md">
           <ServerCrash className="h-5 w-5" />
-          <AlertTitle>Error</AlertTitle>
+          <AlertTitle>Erreur</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       </div>
@@ -57,7 +57,7 @@ function SearchResults() {
   return (
     <div>
       <h1 className="text-3xl font-bold mb-8 text-primary">
-        Search Results for "{decodeURIComponent(query)}"
+        Résultats de recherche pour "{decodeURIComponent(query)}"
       </h1>
       {isLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
@@ -86,8 +86,8 @@ function SearchResults() {
       ) : (
         <div className="flex flex-col items-center justify-center py-16 text-center">
           <SearchX className="w-16 h-16 text-muted-foreground mb-4" />
-          <p className="text-xl text-muted-foreground">No results found for "{decodeURIComponent(query)}".</p>
-          <p className="text-sm text-muted-foreground">Try a different search term.</p>
+          <p className="text-xl text-muted-foreground">Aucun résultat trouvé pour "{decodeURIComponent(query)}".</p>
+          <p className="text-sm text-muted-foreground">Essayez un autre terme de recherche.</p>
         </div>
       )}
     </div>

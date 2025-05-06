@@ -26,18 +26,18 @@ export default function SearchBar() {
     <form onSubmit={handleSearch} className="relative w-full">
       <Input
         type="search"
-        placeholder="Search movies or series..."
+        placeholder="Rechercher films ou séries..."
         value={query}
         onChange={handleChange}
         className="pr-10 h-10 text-sm"
-        aria-label="Search for movies or series"
+        aria-label="Rechercher des films ou des séries"
       />
       <Button
         type="submit"
         variant="ghost"
         size="icon"
         className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-muted-foreground hover:text-primary"
-        aria-label="Submit search"
+        aria-label="Lancer la recherche"
       >
         <Search className="h-4 w-4" />
       </Button>

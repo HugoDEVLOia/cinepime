@@ -30,9 +30,9 @@ export default function MyListsPage() {
       return (
         <div className="flex flex-col items-center justify-center py-16 text-center">
           <ListX className="w-16 h-16 text-muted-foreground mb-4" />
-          <p className="text-xl text-muted-foreground">Your list is empty.</p>
+          <p className="text-xl text-muted-foreground">Votre liste est vide.</p>
           <p className="text-sm text-muted-foreground">
-            {listType === 'toWatch' ? "Add some movies or series you want to watch!" : "Mark items as watched to see them here."}
+            {listType === 'toWatch' ? "Ajoutez des films ou séries que vous voulez regarder !" : "Marquez des éléments comme vus pour les voir ici."}
           </p>
         </div>
       );
@@ -55,14 +55,14 @@ export default function MyListsPage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-8 text-primary">My Lists</h1>
+      <h1 className="text-3xl font-bold mb-8 text-primary">Mes Listes</h1>
       <Tabs defaultValue="toWatch" className="w-full">
         <TabsList className="grid w-full grid-cols-2 md:w-auto md:inline-flex mb-6">
           <TabsTrigger value="toWatch" className="gap-2">
-            <Eye className="h-4 w-4" /> To Watch ({isLoaded ? toWatchList.length : '...'})
+            <Eye className="h-4 w-4" /> À Regarder ({isLoaded ? toWatchList.length : '...'})
           </TabsTrigger>
           <TabsTrigger value="watched" className="gap-2">
-            <CheckCircle className="h-4 w-4" /> Watched ({isLoaded ? watchedList.length : '...'})
+            <CheckCircle className="h-4 w-4" /> Vus ({isLoaded ? watchedList.length : '...'})
           </TabsTrigger>
         </TabsList>
         <TabsContent value="toWatch">

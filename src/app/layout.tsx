@@ -11,7 +11,7 @@ import SearchBar from '@/components/search-bar';
 
 export const metadata: Metadata = {
   title: 'CinéCollection',
-  description: 'Track movies and series you watch, want to watch, and get personalized stats.',
+  description: 'Suivez les films et séries que vous regardez, voulez regarder, et obtenez des statistiques personnalisées.',
 };
 
 export default function RootLayout({
@@ -20,7 +20,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="fr">
       <body className={`${GeistSans.variable} ${GeistMono.variable} antialiased flex flex-col min-h-screen`}>
         <header className="sticky top-0 z-50 w-full border-b bg-card shadow-sm">
           <div className="container flex h-16 items-center justify-between px-4 md:px-6">
@@ -31,18 +31,18 @@ export default function RootLayout({
             <nav className="hidden items-center gap-4 md:flex">
               <Link href="/" className="text-sm font-medium text-foreground hover:text-accent transition-colors">
                 <Button variant="ghost" className="gap-2">
-                  <Film className="h-4 w-4" /> Trending
+                  <Film className="h-4 w-4" /> Tendances
                 </Button>
               </Link>
               <Link href="/my-lists" className="text-sm font-medium text-foreground hover:text-accent transition-colors">
                 <Button variant="ghost" className="gap-2">
-                  <Tv className="h-4 w-4" /> My Lists
+                  <Tv className="h-4 w-4" /> Mes Listes
                 </Button>
               </Link>
                {/* Placeholder for future stats page */}
               <Link href="#" className="text-sm font-medium text-foreground hover:text-accent transition-colors opacity-50 cursor-not-allowed" aria-disabled="true" tabIndex={-1}>
                  <Button variant="ghost" className="gap-2" disabled>
-                    <BarChart3 className="h-4 w-4" /> Stats
+                    <BarChart3 className="h-4 w-4" /> Statistiques
                  </Button>
               </Link>
             </nav>
@@ -56,7 +56,7 @@ export default function RootLayout({
         </main>
         <footer className="border-t bg-card py-6">
           <div className="container px-4 text-center text-sm text-muted-foreground md:px-6">
-            © {new Date().getFullYear()} CinéCollection. All rights reserved.
+            © {new Date().getFullYear()} CinéCollection. Tous droits réservés.
           </div>
         </footer>
         <Toaster />

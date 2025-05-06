@@ -1,6 +1,7 @@
 const API_KEY = '7f47e5a98ff4014fedea0408a8390069';
 const BASE_URL = 'https://api.themoviedb.org/3';
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500'; // For posters and profile pictures
+const LANGUAGE = 'fr-FR';
 
 export interface Media {
   id: string;
@@ -48,7 +49,7 @@ export interface Episode {
   airDate?: string;
 }
 
-const 안전하게_이미지_URL_가져오기 = (path: string | null | undefined): string => {
+const getSafeImageUrl = (path: string | null | undefined): string => {
   if (path) {
     return `${IMAGE_BASE_URL}${path}`;
   }
@@ -58,9 +59,9 @@ const 안전하게_이미지_URL_가져오기 = (path: string | null | undefined
 
 const mapApiMediaToMedia = (item: any, mediaType: 'movie' | 'tv'): Media => ({
   id: item.id.toString(),
-  title: item.title || item.name || 'Unknown Title',
-  description: item.overview || 'No description available.',
-  posterUrl: 안전하게_이미지_URL_가져오기(item.poster_path),
+  title: item.title || item.name || 'Titre inconnu',
+  description: item.overview || 'Aucune description disponible.',
+  posterUrl: getSafeImageUrl(item.poster_path),
   averageRating: item.vote_average ? parseFloat(item.vote_average.toFixed(1)) : 0,
   mediaType,
   releaseDate: item.release_date || item.first_air_date,
@@ -70,76 +71,77 @@ const mapApiMediaToMedia = (item: any, mediaType: 'movie' | 'tv'): Media => ({
 
 const mapApiActorToActor = (actor: any): Actor => ({
   id: actor.id.toString(),
-  name: actor.name || 'Unknown Actor',
-  profileUrl: 안전하게_이미지_URL_가져오기(actor.profile_path),
+  name: actor.name || 'Acteur inconnu',
+  profileUrl: getSafeImageUrl(actor.profile_path),
   character: actor.character,
 });
 
 const mapApiDirectorToDirector = (crewMember: any): Director => ({
   id: crewMember.id.toString(),
-  name: crewMember.name || 'Unknown Director',
-  profileUrl: 안전하게_이미지_URL_가져오기(crewMember.profile_path),
+  name: crewMember.name || 'Réalisateur inconnu',
+  profileUrl: getSafeImageUrl(crewMember.profile_path),
 });
 
-export async function getTrendingMedia(): Promise<Media[]> {
+export async function getTrendingMedia(page: number = 1): Promise<{ media: Media[], totalPages: number }> {
   try {
-    const response = await fetch(`${BASE_URL}/trending/all/week?api_key=${API_KEY}`);
+    const response = await fetch(`${BASE_URL}/trending/all/week?api_key=${API_KEY}&language=${LANGUAGE}&page=${page}`);
     if (!response.ok) {
-      console.error('Failed to fetch trending media:', response.status, await response.text());
-      return [];
+      console.error('Échec de la récupération des médias tendances:', response.status, await response.text());
+      return { media: [], totalPages: 1 };
     }
     const data = await response.json();
-    return data.results
+    const media = data.results
       .filter((item: any) => item.media_type === 'movie' || item.media_type === 'tv')
       .map((item: any) => mapApiMediaToMedia(item, item.media_type as 'movie' | 'tv'));
+    return { media, totalPages: data.total_pages };
   } catch (error) {
-    console.error('Error fetching trending media:', error);
-    return [];
+    console.error('Erreur lors de la récupération des médias tendances:', error);
+    return { media: [], totalPages: 1 };
   }
 }
 
 export async function getMediaDetails(mediaId: string, mediaType: 'movie' | 'tv'): Promise<Media | null> {
   try {
-    const response = await fetch(`${BASE_URL}/${mediaType}/${mediaId}?api_key=${API_KEY}&append_to_response=credits`);
+    const response = await fetch(`${BASE_URL}/${mediaType}/${mediaId}?api_key=${API_KEY}&language=${LANGUAGE}&append_to_response=credits`);
     if (!response.ok) {
-      console.error(`Failed to fetch ${mediaType} details:`, response.status, await response.text());
+      console.error(`Échec de la récupération des détails ${mediaType}:`, response.status, await response.text());
       return null;
     }
     const data = await response.json();
     return mapApiMediaToMedia(data, mediaType);
   } catch (error) {
-    console.error(`Error fetching ${mediaType} details:`, error);
+    console.error(`Erreur lors de la récupération des détails ${mediaType}:`, error);
     return null;
   }
 }
 
 export async function getMediaActors(mediaId: string, mediaType: 'movie' | 'tv'): Promise<Actor[]> {
   try {
-    const response = await fetch(`${BASE_URL}/${mediaType}/${mediaId}/credits?api_key=${API_KEY}`);
+    const response = await fetch(`${BASE_URL}/${mediaType}/${mediaId}/credits?api_key=${API_KEY}&language=${LANGUAGE}`);
     if (!response.ok) {
-      console.error(`Failed to fetch ${mediaType} actors:`, response.status, await response.text());
+      console.error(`Échec de la récupération des acteurs ${mediaType}:`, response.status, await response.text());
       return [];
     }
     const data = await response.json();
     return data.cast.slice(0, 10).map(mapApiActorToActor); // Get top 10 actors
   } catch (error) {
-    console.error(`Error fetching ${mediaType} actors:`, error);
+    console.error(`Erreur lors de la récupération des acteurs ${mediaType}:`, error);
     return [];
   }
 }
 
 export async function getMediaDirector(mediaId: string, mediaType: 'movie' | 'tv'): Promise<Director | null> {
   try {
-    const response = await fetch(`${BASE_URL}/${mediaType}/${mediaId}/credits?api_key=${API_KEY}`);
+    const response = await fetch(`${BASE_URL}/${mediaType}/${mediaId}/credits?api_key=${API_KEY}&language=${LANGUAGE}`);
     if (!response.ok) {
-      console.error(`Failed to fetch ${mediaType} director:`, response.status, await response.text());
+      console.error(`Échec de la récupération du réalisateur ${mediaType}:`, response.status, await response.text());
       return null;
     }
     const data = await response.json();
     const director = data.crew.find((person: any) => person.job === 'Director');
     return director ? mapApiDirectorToDirector(director) : null;
   } catch (error) {
-    console.error(`Error fetching ${mediaType} director:`, error);
+    console.error(`Erreur lors de la récupération du réalisateur ${mediaType}:`, error);
     return null;
   }
 }
@@ -147,9 +149,9 @@ export async function getMediaDirector(mediaId: string, mediaType: 'movie' | 'tv
 export async function getSeriesSeasons(seriesId: string): Promise<Season[]> {
   try {
     // First, get the series details to find out how many seasons there are
-    const seriesDetailsResponse = await fetch(`${BASE_URL}/tv/${seriesId}?api_key=${API_KEY}`);
+    const seriesDetailsResponse = await fetch(`${BASE_URL}/tv/${seriesId}?api_key=${API_KEY}&language=${LANGUAGE}`);
     if (!seriesDetailsResponse.ok) {
-      console.error('Failed to fetch series details for seasons:', seriesDetailsResponse.status, await seriesDetailsResponse.text());
+      console.error('Échec de la récupération des détails de la série pour les saisons:', seriesDetailsResponse.status, await seriesDetailsResponse.text());
       return [];
     }
     const seriesData = await seriesDetailsResponse.json();
@@ -163,39 +165,39 @@ export async function getSeriesSeasons(seriesId: string): Promise<Season[]> {
     return seasonsWithDetails.filter(season => season !== null) as Season[];
 
   } catch (error) {
-    console.error('Error fetching series seasons:', error);
+    console.error('Erreur lors de la récupération des saisons de la série:', error);
     return [];
   }
 }
 
 async function getSeasonDetails(seriesId: string, seasonNumber: number): Promise<Season | null> {
   try {
-    const response = await fetch(`${BASE_URL}/tv/${seriesId}/season/${seasonNumber}?api_key=${API_KEY}`);
+    const response = await fetch(`${BASE_URL}/tv/${seriesId}/season/${seasonNumber}?api_key=${API_KEY}&language=${LANGUAGE}`);
     if (!response.ok) {
-      console.error(`Failed to fetch season ${seasonNumber} details:`, response.status, await response.text());
+      console.error(`Échec de la récupération des détails de la saison ${seasonNumber}:`, response.status, await response.text());
       return null;
     }
     const data = await response.json();
     return {
       id: data.id.toString(),
       seasonNumber: data.season_number,
-      name: data.name || `Season ${data.season_number}`,
-      overview: data.overview || 'No overview available.',
-      posterUrl: 안전하게_이미지_URL_가져오기(data.poster_path),
+      name: data.name || `Saison ${data.season_number}`,
+      overview: data.overview || 'Aucun résumé disponible.',
+      posterUrl: getSafeImageUrl(data.poster_path),
       airDate: data.air_date,
       episodeCount: data.episodes?.length || 0,
       episodes: (data.episodes || []).map((ep: any): Episode => ({
         id: ep.id.toString(),
         episodeNumber: ep.episode_number,
-        title: ep.name || `Episode ${ep.episode_number}`,
-        description: ep.overview || 'No description available.',
+        title: ep.name || `Épisode ${ep.episode_number}`,
+        description: ep.overview || 'Aucune description disponible.',
         rating: ep.vote_average ? parseFloat(ep.vote_average.toFixed(1)) : 0,
-        stillPath: 안전하게_이미지_URL_가져오기(ep.still_path),
+        stillPath: getSafeImageUrl(ep.still_path),
         airDate: ep.air_date,
       })),
     };
   } catch (error) {
-    console.error(`Error fetching details for season ${seasonNumber}:`, error);
+    console.error(`Erreur lors de la récupération des détails de la saison ${seasonNumber}:`, error);
     return null;
   }
 }
@@ -204,9 +206,9 @@ async function getSeasonDetails(seriesId: string, seasonNumber: number): Promise
 export async function searchMedia(query: string): Promise<Media[]> {
   if (!query.trim()) return [];
   try {
-    const response = await fetch(`${BASE_URL}/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(query)}`);
+    const response = await fetch(`${BASE_URL}/search/multi?api_key=${API_KEY}&language=${LANGUAGE}&query=${encodeURIComponent(query)}`);
     if (!response.ok) {
-      console.error('Failed to search media:', response.status, await response.text());
+      console.error('Échec de la recherche de médias:', response.status, await response.text());
       return [];
     }
     const data = await response.json();
@@ -214,16 +216,16 @@ export async function searchMedia(query: string): Promise<Media[]> {
       .filter((item: any) => (item.media_type === 'movie' || item.media_type === 'tv') && item.poster_path) // Ensure poster exists
       .map((item: any) => mapApiMediaToMedia(item, item.media_type as 'movie' | 'tv'));
   } catch (error) {
-    console.error('Error searching media:', error);
+    console.error('Erreur lors de la recherche de médias:', error);
     return [];
   }
 }
 
 export async function getMediaRecommendations(mediaId: string, mediaType: 'movie' | 'tv'): Promise<Media[]> {
   try {
-    const response = await fetch(`${BASE_URL}/${mediaType}/${mediaId}/recommendations?api_key=${API_KEY}`);
+    const response = await fetch(`${BASE_URL}/${mediaType}/${mediaId}/recommendations?api_key=${API_KEY}&language=${LANGUAGE}`);
     if (!response.ok) {
-      console.error(`Failed to fetch ${mediaType} recommendations:`, response.status, await response.text());
+      console.error(`Échec de la récupération des recommandations ${mediaType}:`, response.status, await response.text());
       return [];
     }
     const data = await response.json();
@@ -231,7 +233,7 @@ export async function getMediaRecommendations(mediaId: string, mediaType: 'movie
       .filter((item: any) => item.poster_path) // Ensure poster exists
       .map((item: any) => mapApiMediaToMedia(item, mediaType)); // Recommendations are of the same media type
   } catch (error) {
-    console.error(`Error fetching ${mediaType} recommendations:`, error);
+    console.error(`Erreur lors de la récupération des recommandations ${mediaType}:`, error);
     return [];
   }
 }
