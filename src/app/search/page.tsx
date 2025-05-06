@@ -45,9 +45,9 @@ function SearchResults() {
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center h-[calc(100vh-200px)]">
-        <Alert variant="destructive" className="max-w-md">
+        <Alert variant="destructive" className="max-w-md shadow-lg">
           <ServerCrash className="h-5 w-5" />
-          <AlertTitle>Erreur</AlertTitle>
+          <AlertTitle>Erreur de Chargement</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       </div>
@@ -56,15 +56,15 @@ function SearchResults() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-8 text-primary">
-        Résultats de recherche pour "{decodeURIComponent(query)}"
+      <h1 className="text-3xl md:text-4xl font-extrabold mb-8 text-foreground tracking-tight">
+        {query ? `Résultats pour "${decodeURIComponent(query)}"` : "Recherche"}
       </h1>
       {isLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-5 gap-y-8">
           {Array.from({ length: 10 }).map((_, index) => (
              <div key={index} className="flex flex-col space-y-3">
               <Skeleton className="h-[300px] w-full rounded-xl" />
-              <div className="space-y-2">
+              <div className="space-y-2 p-2">
                 <Skeleton className="h-4 w-[200px]" />
                 <Skeleton className="h-4 w-[150px]" />
               </div>
@@ -72,7 +72,7 @@ function SearchResults() {
           ))}
         </div>
       ) : searchResults.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-5 gap-y-8">
           {searchResults.map((media) => (
             <MediaCard
               key={media.id}
@@ -84,10 +84,13 @@ function SearchResults() {
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center py-16 text-center">
-          <SearchX className="w-16 h-16 text-muted-foreground mb-4" />
-          <p className="text-xl text-muted-foreground">Aucun résultat trouvé pour "{decodeURIComponent(query)}".</p>
-          <p className="text-sm text-muted-foreground">Essayez un autre terme de recherche.</p>
+        <div className="flex flex-col items-center justify-center py-20 text-center bg-card rounded-lg shadow-sm border border-border">
+          <SearchX className="w-20 h-20 text-muted-foreground mb-6" />
+          <p className="text-2xl font-semibold text-foreground mb-2">Aucun résultat trouvé.</p>
+          <p className="text-md text-muted-foreground">
+            {query ? `Nous n'avons rien trouvé pour "${decodeURIComponent(query)}".` : "Veuillez entrer un terme de recherche."}
+          </p>
+          {query && <p className="text-sm text-muted-foreground mt-1">Essayez un autre terme de recherche.</p>}
         </div>
       )}
     </div>
@@ -97,7 +100,6 @@ function SearchResults() {
 
 export default function SearchPage() {
   return (
-    // Suspense is required by Next.js for pages that use useSearchParams
     <Suspense fallback={<SearchPageSkeleton />}>
       <SearchResults />
     </Suspense>
@@ -107,12 +109,12 @@ export default function SearchPage() {
 function SearchPageSkeleton() {
   return (
     <div>
-      <Skeleton className="h-9 w-3/4 max-w-md mb-8" />
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+      <Skeleton className="h-10 w-3/4 max-w-md mb-8" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-5 gap-y-8">
         {Array.from({ length: 10 }).map((_, index) => (
            <div key={index} className="flex flex-col space-y-3">
             <Skeleton className="h-[300px] w-full rounded-xl" />
-            <div className="space-y-2">
+            <div className="space-y-2 p-2">
               <Skeleton className="h-4 w-[200px]" />
               <Skeleton className="h-4 w-[150px]" />
             </div>

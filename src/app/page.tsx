@@ -7,7 +7,6 @@ import { useMediaLists } from '@/hooks/use-media-lists';
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ServerCrash, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 
 export default function HomePage() {
   const [trendingMedia, setTrendingMedia] = useState<Media[]>([]);
@@ -40,7 +39,7 @@ export default function HomePage() {
     setError(null);
     try {
       const { media, totalPages: newTotalPages } = await getTrendingMedia(pageToLoad);
-      setTrendingMedia(prevMedia => pageToLoad === 1 ? media : [...prevMedia, ...media]);
+      setTrendingMedia(prevMedia => pageToLoad === 1 ? media : [...prevMedia, ...media.filter(newItem => !prevMedia.find(existingItem => existingItem.id === newItem.id))]);
       setTotalPages(newTotalPages);
     } catch (err) {
       console.error("Erreur lors de la récupération des médias tendances:", err);
@@ -66,7 +65,7 @@ export default function HomePage() {
           {Array.from({ length: 10 }).map((_, index) => (
             <div key={index} className="flex flex-col space-y-3">
               <Skeleton className="h-[300px] w-full rounded-xl" />
-              <div className="space-y-2">
+              <div className="space-y-2 p-2">
                 <Skeleton className="h-4 w-[200px]" />
                 <Skeleton className="h-4 w-[150px]" />
               </div>
@@ -91,53 +90,47 @@ export default function HomePage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-8 text-primary">Tendances de la semaine</h1>
+      <h1 className="text-3xl md:text-4xl font-extrabold mb-8 text-foreground tracking-tight">Tendances de la semaine</h1>
       {trendingMedia.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-5 gap-y-8">
           {trendingMedia.map((media, index) => {
+            const card = (
+              <MediaCard                   
+                media={media}
+                onAddToList={addToList}
+                onRemoveFromList={removeFromList}
+                isInList={isInList}
+              />
+            );
             if (trendingMedia.length === index + 1) {
               return (
-                <div ref={lastMediaElementRef} key={media.id}>
-                  <MediaCard                   
-                    media={media}
-                    onAddToList={addToList}
-                    onRemoveFromList={removeFromList}
-                    isInList={isInList}
-                  />
+                <div ref={lastMediaElementRef} key={`${media.id}-observed`}>
+                  {card}
                 </div>
               );
-            } else {
-              return (
-                <MediaCard
-                  key={media.id}
-                  media={media}
-                  onAddToList={addToList}
-                  onRemoveFromList={removeFromList}
-                  isInList={isInList}
-                />
-              );
             }
+            return <div key={media.id}>{card}</div>;
           })}
         </div>
       )}
       {isLoadingMore && (
-        <div className="flex justify-center items-center my-8">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="ml-2 text-muted-foreground">Chargement de plus de contenu...</p>
+        <div className="flex justify-center items-center my-10">
+          <Loader2 className="h-10 w-10 animate-spin text-primary" />
+          <p className="ml-3 text-muted-foreground">Chargement de plus de contenu...</p>
         </div>
       )}
        {!isLoading && !isLoadingMore && trendingMedia.length === 0 && !error && (
-         <p className="text-center text-muted-foreground mt-10">Aucun média tendance trouvé pour le moment.</p>
+         <p className="text-center text-muted-foreground mt-12 text-lg">Aucun média tendance trouvé pour le moment.</p>
       )}
       {error && trendingMedia.length > 0 && (
-         <Alert variant="destructive" className="mt-8">
+         <Alert variant="destructive" className="mt-10">
           <ServerCrash className="h-5 w-5" />
           <AlertTitle>Erreur lors du chargement</AlertTitle>
-          <AlertDescription>{error} Essayez de rafraîchir.</AlertDescription>
+          <AlertDescription>{error} Essayez de rafraîchir la page.</AlertDescription>
         </Alert>
       )}
       {!isLoadingMore && currentPage >= totalPages && trendingMedia.length > 0 && (
-        <p className="text-center text-muted-foreground mt-10">Vous avez atteint la fin des tendances.</p>
+        <p className="text-center text-muted-foreground mt-12 text-lg">Vous avez atteint la fin des tendances.</p>
       )}
     </div>
   );

@@ -14,7 +14,7 @@ export default function SearchBar() {
     e.preventDefault();
     if (query.trim()) {
       router.push(`/search?q=${encodeURIComponent(query.trim())}`);
-      setQuery(''); // Optionally clear after search
+      // setQuery(''); // Decided against clearing to allow users to refine search
     }
   };
 
@@ -23,23 +23,23 @@ export default function SearchBar() {
   };
 
   return (
-    <form onSubmit={handleSearch} className="relative w-full">
+    <form onSubmit={handleSearch} className="relative w-full group">
       <Input
         type="search"
-        placeholder="Rechercher films ou séries..."
+        placeholder="Rechercher films, séries..."
         value={query}
         onChange={handleChange}
-        className="pr-10 h-10 text-sm"
+        className="pr-12 h-11 text-sm border-border focus:border-primary transition-colors duration-300"
         aria-label="Rechercher des films ou des séries"
       />
       <Button
         type="submit"
         variant="ghost"
         size="icon"
-        className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-muted-foreground hover:text-primary"
+        className="absolute right-1.5 top-1/2 -translate-y-1/2 h-9 w-9 text-muted-foreground hover:text-primary transition-colors"
         aria-label="Lancer la recherche"
       >
-        <Search className="h-4 w-4" />
+        <Search className="h-5 w-5" />
       </Button>
     </form>
   );

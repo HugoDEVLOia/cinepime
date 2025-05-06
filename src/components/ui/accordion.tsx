@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import * as AccordionPrimitive from "@radix-ui/react-accordion"
-import { ChevronDown } from "lucide-react"
+// import { ChevronDown } from "lucide-react" // Chevron is now handled by the component using the trigger
 
 import { cn } from "@/lib/utils"
 
@@ -14,7 +14,7 @@ const AccordionItem = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <AccordionPrimitive.Item
     ref={ref}
-    className={cn("border-b", className)}
+    className={cn("border-b", className)} // Default border, can be overridden
     {...props}
   />
 ))
@@ -28,13 +28,15 @@ const AccordionTrigger = React.forwardRef<
     <AccordionPrimitive.Trigger
       ref={ref}
       className={cn(
-        "flex flex-1 items-center justify-between py-4 font-medium transition-all hover:underline [&[data-state=open]>svg]:rotate-180",
+        "flex flex-1 items-center justify-between py-4 font-medium transition-all [&[data-state=open]>svg.accordion-chevron]:rotate-180", // Removed default hover:underline
         className
       )}
       {...props}
     >
       {children}
-      <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
+      {/* ChevronDown icon is now expected to be passed as part of children or handled by the parent component using this trigger
+      <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 accordion-chevron" />
+      */}
     </AccordionPrimitive.Trigger>
   </AccordionPrimitive.Header>
 ))
