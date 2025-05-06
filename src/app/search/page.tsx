@@ -60,7 +60,7 @@ function SearchResults() {
         {query ? `Résultats pour "${decodeURIComponent(query)}"` : "Recherche"}
       </h1>
       {isLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-5 gap-y-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-8">
           {Array.from({ length: 10 }).map((_, index) => (
              <div key={index} className="flex flex-col space-y-3">
               <Skeleton className="h-[300px] w-full rounded-xl" />
@@ -72,7 +72,7 @@ function SearchResults() {
           ))}
         </div>
       ) : searchResults.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-5 gap-y-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-8">
           {searchResults.map((media) => (
             <MediaCard
               key={media.id}
@@ -110,7 +110,7 @@ function SearchPageSkeleton() {
   return (
     <div>
       <Skeleton className="h-10 w-3/4 max-w-md mb-8" />
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-5 gap-y-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-8">
         {Array.from({ length: 10 }).map((_, index) => (
            <div key={index} className="flex flex-col space-y-3">
             <Skeleton className="h-[300px] w-full rounded-xl" />

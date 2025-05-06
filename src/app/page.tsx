@@ -60,8 +60,8 @@ export default function HomePage() {
   if (isLoading && currentPage === 1) {
     return (
       <div>
-        <h1 className="text-3xl font-bold mb-8 text-primary">Tendances de la semaine</h1>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+        <h1 className="text-3xl md:text-4xl font-extrabold mb-8 text-foreground tracking-tight">Tendances de la semaine</h1>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-8">
           {Array.from({ length: 10 }).map((_, index) => (
             <div key={index} className="flex flex-col space-y-3">
               <Skeleton className="h-[300px] w-full rounded-xl" />
@@ -92,7 +92,7 @@ export default function HomePage() {
     <div>
       <h1 className="text-3xl md:text-4xl font-extrabold mb-8 text-foreground tracking-tight">Tendances de la semaine</h1>
       {trendingMedia.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-5 gap-y-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-8">
           {trendingMedia.map((media, index) => {
             const card = (
               <MediaCard                   

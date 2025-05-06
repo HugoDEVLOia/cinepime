@@ -32,10 +32,10 @@ export default function MediaCard({ media, onAddToList, onRemoveFromList, isInLi
   };
 
   return (
-    <Card className="overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 ease-in-out flex flex-col h-full group border border-border hover:border-primary/50 bg-card">
+    <Card className="overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out flex flex-col h-full group border border-border/60 hover:border-primary/50 bg-card rounded-xl">
       <CardHeader className="p-0 relative">
         <Link href={`/media/${media.mediaType}/${media.id}`} aria-label={`Voir les détails de ${media.title}`} className="block">
-          <div className="aspect-[2/3] w-full overflow-hidden rounded-t-lg">
+          <div className="aspect-[2/3] w-full overflow-hidden rounded-t-xl">
             <Image
               src={media.posterUrl}
               alt={`Affiche de ${media.title}`}
@@ -46,30 +46,34 @@ export default function MediaCard({ media, onAddToList, onRemoveFromList, isInLi
               onError={(e) => {
                 e.currentTarget.src = 'https://picsum.photos/500/750?grayscale&blur=2';
               }}
-              priority={false} // Set to true for above-the-fold images if applicable
+              priority={false} 
             />
           </div>
         </Link>
-        <Badge variant={media.mediaType === 'movie' ? 'default' : 'secondary'} className="absolute top-2 right-2 capitalize !px-2 !py-1 text-xs">
-          {media.mediaType === 'movie' ? <Film className="h-3.5 w-3.5 mr-1"/> : <TvIcon className="h-3.5 w-3.5 mr-1" />}
+        <Badge variant={media.mediaType === 'movie' ? 'default' : 'secondary'} className="absolute top-3 right-3 capitalize !px-2.5 !py-1.5 text-xs font-semibold shadow">
+          {media.mediaType === 'movie' ? <Film className="h-3.5 w-3.5 mr-1.5"/> : <TvIcon className="h-3.5 w-3.5 mr-1.5" />}
           {media.mediaType === 'movie' ? 'Film' : 'Série'}
         </Badge>
       </CardHeader>
       <CardContent className="p-4 flex-grow flex flex-col justify-between">
         <div>
           <Link href={`/media/${media.mediaType}/${media.id}`} className="hover:text-primary transition-colors">
-            <CardTitle className="text-base font-semibold mb-1.5 line-clamp-2 leading-snug text-foreground">
+            <CardTitle className="text-lg font-bold mb-1.5 line-clamp-2 leading-tight text-foreground">
               {media.title}
             </CardTitle>
           </Link>
-          <div className="flex items-center text-xs text-muted-foreground mb-1">
-            <Star className="w-3.5 h-3.5 mr-1 text-yellow-400 fill-yellow-400" />
-            <span>{media.averageRating > 0 ? media.averageRating.toFixed(1) : 'N/A'}</span>
+          <div className="flex items-center text-xs text-muted-foreground mb-2 space-x-2">
+            <div className="flex items-center">
+              <Star className="w-4 h-4 mr-1 text-yellow-400 fill-yellow-400" />
+              <span className="font-medium">{media.averageRating > 0 ? media.averageRating.toFixed(1) : 'N/A'}</span>
+            </div>
             {media.releaseDate && (
               <>
-                <span className="mx-1.5">•</span>
-                <CalendarDays className="w-3.5 h-3.5 mr-1" />
-                <span>{new Date(media.releaseDate).getFullYear()}</span>
+                <span className="text-muted-foreground/50">•</span>
+                <div className="flex items-center">
+                  <CalendarDays className="w-4 h-4 mr-1" />
+                  <span className="font-medium">{new Date(media.releaseDate).getFullYear()}</span>
+                </div>
               </>
             )}
           </div>
@@ -83,9 +87,9 @@ export default function MediaCard({ media, onAddToList, onRemoveFromList, isInLi
             onClick={() => handleToggleList('toWatch')}
             aria-pressed={isToWatch}
             title={isToWatch ? "Retirer de 'À Regarder'" : "Ajouter à 'À Regarder'"}
-            className="flex-1 text-xs"
+            className="flex-1 text-xs py-2.5"
           >
-            <Eye className="mr-1.5 h-3.5 w-3.5" />
+            <Eye className="mr-1.5 h-4 w-4" />
             À Regarder
           </Button>
           <Button
@@ -93,10 +97,10 @@ export default function MediaCard({ media, onAddToList, onRemoveFromList, isInLi
             size="sm"
             onClick={() => handleToggleList('watched')}
             aria-pressed={isWatched}
-            title={isWatched ? "Retirer de 'Vus'" : "Marquer comme 'Non Vu'"}
-            className="flex-1 text-xs"
+            title={isWatched ? "Retirer de 'Vus'" : "Marquer comme Vu"}
+            className="flex-1 text-xs py-2.5"
           >
-            <CheckCircle className="mr-1.5 h-3.5 w-3.5" />
+            <CheckCircle className="mr-1.5 h-4 w-4" />
             Vu
           </Button>
         </div>

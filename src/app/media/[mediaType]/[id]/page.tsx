@@ -143,7 +143,7 @@ export default function MediaDetailsPage() {
 
         <div className="lg:col-span-8 xl:col-span-9 space-y-6">
           <div className="space-y-3">
-            <Badge variant={media.mediaType === 'movie' ? 'default' : 'secondary'} className="text-sm capitalize !px-3 !py-1.5">
+            <Badge variant={media.mediaType === 'movie' ? 'default' : 'secondary'} className="text-sm capitalize !px-3 !py-1.5 shadow">
               {media.mediaType === 'movie' ? <FilmIcon className="h-4 w-4 mr-1.5"/> : <Tv className="h-4 w-4 mr-1.5" />}
               {media.mediaType === 'movie' ? 'Film' : 'Série'}
             </Badge>
@@ -151,7 +151,7 @@ export default function MediaDetailsPage() {
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-muted-foreground text-sm md:text-base">
               <div className="flex items-center">
                 <Star className="w-5 h-5 mr-1.5 text-yellow-400 fill-yellow-400" />
-                <span>{media.averageRating > 0 ? media.averageRating.toFixed(1) : 'N/A'}</span>
+                <span className="font-medium">{media.averageRating > 0 ? media.averageRating.toFixed(1) : 'N/A'}</span>
               </div>
               {media.releaseDate && (
                 <div className="flex items-center">
@@ -182,7 +182,7 @@ export default function MediaDetailsPage() {
               variant={isToWatch ? "default" : "outline"}
               onClick={() => handleToggleList('toWatch')} 
               aria-pressed={isToWatch}
-              className="gap-2 w-full sm:w-auto"
+              className="gap-2 w-full sm:w-auto py-3 px-6 text-base"
             >
               <Eye className="h-5 w-5" /> {isToWatch ? 'Dans "À Regarder"' : 'Ajouter à "À Regarder"'}
             </Button>
@@ -191,7 +191,7 @@ export default function MediaDetailsPage() {
               variant={isWatched ? "default" : "outline"}
               onClick={() => handleToggleList('watched')} 
               aria-pressed={isWatched}
-              className="gap-2 w-full sm:w-auto"
+              className="gap-2 w-full sm:w-auto py-3 px-6 text-base"
             >
               <CheckCircle className="h-5 w-5" /> {isWatched ? 'Déjà Vu' : 'Marquer comme Vu'}
             </Button>
@@ -277,7 +277,7 @@ export default function MediaDetailsPage() {
                           <h4 className="font-semibold text-foreground flex-grow">{episode.episodeNumber}. {episode.title}</h4>
                           <div className="flex items-center text-xs text-muted-foreground whitespace-nowrap">
                             <Star className="w-3.5 h-3.5 mr-1 text-yellow-400 fill-yellow-400" />
-                            <span>{episode.rating > 0 ? episode.rating.toFixed(1) : 'N/A'}</span>
+                            <span className="font-medium">{episode.rating > 0 ? episode.rating.toFixed(1) : 'N/A'}</span>
                           </div>
                         </div>
                         {episode.airDate && <p className="text-xs text-muted-foreground mt-0.5">Diffusé le : {new Date(episode.airDate).toLocaleDateString('fr-FR')}</p>}
@@ -303,7 +303,7 @@ export default function MediaDetailsPage() {
       {recommendations.length > 0 && (
         <section>
           <h2 className="text-3xl font-bold mb-6 text-foreground flex items-center gap-2"><FilmIcon className="text-primary"/>Recommandations Similaires</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-5 gap-y-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-8">
             {recommendations.slice(0, mediaType === 'movie' ? 5 : 10).map(rec => ( 
               <MediaCard
                 key={rec.id}
@@ -382,7 +382,7 @@ function MediaDetailsSkeleton({ mediaType }: { mediaType: 'movie' | 'tv' }) {
 
       <section>
         <Skeleton className="h-10 w-64 mb-6 rounded-lg" /> {/* Titre Recommandations */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-5 gap-y-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-8">
           {Array.from({ length: 5 }).map((_, i) => (
             <div key={i} className="flex flex-col space-y-3">
               <Skeleton className="h-[250px] w-full rounded-xl" />
