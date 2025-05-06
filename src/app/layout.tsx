@@ -7,15 +7,7 @@ import Link from 'next/link';
 import { Film, Clapperboard, Search, Tv, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import SearchBar from '@/components/search-bar'; // Will create this component
-
-const geistSans = GeistSans({
-  variable: '--font-geist-sans',
-});
-
-const geistMono = GeistMono({
-  variable: '--font-geist-mono',
-});
+import SearchBar from '@/components/search-bar';
 
 export const metadata: Metadata = {
   title: 'CinéCollection',
@@ -29,7 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}>
+      <body className={`${GeistSans.variable} ${GeistMono.variable} antialiased flex flex-col min-h-screen`}>
         <header className="sticky top-0 z-50 w-full border-b bg-card shadow-sm">
           <div className="container flex h-16 items-center justify-between px-4 md:px-6">
             <Link href="/" className="flex items-center gap-2">
