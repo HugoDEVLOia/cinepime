@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { Film, Clapperboard, Search, Tv, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import SearchBar from '@/components/search-bar';
+import Chatbot from '@/components/chatbot'; // Import the Chatbot component
 
 export const metadata: Metadata = {
   title: 'CinéCollection',
@@ -58,6 +59,7 @@ export default function RootLayout({
           </div>
         </footer>
         <Toaster />
+        <Chatbot /> {/* Add the Chatbot component here */}
       </body>
     </html>
   );
