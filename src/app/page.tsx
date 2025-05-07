@@ -97,11 +97,11 @@ export default function HomePage() {
 
   const renderTabs = () => (
     <Tabs defaultValue={currentTimeWindow} onValueChange={handleTimeWindowChange}>
-      <TabsList className="flex flex-wrap items-center justify-center sm:justify-start gap-1.5 bg-muted p-1.5 rounded-lg w-full sm:w-auto">
-        <TabsTrigger value="day" className="gap-2 px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md">Aujourd'hui</TabsTrigger>
-        <TabsTrigger value="week" className="gap-2 px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md">Cette Semaine</TabsTrigger>
-        <TabsTrigger value="month" className="gap-2 px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md">Ce Mois-ci</TabsTrigger>
-        <TabsTrigger value="year" className="gap-2 px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md">Cette Année</TabsTrigger>
+      <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 md:inline-flex md:w-auto gap-1.5 bg-muted p-1.5 rounded-lg">
+        <TabsTrigger value="day" className="flex items-center justify-center rounded-md gap-2 px-3 py-2 text-xs sm:px-4 sm:py-2.5 sm:text-sm data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md">Aujourd'hui</TabsTrigger>
+        <TabsTrigger value="week" className="flex items-center justify-center rounded-md gap-2 px-3 py-2 text-xs sm:px-4 sm:py-2.5 sm:text-sm data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md">Cette Semaine</TabsTrigger>
+        <TabsTrigger value="month" className="flex items-center justify-center rounded-md gap-2 px-3 py-2 text-xs sm:px-4 sm:py-2.5 sm:text-sm data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md">Ce Mois-ci</TabsTrigger>
+        <TabsTrigger value="year" className="flex items-center justify-center rounded-md gap-2 px-3 py-2 text-xs sm:px-4 sm:py-2.5 sm:text-sm data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md">Cette Année</TabsTrigger>
       </TabsList>
     </Tabs>
   );
