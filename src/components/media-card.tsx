@@ -3,13 +3,14 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Eye, PlusCircle, CheckCircle, Star, CalendarDays, Film, TvIcon } from 'lucide-react';
+import { Eye, CheckCircle, Star, CalendarDays, Film, TvIcon } from 'lucide-react';
 import type { ListType } from '@/hooks/use-media-lists';
 import { Badge } from './ui/badge';
+import { useState } from 'react';
 
 interface MediaCardProps {
   media: Media;
-  onAddToList: (media: Media, list: ListType) => void;
+  onAddToList: (media: Media, list: ListType) => Promise<void>;
   onRemoveFromList: (mediaId: string, list: ListType) => void;
   isInList: (mediaId: string, list: ListType) => boolean;
 }
@@ -17,18 +18,24 @@ interface MediaCardProps {
 export default function MediaCard({ media, onAddToList, onRemoveFromList, isInList }: MediaCardProps) {
   const isToWatch = isInList(media.id, 'toWatch');
   const isWatched = isInList(media.id, 'watched');
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleToggleList = (list: ListType) => {
+  const handleToggleList = async (list: ListType) => {
+    setIsProcessing(true);
     if (isInList(media.id, list)) {
       onRemoveFromList(media.id, list);
     } else {
-      onAddToList(media, list);
+      await onAddToList(media, list);
+      // La logique de suppression automatique de l'autre liste doit être gérée
+      // après que l'état de la liste actuelle a été mis à jour (ce qui est fait par onAddToList/onRemoveFromList)
+      // Il est préférable de s'appuyer sur les valeurs mises à jour de isInList après l'opération principale.
       if (list === 'watched' && isInList(media.id, 'toWatch')) {
-        onRemoveFromList(media.id, 'toWatch');
+         onRemoveFromList(media.id, 'toWatch');
       } else if (list === 'toWatch' && isInList(media.id, 'watched')) {
-        onRemoveFromList(media.id, 'watched');
+         onRemoveFromList(media.id, 'watched');
       }
     }
+    setIsProcessing(false);
   };
 
   return (
@@ -88,6 +95,7 @@ export default function MediaCard({ media, onAddToList, onRemoveFromList, isInLi
             aria-pressed={isToWatch}
             title={isToWatch ? "Retirer de 'À Regarder'" : "Ajouter à 'À Regarder'"}
             className="flex-1 text-xs py-2.5"
+            disabled={isProcessing}
           >
             <Eye className="mr-1.5 h-4 w-4" />
             À Regarder
@@ -99,6 +107,7 @@ export default function MediaCard({ media, onAddToList, onRemoveFromList, isInLi
             aria-pressed={isWatched}
             title={isWatched ? "Retirer de 'Vus'" : "Marquer comme Vu"}
             className="flex-1 text-xs py-2.5"
+            disabled={isProcessing}
           >
             <CheckCircle className="mr-1.5 h-4 w-4" />
             Vu

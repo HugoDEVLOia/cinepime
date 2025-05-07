@@ -19,7 +19,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Star, Users, User, Clapperboard, Tv, CalendarDays, Clock, Eye, CheckCircle, FilmIcon, ServerCrash, Info, ChevronRight } from 'lucide-react';
+import { Star, Users, User, Clapperboard, Tv, CalendarDays, Clock, Eye, CheckCircle, FilmIcon, ServerCrash, Info, ChevronRight, Loader2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import MediaCard from '@/components/media-card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -36,6 +36,8 @@ export default function MediaDetailsPage() {
   const [recommendations, setRecommendations] = useState<Media[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isTogglingList, setIsTogglingList] = useState(false);
+
 
   const { addToList, removeFromList, isInList } = useMediaLists();
 
@@ -110,17 +112,21 @@ export default function MediaDetailsPage() {
   const isToWatch = isInList(media.id, 'toWatch');
   const isWatched = isInList(media.id, 'watched');
 
-  const handleToggleList = (listType: 'toWatch' | 'watched') => {
+  const handleToggleList = async (listType: 'toWatch' | 'watched') => {
+    if (!media) return;
+    setIsTogglingList(true);
     if (isInList(media.id, listType)) {
       removeFromList(media.id, listType);
     } else {
-      addToList(media, listType);
+      await addToList(media, listType); // addToList est maintenant asynchrone
+      // S'assurer que l'état isInList est à jour avant de vérifier pour la suppression de l'autre liste
       if (listType === 'watched' && isInList(media.id, 'toWatch')) {
         removeFromList(media.id, 'toWatch');
       } else if (listType === 'toWatch' && isInList(media.id, 'watched')) {
         removeFromList(media.id, 'watched');
       }
     }
+    setIsTogglingList(false);
   };
 
   return (
@@ -183,8 +189,10 @@ export default function MediaDetailsPage() {
               onClick={() => handleToggleList('toWatch')} 
               aria-pressed={isToWatch}
               className="gap-2 w-full sm:w-auto py-3 px-6 text-base"
+              disabled={isTogglingList}
             >
-              <Eye className="h-5 w-5" /> {isToWatch ? 'Dans "À Regarder"' : 'Ajouter à "À Regarder"'}
+              {isTogglingList && isInList(media.id, 'toWatch') === false ? <Loader2 className="h-5 w-5 animate-spin" /> : <Eye className="h-5 w-5" />}
+              {isToWatch ? 'Dans "À Regarder"' : 'Ajouter à "À Regarder"'}
             </Button>
             <Button 
               size="lg"
@@ -192,8 +200,10 @@ export default function MediaDetailsPage() {
               onClick={() => handleToggleList('watched')} 
               aria-pressed={isWatched}
               className="gap-2 w-full sm:w-auto py-3 px-6 text-base"
+              disabled={isTogglingList}
             >
-              <CheckCircle className="h-5 w-5" /> {isWatched ? 'Déjà Vu' : 'Marquer comme Vu'}
+              {isTogglingList && isInList(media.id, 'watched') === false ? <Loader2 className="h-5 w-5 animate-spin" /> : <CheckCircle className="h-5 w-5" />}
+              {isWatched ? 'Déjà Vu' : 'Marquer comme Vu'}
             </Button>
           </div>
 
@@ -245,7 +255,7 @@ export default function MediaDetailsPage() {
 
       {mediaType === 'tv' && seasons.length > 0 && (
         <section>
-          <h2 className="text-3xl font-bold mb-6 text-foreground flex items-center gap-2"><Tv className="text-primary"/>Saisons & Épisodes</h2>
+          <h2 className="text-3xl font-bold mb-6 text-foreground flex items-center gap-2"><Tv className="text-primary"/>Saisons &amp; Épisodes</h2>
           <Accordion type="single" collapsible className="w-full space-y-4">
             {seasons.sort((a,b) => a.seasonNumber - b.seasonNumber).map(season => (
               <AccordionItem value={`season-${season.seasonNumber}`} key={season.id} className="border border-border bg-card rounded-xl shadow-sm hover:shadow-md transition-shadow">
@@ -258,7 +268,7 @@ export default function MediaDetailsPage() {
                         height={90}
                         className="rounded-md object-cover aspect-[2/3] shadow-sm"
                         data-ai-hint="affiche saison"
-                         onError={(e) => { e.currentTarget.src = 'httpsum.photos/60/90?grayscale&blur=1'; }}
+                         onError={(e) => { e.currentTarget.src = 'httpsum.photos/60/90?grayscale&amp;blur=1'; }}
                       />
                     <div className="text-left flex-grow">
                       <span className="font-semibold text-foreground">{season.name}</span>
@@ -269,7 +279,7 @@ export default function MediaDetailsPage() {
                 </AccordionTrigger>
                 <AccordionContent className="px-6 pb-6 pt-2 space-y-3 bg-background/50 rounded-b-xl">
                   {season.overview && <p className="text-sm text-muted-foreground mb-4 italic">{season.overview}</p>}
-                  {season.episodes.length > 0 ? (
+                  {season.episodes.length &gt; 0 ? (
                     <ul className="space-y-3 max-h-96 overflow-y-auto scrollbar-thin pr-2">
                     {season.episodes.sort((a,b) => a.episodeNumber - b.episodeNumber).map(episode => (
                       <li key={episode.id} className="p-4 border border-border rounded-lg bg-card shadow-sm hover:border-primary/30 transition-colors">
@@ -277,7 +287,7 @@ export default function MediaDetailsPage() {
                           <h4 className="font-semibold text-foreground flex-grow">{episode.episodeNumber}. {episode.title}</h4>
                           <div className="flex items-center text-xs text-muted-foreground whitespace-nowrap">
                             <Star className="w-3.5 h-3.5 mr-1 text-yellow-400 fill-yellow-400" />
-                            <span className="font-medium">{episode.rating > 0 ? episode.rating.toFixed(1) : 'N/A'}</span>
+                            <span className="font-medium">{episode.rating &gt; 0 ? episode.rating.toFixed(1) : 'N/A'}</span>
                           </div>
                         </div>
                         {episode.airDate && <p className="text-xs text-muted-foreground mt-0.5">Diffusé le : {new Date(episode.airDate).toLocaleDateString('fr-FR')}</p>}
