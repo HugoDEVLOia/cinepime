@@ -4,7 +4,7 @@ const BASE_URL = 'https://api.themoviedb.org/3';
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500'; // For posters and profile pictures
 const LANGUAGE = 'fr-FR';
 
-export type TimeWindow = 'day' | 'week' | 'month' | 'year' | 'all';
+export type TimeWindow = 'day' | 'week' | 'month' | 'year';
 
 export interface Video {
   id: string;
@@ -150,7 +150,7 @@ export async function getTrendingMedia(page: number = 1, timeWindow: TimeWindow 
       return { media: [], totalPages: 1 };
     }
   } else {
-    // Handle 'month', 'year', 'all' using /discover endpoint
+    // Handle 'month', 'year' using /discover endpoint
     let movieParams = `api_key=${API_KEY}&language=${LANGUAGE}&page=${page}&sort_by=popularity.desc`;
     let tvParams = `api_key=${API_KEY}&language=${LANGUAGE}&page=${page}&sort_by=popularity.desc`;
 
@@ -170,7 +170,8 @@ export async function getTrendingMedia(page: number = 1, timeWindow: TimeWindow 
         movieParams += `&primary_release_date.gte=${firstDayOfYear}&primary_release_date.lte=${lastDayOfYear}&with_release_type=2|3`;
         tvParams += `&first_air_date.gte=${firstDayOfYear}&first_air_date.lte=${lastDayOfYear}`;
     }
-    // For 'all', no date params are added to sort by overall popularity.
+    // If timeWindow is not 'month' or 'year' (e.g. if 'all' was passed, though it's removed from type), 
+    // no specific date params are added here, and it sorts by overall popularity.
 
     try {
         const [movieResponse, tvResponse] = await Promise.all([

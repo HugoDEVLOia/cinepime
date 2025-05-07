@@ -10,12 +10,11 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ServerCrash, Loader2 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-const pageTitleMap: Record<TimeWindow, string> = {
+const pageTitleMap: Record<Exclude<TimeWindow, 'all'>, string> = {
   day: "Tendances du Jour",
   week: "Tendances de la Semaine",
   month: "Tendances du Mois",
   year: "Tendances de l'Année",
-  all: "Les Plus Populaires" // Changed from "Tendances Générales"
 };
 
 export default function HomePage() {
@@ -25,7 +24,7 @@ export default function HomePage() {
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [currentTimeWindow, setCurrentTimeWindow] = useState<TimeWindow>('week');
+  const [currentTimeWindow, setCurrentTimeWindow] = useState<Exclude<TimeWindow, 'all'>>('week');
   const { addToList, removeFromList, isInList } = useMediaLists();
 
   const observer = useRef<IntersectionObserver | null>(null);
@@ -40,7 +39,7 @@ export default function HomePage() {
     if (node) observer.current.observe(node);
   }, [isLoading, isLoadingMore, currentPage, totalPages]);
 
-  const fetchTrending = useCallback(async (pageToLoad: number, activeWindow: TimeWindow) => {
+  const fetchTrending = useCallback(async (pageToLoad: number, activeWindow: Exclude<TimeWindow, 'all'>) => {
     if (pageToLoad === 1) {
       setIsLoading(true);
       setTrendingMedia([]); // Clear media when fetching page 1 for a new window or initial load
@@ -49,7 +48,9 @@ export default function HomePage() {
     }
     setError(null);
     try {
-      const { media, totalPages: newTotalPages } = await getTrendingMedia(pageToLoad, activeWindow);
+      // Cast activeWindow to TimeWindow as getTrendingMedia expects the broader type for now,
+      // but we are only passing valid, non-'all' values.
+      const { media, totalPages: newTotalPages } = await getTrendingMedia(pageToLoad, activeWindow as TimeWindow);
       if (pageToLoad === 1) {
         setTrendingMedia(media); 
       } else {
@@ -84,7 +85,7 @@ export default function HomePage() {
 
 
   const handleTimeWindowChange = (newWindow: string) => {
-    const newTimeWindow = newWindow as TimeWindow;
+    const newTimeWindow = newWindow as Exclude<TimeWindow, 'all'>;
     if (newTimeWindow !== currentTimeWindow) {
       setCurrentTimeWindow(newTimeWindow);
       setCurrentPage(1); // Reset to page 1 for the new time window
@@ -96,12 +97,11 @@ export default function HomePage() {
 
   const renderTabs = () => (
     <Tabs defaultValue={currentTimeWindow} onValueChange={handleTimeWindowChange}>
-      <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:flex md:flex-wrap md:justify-start lg:w-auto lg:inline-flex bg-muted p-1.5 rounded-lg">
+      <TabsList className="grid w-full grid-cols-2 sm:grid-cols-2 md:flex md:flex-wrap md:justify-start lg:w-auto lg:inline-flex bg-muted p-1.5 rounded-lg">
         <TabsTrigger value="day" className="gap-2 px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md">Aujourd'hui</TabsTrigger>
         <TabsTrigger value="week" className="gap-2 px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md">Cette Semaine</TabsTrigger>
         <TabsTrigger value="month" className="gap-2 px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md">Ce Mois-ci</TabsTrigger>
         <TabsTrigger value="year" className="gap-2 px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md">Cette Année</TabsTrigger>
-        <TabsTrigger value="all" className="gap-2 px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md">Populaires</TabsTrigger>
       </TabsList>
     </Tabs>
   );
