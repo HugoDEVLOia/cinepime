@@ -38,9 +38,8 @@ export default function RootLayout({
                   <Tv className="h-4 w-4" /> Mes Listes
                 </Button>
               </Link>
-               {/* Placeholder for future stats page */}
-              <Link href="#" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors opacity-60 cursor-not-allowed" aria-disabled="true" tabIndex={-1}>
-                 <Button variant="ghost" className="gap-2 px-4 py-2" disabled>
+              <Link href="/stats" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+                 <Button variant="ghost" className="gap-2 px-4 py-2">
                     <BarChart3 className="h-4 w-4" /> Statistiques
                  </Button>
               </Link>
