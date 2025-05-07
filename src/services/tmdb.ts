@@ -13,6 +13,8 @@ export interface Media {
   releaseDate?: string;
   runtime?: number; // in minutes for movies
   numberOfSeasons?: number; // for tv shows
+  genres?: { id: number; name: string; }[];
+  cast?: Actor[];
 }
 
 export interface Actor {
@@ -54,8 +56,25 @@ const getSafeImageUrl = (path: string | null | undefined): string => {
     return `${IMAGE_BASE_URL}${path}`;
   }
   // Return a placeholder if no image is available
-  return 'https://picsum.photos/500/750?grayscale';
+  // For actor profiles, a different placeholder might be desired.
+  // For now, using a generic one for simplicity.
+  return 'https://picsum.photos/200/300?grayscale'; // Generic placeholder
 };
+
+const getSafeProfileImageUrl = (path: string | null | undefined): string => {
+  if (path) {
+    return `${IMAGE_BASE_URL}${path}`;
+  }
+  return 'https://picsum.photos/100/150?grayscale'; // Placeholder for actor profiles
+}
+
+
+const mapApiActorToActor = (actor: any): Actor => ({
+  id: actor.id.toString(),
+  name: actor.name || 'Acteur inconnu',
+  profileUrl: getSafeProfileImageUrl(actor.profile_path),
+  character: actor.character,
+});
 
 const mapApiMediaToMedia = (item: any, mediaType: 'movie' | 'tv'): Media => ({
   id: item.id.toString(),
@@ -67,19 +86,15 @@ const mapApiMediaToMedia = (item: any, mediaType: 'movie' | 'tv'): Media => ({
   releaseDate: item.release_date || item.first_air_date,
   runtime: item.runtime,
   numberOfSeasons: item.number_of_seasons,
+  genres: item.genres || [],
+  cast: item.credits?.cast ? item.credits.cast.slice(0, 10).map(mapApiActorToActor) : [],
 });
 
-const mapApiActorToActor = (actor: any): Actor => ({
-  id: actor.id.toString(),
-  name: actor.name || 'Acteur inconnu',
-  profileUrl: getSafeImageUrl(actor.profile_path),
-  character: actor.character,
-});
 
 const mapApiDirectorToDirector = (crewMember: any): Director => ({
   id: crewMember.id.toString(),
   name: crewMember.name || 'Réalisateur inconnu',
-  profileUrl: getSafeImageUrl(crewMember.profile_path),
+  profileUrl: getSafeProfileImageUrl(crewMember.profile_path),
 });
 
 export async function getTrendingMedia(page: number = 1): Promise<{ media: Media[], totalPages: number }> {
@@ -102,6 +117,7 @@ export async function getTrendingMedia(page: number = 1): Promise<{ media: Media
 
 export async function getMediaDetails(mediaId: string, mediaType: 'movie' | 'tv'): Promise<Media | null> {
   try {
+    // Append credits to get cast/crew, genres are usually part of the main details response
     const response = await fetch(`${BASE_URL}/${mediaType}/${mediaId}?api_key=${API_KEY}&language=${LANGUAGE}&append_to_response=credits`);
     if (!response.ok) {
       console.error(`Échec de la récupération des détails ${mediaType}:`, response.status, await response.text());
