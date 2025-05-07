@@ -86,8 +86,8 @@ export default function MediaCard({ media, onAddToList, onRemoveFromList, isInLi
           </div>
         </div>
       </CardContent>
-      <CardFooter className="p-3 pt-0 flex flex-col sm:flex-row gap-2 justify-between items-center border-t border-border/50 mt-auto">
-        <div className="flex gap-2 w-full">
+      <CardFooter className="p-3 pt-0 flex flex-col items-center sm:flex-row sm:justify-center gap-2 border-t border-border/50 mt-auto">
+        <div className="flex gap-2">
         <Button
             variant={isToWatch ? "default" : "outline"}
             size="sm"
