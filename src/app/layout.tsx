@@ -7,9 +7,7 @@ import Link from 'next/link';
 import { Film, Clapperboard, Search, Tv, BarChart3, MessageSquareText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import SearchBar from '@/components/search-bar';
-import Chatbot from '@/components/chatbot'; // Import the Chatbot component
-import { AuthProvider } from '@/contexts/auth-context';
-import AuthButton from '@/components/auth-button';
+import Chatbot from '@/components/chatbot';
 
 
 export const metadata: Metadata = {
@@ -25,7 +23,6 @@ export default function RootLayout({
   return (
     <html lang="fr" className="scrollbar-thin">
       <body className={`${GeistSans.variable} ${GeistMono.variable} antialiased flex flex-col min-h-screen bg-background`}>
-        <AuthProvider>
           <header className="sticky top-0 z-50 w-full border-b border-border bg-card/80 backdrop-blur-md shadow-sm">
             <div className="container flex h-20 items-center justify-between px-4 sm:px-6 lg:px-8">
               <Link href="/" className="flex items-center gap-2 group">
@@ -53,7 +50,6 @@ export default function RootLayout({
                 <div className="w-full max-w-xs md:max-w-sm ml-2">
                   <SearchBar />
                 </div>
-                 <AuthButton />
               </div>
             </div>
           </header>
@@ -67,7 +63,6 @@ export default function RootLayout({
           </footer>
           <Toaster />
           <Chatbot /> {/* Add the Chatbot component here */}
-        </AuthProvider>
       </body>
     </html>
   );
