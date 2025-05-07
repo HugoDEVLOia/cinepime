@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter, SheetClose } from '@/components/ui/sheet';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { MessageCircle, Send, Bot, User, CornerDownLeft, Loader2 } from 'lucide-react';
+import { MessageSquareText, Send, Bot, User, CornerDownLeft, Loader2 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { getMovieRecommendation, type MovieRecommendationInput, type MovieRecommendationOutput } from '@/ai/flows/movie-recommendation-flow';
 import { cn } from '@/lib/utils';
@@ -39,18 +39,15 @@ export default function Chatbot() {
       }
     }
   };
-
-  useEffect(() => {
-    if (isOpen) {
-      // Allow a brief moment for the sheet and scroll area to render
-      setTimeout(scrollToBottom, 100);
-    }
-  }, [messages, isOpen]);
   
   // Auto scroll when sheet opens and new messages arrive
   useEffect(() => {
     if (isOpen) {
-      scrollToBottom();
+      // A small delay helps ensure the DOM is updated before scrolling
+      const timer = setTimeout(() => {
+        scrollToBottom();
+      }, 50);
+      return () => clearTimeout(timer);
     }
   }, [messages, isOpen]);
 
@@ -85,7 +82,7 @@ export default function Chatbot() {
       const errorMessage: ChatMessage = {
         id: Date.now().toString() + '-error',
         sender: 'bot',
-        text: 'Désolé, une erreur est survenue. Veuillez réessayer.',
+        text: 'Désolé, une erreur est survenue lors de la récupération de la recommandation. Veuillez réessayer.',
         timestamp: new Date(),
       };
       setMessages(prevMessages => [...prevMessages, errorMessage]);
@@ -99,86 +96,91 @@ export default function Chatbot() {
       <Button
         variant="default"
         size="icon"
-        className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg z-50"
+        className="fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-2xl z-50 flex items-center justify-center group hover:scale-105 transition-transform"
         onClick={() => setIsOpen(true)}
         aria-label="Ouvrir le chatbot CinéConseiller"
       >
-        <MessageCircle className="h-7 w-7" />
+        <MessageSquareText className="h-8 w-8 transition-transform group-hover:rotate-[5deg]" />
       </Button>
 
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
-        <SheetContent className="w-full sm:max-w-md flex flex-col p-0" side="right">
-          <SheetHeader className="p-4 border-b border-border">
-            <SheetTitle className="flex items-center gap-2 text-lg">
+        <SheetContent className="w-full sm:max-w-lg flex flex-col p-0 bg-background shadow-2xl" side="right">
+          <SheetHeader className="p-4 border-b border-border sticky top-0 bg-background z-10">
+            <SheetTitle className="flex items-center gap-2.5 text-lg font-semibold text-foreground">
               <Bot className="h-6 w-6 text-primary" />
               CinéConseiller
             </SheetTitle>
           </SheetHeader>
           
-          <ScrollArea ref={scrollAreaRef} className="flex-grow p-4 space-y-4 bg-muted/30">
+          <ScrollArea ref={scrollAreaRef} className="flex-grow p-4 space-y-6 bg-muted/20">
             {messages.map((msg) => (
               <div
                 key={msg.id}
                 className={cn(
-                  'flex items-end gap-2.5 w-full',
+                  'flex items-start gap-3 w-full', // Changed to items-start for better avatar alignment
                   msg.sender === 'user' ? 'justify-end' : 'justify-start'
                 )}
               >
                 {msg.sender === 'bot' && (
-                  <Avatar className="h-8 w-8 self-start">
-                    <AvatarFallback className="bg-primary text-primary-foreground">
-                      <Bot size={18} />
+                  <Avatar className="h-9 w-9 shrink-0">
+                    <AvatarFallback className="bg-primary text-primary-foreground text-sm">
+                      <Bot size={20} />
                     </AvatarFallback>
                   </Avatar>
                 )}
                 <div
                   className={cn(
-                    'max-w-[75%] rounded-xl px-4 py-2.5 shadow-sm break-words',
+                    'max-w-[80%] rounded-xl px-4 py-3 shadow-md break-words',
                     msg.sender === 'user'
-                      ? 'bg-primary text-primary-foreground rounded-br-none'
-                      : 'bg-card text-card-foreground rounded-bl-none border border-border'
+                      ? 'bg-primary text-primary-foreground rounded-br-lg' // Adjusted rounding
+                      : 'bg-card text-card-foreground rounded-bl-lg border border-border' // Adjusted rounding
                   )}
                 >
-                  <p className="text-sm whitespace-pre-wrap">{msg.text}</p>
-                   <p className={cn("text-xs mt-1.5", msg.sender === 'user' ? 'text-primary-foreground/70 text-right' : 'text-muted-foreground text-left')}>
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.text}</p>
+                   <p className={cn("text-xs mt-2 opacity-70", msg.sender === 'user' ? 'text-right' : 'text-left')}>
                     {msg.timestamp.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
                   </p>
                 </div>
                  {msg.sender === 'user' && (
-                  <Avatar className="h-8 w-8 self-start">
-                     <AvatarFallback className="bg-secondary text-secondary-foreground">
-                      <User size={18} />
+                  <Avatar className="h-9 w-9 shrink-0">
+                     <AvatarFallback className="bg-secondary text-secondary-foreground text-sm">
+                      <User size={20} />
                     </AvatarFallback>
                   </Avatar>
                 )}
               </div>
             ))}
             {isLoading && (
-              <div className="flex items-center justify-start gap-2.5">
-                 <Avatar className="h-8 w-8 self-start">
-                    <AvatarFallback className="bg-primary text-primary-foreground">
-                      <Bot size={18} />
+              <div className="flex items-start justify-start gap-3"> {/* Changed to items-start */}
+                 <Avatar className="h-9 w-9 shrink-0">
+                    <AvatarFallback className="bg-primary text-primary-foreground text-sm">
+                      <Bot size={20} />
                     </AvatarFallback>
                   </Avatar>
-                <div className="bg-card text-card-foreground rounded-xl rounded-bl-none px-4 py-3 shadow-sm border border-border">
+                <div className="bg-card text-card-foreground rounded-xl rounded-bl-lg px-4 py-3 shadow-md border border-border">
                   <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
                 </div>
               </div>
             )}
           </ScrollArea>
 
-          <SheetFooter className="p-4 border-t border-border bg-background">
-            <form onSubmit={handleSubmit} className="flex w-full items-center gap-2">
+          <SheetFooter className="p-4 border-t border-border bg-background sticky bottom-0 z-10">
+            <form onSubmit={handleSubmit} className="flex w-full items-center gap-3">
               <Input
                 type="text"
-                placeholder="Demandez une recommandation..."
+                placeholder="Votre message..."
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                className="flex-grow h-11 text-sm"
+                className="flex-grow h-12 text-sm rounded-lg focus:ring-primary focus:ring-2 transition-shadow shadow-sm"
                 disabled={isLoading}
                 autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    handleSubmit(e as unknown as FormEvent<HTMLFormElement>);
+                  }
+                }}
               />
-              <Button type="submit" size="icon" className="h-11 w-11 shrink-0" disabled={isLoading || !inputValue.trim()}>
+              <Button type="submit" size="icon" className="h-12 w-12 shrink-0 rounded-lg shadow-sm hover:bg-primary/90 transition-colors" disabled={isLoading || !inputValue.trim()}>
                 {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
                 <span className="sr-only">Envoyer</span>
               </Button>

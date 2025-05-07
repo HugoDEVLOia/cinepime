@@ -4,10 +4,13 @@ import { GeistMono } from 'geist/font/mono';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import Link from 'next/link';
-import { Film, Clapperboard, Search, Tv, BarChart3 } from 'lucide-react';
+import { Film, Clapperboard, Search, Tv, BarChart3, MessageSquareText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import SearchBar from '@/components/search-bar';
 import Chatbot from '@/components/chatbot'; // Import the Chatbot component
+import { AuthProvider } from '@/contexts/auth-context';
+import AuthButton from '@/components/auth-button';
+
 
 export const metadata: Metadata = {
   title: 'CinéCollection',
@@ -22,44 +25,49 @@ export default function RootLayout({
   return (
     <html lang="fr" className="scrollbar-thin">
       <body className={`${GeistSans.variable} ${GeistMono.variable} antialiased flex flex-col min-h-screen bg-background`}>
-        <header className="sticky top-0 z-50 w-full border-b border-border bg-card/80 backdrop-blur-md shadow-sm">
-          <div className="container flex h-20 items-center justify-between px-4 sm:px-6 lg:px-8">
-            <Link href="/" className="flex items-center gap-2 group">
-              <Clapperboard className="h-8 w-8 text-primary transition-transform group-hover:rotate-[-10deg]" />
-              <span className="text-2xl font-bold text-primary tracking-tight">CinéCollection</span>
-            </Link>
-            <nav className="hidden items-center gap-1 md:flex">
-              <Link href="/" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
-                <Button variant="ghost" className="gap-2 px-4 py-2">
-                  <Film className="h-4 w-4" /> Tendances
-                </Button>
+        <AuthProvider>
+          <header className="sticky top-0 z-50 w-full border-b border-border bg-card/80 backdrop-blur-md shadow-sm">
+            <div className="container flex h-20 items-center justify-between px-4 sm:px-6 lg:px-8">
+              <Link href="/" className="flex items-center gap-2 group">
+                <Clapperboard className="h-8 w-8 text-primary transition-transform group-hover:rotate-[-10deg]" />
+                <span className="text-2xl font-bold text-primary tracking-tight">CinéCollection</span>
               </Link>
-              <Link href="/my-lists" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
-                <Button variant="ghost" className="gap-2 px-4 py-2">
-                  <Tv className="h-4 w-4" /> Mes Listes
-                </Button>
-              </Link>
-              <Link href="/stats" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
-                 <Button variant="ghost" className="gap-2 px-4 py-2">
-                    <BarChart3 className="h-4 w-4" /> Statistiques
-                 </Button>
-              </Link>
-            </nav>
-            <div className="w-full max-w-xs md:max-w-sm">
-              <SearchBar />
+              <div className="flex items-center gap-1">
+                <nav className="hidden items-center gap-1 md:flex">
+                  <Link href="/" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+                    <Button variant="ghost" className="gap-2 px-4 py-2">
+                      <Film className="h-4 w-4" /> Tendances
+                    </Button>
+                  </Link>
+                  <Link href="/my-lists" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+                    <Button variant="ghost" className="gap-2 px-4 py-2">
+                      <Tv className="h-4 w-4" /> Mes Listes
+                    </Button>
+                  </Link>
+                  <Link href="/stats" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+                    <Button variant="ghost" className="gap-2 px-4 py-2">
+                        <BarChart3 className="h-4 w-4" /> Statistiques
+                    </Button>
+                  </Link>
+                </nav>
+                <div className="w-full max-w-xs md:max-w-sm ml-2">
+                  <SearchBar />
+                </div>
+                 <AuthButton />
+              </div>
             </div>
-          </div>
-        </header>
-        <main className="flex-grow container mx-auto px-4 py-8 sm:px-6 lg:px-8 md:py-12">
-          {children}
-        </main>
-        <footer className="border-t border-border bg-card/50 py-8">
-          <div className="container px-4 text-center text-sm text-muted-foreground md:px-6">
-            © {new Date().getFullYear()} CinéCollection. Tous droits réservés. Conçu avec soin.
-          </div>
-        </footer>
-        <Toaster />
-        <Chatbot /> {/* Add the Chatbot component here */}
+          </header>
+          <main className="flex-grow container mx-auto px-4 py-8 sm:px-6 lg:px-8 md:py-12">
+            {children}
+          </main>
+          <footer className="border-t border-border bg-card/50 py-8">
+            <div className="container px-4 text-center text-sm text-muted-foreground md:px-6">
+              © {new Date().getFullYear()} CinéCollection. Tous droits réservés. Conçu avec soin.
+            </div>
+          </footer>
+          <Toaster />
+          <Chatbot /> {/* Add the Chatbot component here */}
+        </AuthProvider>
       </body>
     </html>
   );
