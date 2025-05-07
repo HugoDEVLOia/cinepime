@@ -10,6 +10,14 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ServerCrash, Loader2 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
+const pageTitleMap: Record<TimeWindow, string> = {
+  day: "Tendances du Jour",
+  week: "Tendances de la Semaine",
+  month: "Tendances du Mois",
+  year: "Tendances de l'Année",
+  all: "Les Plus Populaires" // Changed from "Tendances Générales"
+};
+
 export default function HomePage() {
   const [trendingMedia, setTrendingMedia] = useState<Media[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -35,8 +43,7 @@ export default function HomePage() {
   const fetchTrending = useCallback(async (pageToLoad: number, activeWindow: TimeWindow) => {
     if (pageToLoad === 1) {
       setIsLoading(true);
-      // Clearing media here could cause a flicker if the API is slow.
-      // setTrendingMedia([]); 
+      setTrendingMedia([]); // Clear media when fetching page 1 for a new window or initial load
     } else {
       setIsLoadingMore(true);
     }
@@ -44,19 +51,18 @@ export default function HomePage() {
     try {
       const { media, totalPages: newTotalPages } = await getTrendingMedia(pageToLoad, activeWindow);
       if (pageToLoad === 1) {
-        setTrendingMedia(media); // Fresh set for page 1 or new time window
+        setTrendingMedia(media); 
       } else {
         setTrendingMedia(prevMedia => [
           ...prevMedia,
-          // Ensure no duplicates if API somehow returns overlapping items on pagination (rare)
           ...media.filter(newItem => !prevMedia.find(existingItem => existingItem.id === newItem.id))
         ]);
       }
       setTotalPages(newTotalPages);
     } catch (err) {
-      console.error(`Erreur lors de la récupération des médias tendances (${activeWindow}):`, err);
-      setError(`Échec du chargement des médias tendances. Veuillez réessayer plus tard.`);
-      if (pageToLoad === 1) setTrendingMedia([]); // Clear on error for first page / new window
+      console.error(`Erreur lors de la récupération des médias populaires (${activeWindow}):`, err);
+      setError(`Échec du chargement des médias populaires. Veuillez réessayer plus tard.`);
+      if (pageToLoad === 1) setTrendingMedia([]); 
     } finally {
       if (pageToLoad === 1) {
         setIsLoading(false);
@@ -64,35 +70,48 @@ export default function HomePage() {
         setIsLoadingMore(false);
       }
     }
-  }, [setIsLoading, setIsLoadingMore, setError, setTrendingMedia, setTotalPages]); // Dependencies are stable setters
+  }, []); // Dependencies are stable setters: setIsLoading, setIsLoadingMore, setError, setTrendingMedia, setTotalPages
 
   useEffect(() => {
     // This effect handles fetching data when page or time window changes.
-    fetchTrending(currentPage, currentTimeWindow);
+    // Fetch for page 1 if currentTimeWindow changes, otherwise fetch for currentPage
+    if (currentPage === 1) { // Ensures that when time window changes (and page is reset to 1), it fetches fresh
+      fetchTrending(1, currentTimeWindow);
+    } else { // For infinite scroll
+      fetchTrending(currentPage, currentTimeWindow);
+    }
   }, [currentPage, currentTimeWindow, fetchTrending]);
+
 
   const handleTimeWindowChange = (newWindow: string) => {
     const newTimeWindow = newWindow as TimeWindow;
     if (newTimeWindow !== currentTimeWindow) {
       setCurrentTimeWindow(newTimeWindow);
       setCurrentPage(1); // Reset to page 1 for the new time window
-      // setTrendingMedia([]); // Let fetchTrending handle clearing when page is 1
+      // fetchTrending will be called by the useEffect due to currentTimeWindow and currentPage change
     }
   };
 
-  const pageTitle = currentTimeWindow === 'day' ? "Tendances du Jour" : "Tendances de la Semaine";
+  const pageTitle = pageTitleMap[currentTimeWindow] || "Tendances";
 
+  const renderTabs = () => (
+    <Tabs defaultValue={currentTimeWindow} onValueChange={handleTimeWindowChange}>
+      <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:flex md:flex-wrap md:justify-start lg:w-auto lg:inline-flex bg-muted p-1.5 rounded-lg">
+        <TabsTrigger value="day" className="gap-2 px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md">Aujourd'hui</TabsTrigger>
+        <TabsTrigger value="week" className="gap-2 px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md">Cette Semaine</TabsTrigger>
+        <TabsTrigger value="month" className="gap-2 px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md">Ce Mois-ci</TabsTrigger>
+        <TabsTrigger value="year" className="gap-2 px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md">Cette Année</TabsTrigger>
+        <TabsTrigger value="all" className="gap-2 px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md">Populaires</TabsTrigger>
+      </TabsList>
+    </Tabs>
+  );
+  
   if (isLoading && currentPage === 1) {
     return (
       <div>
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-extrabold mb-4 text-foreground tracking-tight">{pageTitle}</h1>
-          <Tabs defaultValue={currentTimeWindow} onValueChange={handleTimeWindowChange}>
-            <TabsList className="grid w-full grid-cols-2 md:w-auto md:inline-flex bg-muted p-1.5 rounded-lg">
-              <TabsTrigger value="day" className="gap-2 px-4 py-2.5 text-sm data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md">Aujourd'hui</TabsTrigger>
-              <TabsTrigger value="week" className="gap-2 px-4 py-2.5 text-sm data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md">Cette Semaine</TabsTrigger>
-            </TabsList>
-          </Tabs>
+          {renderTabs()}
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-8">
           {Array.from({ length: 10 }).map((_, index) => (
@@ -114,12 +133,7 @@ export default function HomePage() {
       <div>
          <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-extrabold mb-4 text-foreground tracking-tight">{pageTitle}</h1>
-          <Tabs defaultValue={currentTimeWindow} onValueChange={handleTimeWindowChange}>
-            <TabsList className="grid w-full grid-cols-2 md:w-auto md:inline-flex bg-muted p-1.5 rounded-lg">
-              <TabsTrigger value="day">Aujourd'hui</TabsTrigger>
-              <TabsTrigger value="week">Cette Semaine</TabsTrigger>
-            </TabsList>
-          </Tabs>
+          {renderTabs()}
         </div>
         <div className="flex flex-col items-center justify-center h-[calc(100vh-300px)]">
           <Alert variant="destructive" className="max-w-md">
@@ -136,12 +150,7 @@ export default function HomePage() {
     <div>
       <div className="mb-8">
         <h1 className="text-3xl md:text-4xl font-extrabold mb-4 text-foreground tracking-tight">{pageTitle}</h1>
-        <Tabs defaultValue={currentTimeWindow} onValueChange={handleTimeWindowChange}>
-          <TabsList className="grid w-full grid-cols-2 md:w-auto md:inline-flex bg-muted p-1.5 rounded-lg">
-            <TabsTrigger value="day" className="gap-2 px-4 py-2.5 text-sm data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md">Aujourd'hui</TabsTrigger>
-            <TabsTrigger value="week" className="gap-2 px-4 py-2.5 text-sm data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md">Cette Semaine</TabsTrigger>
-          </TabsList>
-        </Tabs>
+        {renderTabs()}
       </div>
 
       {trendingMedia.length > 0 && (
@@ -157,12 +166,12 @@ export default function HomePage() {
             );
             if (trendingMedia.length === index + 1 && currentPage < totalPages && !isLoadingMore) {
               return (
-                <div ref={lastMediaElementRef} key={`${media.id}-observed`}>
+                <div ref={lastMediaElementRef} key={`${media.id}-${media.mediaType}-observed`}>
                   {card}
                 </div>
               );
             }
-            return <div key={media.id}>{card}</div>;
+            return <div key={`${media.id}-${media.mediaType}`}>{card}</div>;
           })}
         </div>
       )}
@@ -173,7 +182,7 @@ export default function HomePage() {
         </div>
       )}
        {!isLoading && !isLoadingMore && trendingMedia.length === 0 && !error && (
-         <p className="text-center text-muted-foreground mt-12 text-lg">Aucun média tendance trouvé pour le moment.</p>
+         <p className="text-center text-muted-foreground mt-12 text-lg">Aucun média populaire trouvé pour le moment.</p>
       )}
       {error && trendingMedia.length > 0 && currentPage > 1 && ( // Show error for subsequent loads if they fail
          <Alert variant="destructive" className="mt-10">
@@ -183,7 +192,7 @@ export default function HomePage() {
         </Alert>
       )}
       {!isLoadingMore && currentPage >= totalPages && trendingMedia.length > 0 && (
-        <p className="text-center text-muted-foreground mt-12 text-lg">Vous avez atteint la fin des tendances.</p>
+        <p className="text-center text-muted-foreground mt-12 text-lg">Vous avez atteint la fin des médias populaires.</p>
       )}
     </div>
   );
