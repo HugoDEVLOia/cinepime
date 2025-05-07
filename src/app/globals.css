@@ -10,37 +10,48 @@
     --card-foreground: 220 15% 30%; /* Darker desaturated blue-gray */
     --popover: 0 0% 100%; /* White */
     --popover-foreground: 220 15% 30%; /* Darker desaturated blue-gray */
-    --primary: 210 85% 60%; /* Slightly brighter blue */
-    --primary-foreground: 0 0% 100%; /* White */
+    
+    /* Updated Primary Color: Dark Blue (#1A237E) -> HSL(234, 65%, 30%) */
+    --primary: 234 65% 30%;
+    --primary-foreground: 210 40% 98%; /* Light color for dark blue background */
+    
     --secondary: 220 18% 93%; /* Lighter cool gray */
     --secondary-foreground: 220 15% 35%; /* Darker desaturated blue-gray */
+    
     --muted: 220 18% 95%; /* Even lighter cool gray */
     --muted-foreground: 220 10% 55%; /* Medium cool gray for muted text */
-    --accent: 190 75% 55%; /* Slightly desaturated vibrant teal */
-    --accent-foreground: 0 0% 100%; /* White */
+    
+    /* Updated Accent Color: Teal (#00BCD4) -> HSL(188, 100%, 42%) */
+    --accent: 188 100% 42%;
+    --accent-foreground: 0 0% 100%; /* White text on vibrant teal */
+    
     --destructive: 0 75% 55%; /* Slightly softer, more modern red */
     --destructive-foreground: 0 0% 100%; /* White */
+    
     --border: 220 15% 90%; /* Light cool gray border, slightly softer */
     --input: 220 15% 94%; /* Slightly lighter input background for subtlety */
-    --ring: 210 85% 65%; /* Brighter blue for focus rings */
     
-    --chart-1: 210 85% 60%;
-    --chart-2: 190 75% 55%;
-    --chart-3: 220 65% 70%;
-    --chart-4: 30 85% 65%;
-    --chart-5: 280 65% 70%;
+    /* Updated Ring color based on new primary */
+    --ring: 234 65% 40%; 
+    
+    /* Updated Chart colors to match new primary and accent */
+    --chart-1: 234 65% 30%; /* Films - Primary Dark Blue */
+    --chart-2: 188 100% 42%; /* Series - Accent Teal */
+    --chart-3: 220 65% 70%; /* Kept for potential future use */
+    --chart-4: 30 85% 65%;  /* Kept for potential future use */
+    --chart-5: 280 65% 70%; /* Kept for potential future use */
 
     --radius: 0.75rem; /* Increased border radius for a more modern feel */
 
     /* Sidebar specific colors, can be adjusted for more cohesion */
     --sidebar-background: 220 20% 99%; /* Very light, almost white */
     --sidebar-foreground: 220 15% 35%; 
-    --sidebar-primary: 210 85% 58%; 
-    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-primary: 234 65% 35%; /* Sidebar primary based on new primary */
+    --sidebar-primary-foreground: 210 40% 98%;
     --sidebar-accent: 220 18% 94%; 
     --sidebar-accent-foreground: 220 15% 25%;
     --sidebar-border: 220 15% 88%; 
-    --sidebar-ring: 210 85% 65%;
+    --sidebar-ring: 234 65% 45%; /* Sidebar ring based on new primary */
   }
 
   .dark {
@@ -50,35 +61,46 @@
     --card-foreground: 220 10% 90%; 
     --popover: 220 15% 15%; /* Dark popover */
     --popover-foreground: 220 10% 90%;
-    --primary: 210 90% 70%; /* Brighter blue for dark mode */
-    --primary-foreground: 220 15% 10%; 
+    
+    /* Updated Primary Color for Dark Mode (lighter version of HSL 234 65% 30%) */
+    --primary: 234 65% 55%; 
+    --primary-foreground: 0 0% 10%; /* Dark text for lighter blue background */
+    
     --secondary: 220 15% 22%; /* Darker gray secondary */
     --secondary-foreground: 220 10% 90%;
+    
     --muted: 220 15% 25%; /* Darker gray muted */
     --muted-foreground: 220 10% 70%; /* Lighter muted text */
-    --accent: 190 80% 65%; /* Brighter teal accent */
-    --accent-foreground: 220 15% 10%;
+    
+    /* Updated Accent Color for Dark Mode (lighter/adapted version of HSL 188 100% 42%) */
+    --accent: 188 90% 60%; 
+    --accent-foreground: 0 0% 10%; /* Dark text for lighter teal background */
+    
     --destructive: 0 75% 60%; /* Slightly brighter red for dark */
     --destructive-foreground: 0 0% 100%;
+    
     --border: 220 15% 30%; /* Dark gray border */
     --input: 220 15% 25%; /* Darker input background */
-    --ring: 210 90% 70%; 
+    
+    /* Updated Ring color for Dark Mode */
+    --ring: 234 65% 65%; 
 
-    --chart-1: 210 90% 70%;
-    --chart-2: 190 80% 65%;
-    --chart-3: 220 70% 80%;
-    --chart-4: 35 85% 75%;
-    --chart-5: 280 70% 80%;
+    /* Updated Chart colors for Dark Mode */
+    --chart-1: 234 65% 55%; /* Films - Primary Dark Blue (Dark Mode Version) */
+    --chart-2: 188 90% 60%; /* Series - Accent Teal (Dark Mode Version) */
+    --chart-3: 220 70% 80%; /* Kept for potential future use */
+    --chart-4: 35 85% 75%;  /* Kept for potential future use */
+    --chart-5: 280 70% 80%; /* Kept for potential future use */
     
     /* Sidebar specific colors for dark mode */
     --sidebar-background: 220 15% 15%; 
     --sidebar-foreground: 220 10% 85%; 
-    --sidebar-primary: 210 90% 65%; 
-    --sidebar-primary-foreground: 220 15% 5%; 
+    --sidebar-primary: 234 65% 60%; /* Sidebar primary based on new dark primary */
+    --sidebar-primary-foreground: 0 0% 5%; 
     --sidebar-accent: 220 15% 22%; 
     --sidebar-accent-foreground: 220 10% 95%;
     --sidebar-border: 220 15% 28%; 
-    --sidebar-ring: 210 90% 70%;
+    --sidebar-ring: 234 65% 70%; /* Sidebar ring based on new dark primary */
   }
 }
 
