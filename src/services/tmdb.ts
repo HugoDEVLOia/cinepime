@@ -4,6 +4,8 @@ const BASE_URL = 'https://api.themoviedb.org/3';
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500'; // For posters and profile pictures
 const LANGUAGE = 'fr-FR';
 
+export type TimeWindow = 'day' | 'week';
+
 export interface Video {
   id: string;
   key: string; // YouTube video ID
@@ -128,11 +130,11 @@ const mapApiDirectorToDirector = (crewMember: any): Director => ({
   profileUrl: getSafeProfileImageUrl(crewMember.profile_path),
 });
 
-export async function getTrendingMedia(page: number = 1): Promise<{ media: Media[], totalPages: number }> {
+export async function getTrendingMedia(page: number = 1, timeWindow: TimeWindow = 'week'): Promise<{ media: Media[], totalPages: number }> {
   try {
-    const response = await fetch(`${BASE_URL}/trending/all/week?api_key=${API_KEY}&language=${LANGUAGE}&page=${page}`);
+    const response = await fetch(`${BASE_URL}/trending/all/${timeWindow}?api_key=${API_KEY}&language=${LANGUAGE}&page=${page}`);
     if (!response.ok) {
-      console.error('Échec de la récupération des médias tendances:', response.status, await response.text());
+      console.error(`Échec de la récupération des médias tendances (${timeWindow}):`, response.status, await response.text());
       return { media: [], totalPages: 1 };
     }
     const data = await response.json();
@@ -141,7 +143,7 @@ export async function getTrendingMedia(page: number = 1): Promise<{ media: Media
       .map((item: any) => mapApiMediaToMedia(item, item.media_type as 'movie' | 'tv'));
     return { media, totalPages: data.total_pages };
   } catch (error) {
-    console.error('Erreur lors de la récupération des médias tendances:', error);
+    console.error(`Erreur lors de la récupération des médias tendances (${timeWindow}):`, error);
     return { media: [], totalPages: 1 };
   }
 }
