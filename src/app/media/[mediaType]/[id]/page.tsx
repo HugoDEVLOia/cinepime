@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -13,13 +14,14 @@ import {
   type Actor,
   type Director,
   type Season,
+  type Video,
 } from '@/services/tmdb';
 import { useMediaLists } from '@/hooks/use-media-lists';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Star, Users, User, Clapperboard, Tv, CalendarDays, Clock, Eye, CheckCircle, FilmIcon, ServerCrash, Info, ChevronRight, Loader2 } from 'lucide-react';
+import { Star, Users, User, Clapperboard, Tv, CalendarDays, Clock, Eye, CheckCircle, FilmIcon, ServerCrash, Info, ChevronRight, Loader2, PlaySquare } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import MediaCard from '@/components/media-card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -54,13 +56,13 @@ export default function MediaDetailsPage() {
       try {
         const [
           mediaDetails,
-          mediaActors,
-          mediaDirectorData,
+          // mediaActors, // Actors are now part of mediaDetails.credits.cast
+          // mediaDirectorData, // Director is now part of mediaDetails.credits.crew
           mediaRecommendationsData,
         ] = await Promise.all([
-          getMediaDetails(mediaId, mediaType),
-          getMediaActors(mediaId, mediaType),
-          getMediaDirector(mediaId, mediaType),
+          getMediaDetails(mediaId, mediaType), // This now also fetches videos and credits
+          // getMediaActors(mediaId, mediaType), // No longer needed if details includes credits
+          // getMediaDirector(mediaId, mediaType), // No longer needed if details includes credits
           getMediaRecommendations(mediaId, mediaType),
         ]);
 
@@ -71,8 +73,12 @@ export default function MediaDetailsPage() {
         }
 
         setMedia(mediaDetails);
-        setActors(mediaActors);
-        setDirector(mediaDirectorData);
+        setActors(mediaDetails.cast || []); // Use actors from mediaDetails.cast
+        
+        // Extract director from credits.crew
+        const directorData = mediaDetails.credits?.crew?.find((person: any) => person.job === 'Director');
+        setDirector(directorData ? { id: directorData.id.toString(), name: directorData.name, profileUrl: getSafeProfileImageUrl(directorData.profile_path) } : null);
+        
         setRecommendations(mediaRecommendationsData);
 
         if (mediaType === 'tv' && mediaDetails.id) {
@@ -88,6 +94,41 @@ export default function MediaDetailsPage() {
     }
     fetchData();
   }, [mediaId, mediaType]);
+
+  const findBestTrailer = (videos?: Video[]): Video | null => {
+    if (!videos || videos.length === 0) return null;
+
+    const youtubeVideos = videos.filter(v => v.site === 'YouTube');
+    if (youtubeVideos.length === 0) return null;
+  
+    let trailer = youtubeVideos.find(v => v.type === 'Trailer' && v.official && v.iso_639_1 === 'fr');
+    if (trailer) return trailer;
+  
+    trailer = youtubeVideos.find(v => v.type === 'Trailer' && v.official);
+    if (trailer) return trailer;
+    
+    trailer = youtubeVideos.find(v => v.type === 'Trailer' && v.iso_639_1 === 'fr');
+    if (trailer) return trailer;
+  
+    trailer = youtubeVideos.find(v => v.type === 'Trailer');
+    if (trailer) return trailer;
+  
+    trailer = youtubeVideos.find(v => v.type === 'Teaser' && v.official && v.iso_639_1 === 'fr');
+    if (trailer) return trailer;
+  
+    trailer = youtubeVideos.find(v => v.type === 'Teaser' && v.official);
+    if (trailer) return trailer;
+    
+    trailer = youtubeVideos.find(v => v.official && v.iso_639_1 === 'fr');
+    if (trailer) return trailer;
+    trailer = youtubeVideos.find(v => v.official);
+    if (trailer) return trailer;
+  
+    trailer = youtubeVideos.find(v => v.iso_639_1 === 'fr');
+    if (trailer) return trailer;
+  
+    return youtubeVideos[0] || null;
+  };
 
   if (isLoading) {
     return <MediaDetailsSkeleton mediaType={mediaType} />;
@@ -107,10 +148,12 @@ export default function MediaDetailsPage() {
 
   if (!media) {
     notFound();
+    return null; // Should not be reached if notFound() works as expected
   }
   
   const isToWatch = isInList(media.id, 'toWatch');
   const isWatched = isInList(media.id, 'watched');
+  const trailerToDisplay = findBestTrailer(media.videos);
 
   const handleToggleList = async (listType: 'toWatch' | 'watched') => {
     if (!media) return;
@@ -118,8 +161,7 @@ export default function MediaDetailsPage() {
     if (isInList(media.id, listType)) {
       removeFromList(media.id, listType);
     } else {
-      await addToList(media, listType); // addToList est maintenant asynchrone
-      // S'assurer que l'état isInList est à jour avant de vérifier pour la suppression de l'autre liste
+      await addToList(media, listType); 
       if (listType === 'watched' && isInList(media.id, 'toWatch')) {
         removeFromList(media.id, 'toWatch');
       } else if (listType === 'toWatch' && isInList(media.id, 'watched')) {
@@ -253,6 +295,25 @@ export default function MediaDetailsPage() {
         </div>
       </section>
 
+      {trailerToDisplay && (
+        <section>
+          <h2 className="text-3xl font-bold mb-6 text-foreground flex items-center gap-2">
+            <PlaySquare className="text-primary h-7 w-7"/> Bande-annonce
+          </h2>
+          <div className="aspect-video w-full max-w-3xl mx-auto rounded-xl overflow-hidden shadow-2xl bg-muted">
+            <iframe
+              src={`https://www.youtube.com/embed/${trailerToDisplay.key}?autoplay=0&modestbranding=1&rel=0`}
+              title={trailerToDisplay.name}
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerPolicy="strict-origin-when-cross-origin"
+              allowFullScreen
+              className="w-full h-full"
+            ></iframe>
+          </div>
+        </section>
+      )}
+
       {mediaType === 'tv' && seasons.length > 0 && (
         <section>
           <h2 className="text-3xl font-bold mb-6 text-foreground flex items-center gap-2"><Tv className="text-primary"/>Saisons &amp; Épisodes</h2>
@@ -268,7 +329,7 @@ export default function MediaDetailsPage() {
                         height={90}
                         className="rounded-md object-cover aspect-[2/3] shadow-sm"
                         data-ai-hint="affiche saison"
-                         onError={(e) => { e.currentTarget.src = 'httpsum.photos/60/90?grayscale&amp;blur=1'; }}
+                         onError={(e) => { e.currentTarget.src = 'https://picsum.photos/60/90?grayscale&amp;blur=1'; }}
                       />
                     <div className="text-left flex-grow">
                       <span className="font-semibold text-foreground">{season.name}</span>
@@ -279,7 +340,7 @@ export default function MediaDetailsPage() {
                 </AccordionTrigger>
                 <AccordionContent className="px-6 pb-6 pt-2 space-y-3 bg-background/50 rounded-b-xl">
                   {season.overview && <p className="text-sm text-muted-foreground mb-4 italic">{season.overview}</p>}
-                  {season.episodes.length &gt; 0 ? (
+                  {season.episodes.length > 0 ? (
                     <ul className="space-y-3 max-h-96 overflow-y-auto scrollbar-thin pr-2">
                     {season.episodes.sort((a,b) => a.episodeNumber - b.episodeNumber).map(episode => (
                       <li key={episode.id} className="p-4 border border-border rounded-lg bg-card shadow-sm hover:border-primary/30 transition-colors">
@@ -287,7 +348,7 @@ export default function MediaDetailsPage() {
                           <h4 className="font-semibold text-foreground flex-grow">{episode.episodeNumber}. {episode.title}</h4>
                           <div className="flex items-center text-xs text-muted-foreground whitespace-nowrap">
                             <Star className="w-3.5 h-3.5 mr-1 text-yellow-400 fill-yellow-400" />
-                            <span className="font-medium">{episode.rating &gt; 0 ? episode.rating.toFixed(1) : 'N/A'}</span>
+                            <span className="font-medium">{episode.rating > 0 ? episode.rating.toFixed(1) : 'N/A'}</span>
                           </div>
                         </div>
                         {episode.airDate && <p className="text-xs text-muted-foreground mt-0.5">Diffusé le : {new Date(episode.airDate).toLocaleDateString('fr-FR')}</p>}
@@ -377,6 +438,12 @@ function MediaDetailsSkeleton({ mediaType }: { mediaType: 'movie' | 'tv' }) {
         </div>
       </section>
 
+      {/* Trailer Skeleton */}
+      <section>
+        <Skeleton className="h-10 w-56 mb-6 rounded-lg" /> {/* Titre Bande-annonce */}
+        <Skeleton className="aspect-video w-full max-w-3xl mx-auto rounded-xl" />
+      </section>
+
       {mediaType === 'tv' && (
         <section>
           <Skeleton className="h-10 w-56 mb-6 rounded-lg" /> {/* Titre Saisons */}
@@ -406,4 +473,12 @@ function MediaDetailsSkeleton({ mediaType }: { mediaType: 'movie' | 'tv' }) {
       </section>
     </div>
   );
+}
+
+// Helper function to get profile image URL (already in tmdb.ts, ensure it's available or define locally if needed)
+function getSafeProfileImageUrl(path: string | null | undefined): string {
+  if (path) {
+    return `https://image.tmdb.org/t/p/w500${path}`;
+  }
+  return 'https://picsum.photos/100/150?grayscale'; 
 }

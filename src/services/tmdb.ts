@@ -1,7 +1,20 @@
+
 const API_KEY = '7f47e5a98ff4014fedea0408a8390069';
 const BASE_URL = 'https://api.themoviedb.org/3';
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500'; // For posters and profile pictures
 const LANGUAGE = 'fr-FR';
+
+export interface Video {
+  id: string;
+  key: string; // YouTube video ID
+  name: string;
+  site: string; // e.g., "YouTube"
+  type: string; // e.g., "Trailer", "Teaser", "Featurette"
+  official: boolean;
+  iso_639_1: string; // language e.g. "en", "fr"
+  iso_3166_1: string; // country e.g. "US", "FR"
+  size: number; // e.g. 1080 for HD
+}
 
 export interface Media {
   id: string;
@@ -15,6 +28,11 @@ export interface Media {
   numberOfSeasons?: number; // for tv shows
   genres?: { id: number; name: string; }[];
   cast?: Actor[];
+  videos?: Video[];
+  credits?: { // Added to hold full credits response
+    cast: Actor[];
+    crew: any[]; // Define more specific type for crew if needed
+  };
 }
 
 export interface Actor {
@@ -55,19 +73,27 @@ const getSafeImageUrl = (path: string | null | undefined): string => {
   if (path) {
     return `${IMAGE_BASE_URL}${path}`;
   }
-  // Return a placeholder if no image is available
-  // For actor profiles, a different placeholder might be desired.
-  // For now, using a generic one for simplicity.
-  return 'https://picsum.photos/200/300?grayscale'; // Generic placeholder
+  return 'https://picsum.photos/200/300?grayscale'; 
 };
 
 const getSafeProfileImageUrl = (path: string | null | undefined): string => {
   if (path) {
     return `${IMAGE_BASE_URL}${path}`;
   }
-  return 'https://picsum.photos/100/150?grayscale'; // Placeholder for actor profiles
-}
+  return 'https://picsum.photos/100/150?grayscale'; 
+};
 
+const mapApiVideoToVideo = (video: any): Video => ({
+  id: video.id,
+  key: video.key,
+  name: video.name,
+  site: video.site,
+  type: video.type,
+  official: video.official,
+  iso_639_1: video.iso_639_1,
+  iso_3166_1: video.iso_3166_1,
+  size: video.size,
+});
 
 const mapApiActorToActor = (actor: any): Actor => ({
   id: actor.id.toString(),
@@ -87,7 +113,12 @@ const mapApiMediaToMedia = (item: any, mediaType: 'movie' | 'tv'): Media => ({
   runtime: item.runtime,
   numberOfSeasons: item.number_of_seasons,
   genres: item.genres || [],
-  cast: item.credits?.cast ? item.credits.cast.slice(0, 10).map(mapApiActorToActor) : [],
+  cast: item.credits?.cast ? item.credits.cast.slice(0, 10).map(mapApiActorToActor) : (item.cast || []), // Use item.cast as fallback
+  videos: item.videos?.results ? item.videos.results.map(mapApiVideoToVideo).filter((v: Video) => v.site === 'YouTube') : [],
+  credits: item.credits ? { // Store full credits if available
+    cast: item.credits.cast.map(mapApiActorToActor),
+    crew: item.credits.crew,
+   } : undefined,
 });
 
 
@@ -117,8 +148,8 @@ export async function getTrendingMedia(page: number = 1): Promise<{ media: Media
 
 export async function getMediaDetails(mediaId: string, mediaType: 'movie' | 'tv'): Promise<Media | null> {
   try {
-    // Append credits to get cast/crew, genres are usually part of the main details response
-    const response = await fetch(`${BASE_URL}/${mediaType}/${mediaId}?api_key=${API_KEY}&language=${LANGUAGE}&append_to_response=credits`);
+    // Append credits (for cast/crew) and videos to the main media details call
+    const response = await fetch(`${BASE_URL}/${mediaType}/${mediaId}?api_key=${API_KEY}&language=${LANGUAGE}&append_to_response=credits,videos`);
     if (!response.ok) {
       console.error(`Échec de la récupération des détails ${mediaType}:`, response.status, await response.text());
       return null;
@@ -131,6 +162,10 @@ export async function getMediaDetails(mediaId: string, mediaType: 'movie' | 'tv'
   }
 }
 
+
+// getMediaActors and getMediaDirector are no longer strictly necessary if getMediaDetails fetches credits.
+// They can be kept if there's a specific use case for fetching only actors or director without other details.
+// For now, we assume MediaDetailsPage will use the cast/crew from the enhanced getMediaDetails.
 export async function getMediaActors(mediaId: string, mediaType: 'movie' | 'tv'): Promise<Actor[]> {
   try {
     const response = await fetch(`${BASE_URL}/${mediaType}/${mediaId}/credits?api_key=${API_KEY}&language=${LANGUAGE}`);
@@ -139,7 +174,7 @@ export async function getMediaActors(mediaId: string, mediaType: 'movie' | 'tv')
       return [];
     }
     const data = await response.json();
-    return data.cast.slice(0, 10).map(mapApiActorToActor); // Get top 10 actors
+    return data.cast.slice(0, 10).map(mapApiActorToActor); 
   } catch (error) {
     console.error(`Erreur lors de la récupération des acteurs ${mediaType}:`, error);
     return [];
@@ -162,9 +197,9 @@ export async function getMediaDirector(mediaId: string, mediaType: 'movie' | 'tv
   }
 }
 
+
 export async function getSeriesSeasons(seriesId: string): Promise<Season[]> {
   try {
-    // First, get the series details to find out how many seasons there are
     const seriesDetailsResponse = await fetch(`${BASE_URL}/tv/${seriesId}?api_key=${API_KEY}&language=${LANGUAGE}`);
     if (!seriesDetailsResponse.ok) {
       console.error('Échec de la récupération des détails de la série pour les saisons:', seriesDetailsResponse.status, await seriesDetailsResponse.text());
@@ -229,7 +264,7 @@ export async function searchMedia(query: string): Promise<Media[]> {
     }
     const data = await response.json();
     return data.results
-      .filter((item: any) => (item.media_type === 'movie' || item.media_type === 'tv') && item.poster_path) // Ensure poster exists
+      .filter((item: any) => (item.media_type === 'movie' || item.media_type === 'tv') && item.poster_path) 
       .map((item: any) => mapApiMediaToMedia(item, item.media_type as 'movie' | 'tv'));
   } catch (error) {
     console.error('Erreur lors de la recherche de médias:', error);
@@ -246,8 +281,8 @@ export async function getMediaRecommendations(mediaId: string, mediaType: 'movie
     }
     const data = await response.json();
     return data.results
-      .filter((item: any) => item.poster_path) // Ensure poster exists
-      .map((item: any) => mapApiMediaToMedia(item, mediaType)); // Recommendations are of the same media type
+      .filter((item: any) => item.poster_path) 
+      .map((item: any) => mapApiMediaToMedia(item, mediaType)); 
   } catch (error) {
     console.error(`Erreur lors de la récupération des recommandations ${mediaType}:`, error);
     return [];
