@@ -6,8 +6,6 @@ import { useParams, notFound } from 'next/navigation';
 import Image from 'next/image';
 import {
   getMediaDetails,
-  getMediaActors,
-  getMediaDirector,
   getSeriesSeasons,
   getMediaRecommendations,
   type Media,
@@ -15,16 +13,127 @@ import {
   type Director,
   type Season,
   type Video,
+  type CountryProviderDetails,
+  type ProviderDetail,
 } from '@/services/tmdb';
 import { useMediaLists } from '@/hooks/use-media-lists';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Star, Users, User, Clapperboard, Tv, CalendarDays, Clock, Eye, CheckCircle, FilmIcon, ServerCrash, Info, ChevronRight, Loader2, PlaySquare } from 'lucide-react';
+import { Star, Users, User, Clapperboard, Tv, CalendarDays, Clock, Eye, CheckCircle, FilmIcon, ServerCrash, Info, ChevronRight, Loader2, PlaySquare, Radio, ExternalLink } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import MediaCard from '@/components/media-card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+
+interface ProviderCategoryProps {
+  title: string;
+  providers?: ProviderDetail[];
+  baseLink?: string;
+}
+
+const ProviderLogoSection: React.FC<ProviderCategoryProps> = ({ title, providers, baseLink }) => {
+  if (!providers || providers.length === 0) return null;
+
+  return (
+    <div className="mb-6">
+      <h3 className="text-xl font-semibold mb-3 text-foreground">{title}</h3>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+        {providers.map(provider => (
+          <a
+            key={provider.provider_id}
+            href={baseLink} 
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block p-3 bg-card rounded-lg shadow-md hover:shadow-lg transition-shadow focus:outline-none focus:ring-2 focus:ring-primary"
+            title={`Regarder sur ${provider.provider_name}`}
+          >
+            <div className="flex flex-col items-center text-center">
+              {provider.logo_path ? (
+                <Image
+                  src={`https://image.tmdb.org/t/p/w92${provider.logo_path}`}
+                  alt={provider.provider_name}
+                  width={60}
+                  height={60}
+                  className="rounded-md object-contain mb-2 h-[60px] w-[60px]"
+                  data-ai-hint="logo streaming"
+                  onError={(e) => { e.currentTarget.src = 'https://picsum.photos/60/60?grayscale'; }}
+                />
+              ) : (
+                <div className="h-[60px] w-[60px] flex items-center justify-center bg-muted rounded-md mb-2">
+                  <FilmIcon className="h-8 w-8 text-muted-foreground" />
+                </div>
+              )}
+              <p className="text-xs font-medium text-foreground line-clamp-2">{provider.provider_name}</p>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+interface WatchProviderSectionProps {
+  providers?: CountryProviderDetails;
+  mediaTitle: string;
+}
+
+const WatchProviderDisplay: React.FC<WatchProviderSectionProps> = ({ providers, mediaTitle }) => {
+  if (!providers) {
+    return (
+       <Card className="shadow-md rounded-xl p-6 bg-card">
+        <div className="flex flex-col items-center text-center text-muted-foreground">
+          <Info className="w-12 h-12 mb-4" />
+          <p className="text-lg font-medium">Aucune information de diffusion trouvée en France pour {mediaTitle}.</p>
+        </div>
+      </Card>
+    );
+  }
+
+  const { link, flatrate, rent, buy, ads, free } = providers;
+  const isEmpty = (!flatrate?.length && !rent?.length && !buy?.length && !ads?.length && !free?.length);
+
+  if (isEmpty) {
+    return (
+      <Card className="shadow-md rounded-xl p-6 bg-card">
+        <div className="flex flex-col items-center text-center text-muted-foreground">
+          <Info className="w-12 h-12 mb-4" />
+          <p className="text-lg font-medium">Aucune information de diffusion trouvée en France pour {mediaTitle}.</p>
+          {link && (
+             <Button asChild variant="link" className="mt-4">
+                <a href={link} target="_blank" rel="noopener noreferrer" className="flex items-center">
+                  Voir les options sur TMDB <ExternalLink className="ml-2 h-4 w-4" />
+                </a>
+              </Button>
+          )}
+        </div>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="shadow-lg rounded-xl p-4 md:p-6 bg-card">
+      <CardContent className="p-0">
+        <ProviderLogoSection title="Streaming (Abonnement)" providers={flatrate?.sort((a,b) => a.display_priority - b.display_priority)} baseLink={link} />
+        <ProviderLogoSection title="Streaming (Gratuit avec pub)" providers={ads?.sort((a,b) => a.display_priority - b.display_priority)} baseLink={link} />
+        <ProviderLogoSection title="Streaming (Gratuit)" providers={free?.sort((a,b) => a.display_priority - b.display_priority)} baseLink={link} />
+        <ProviderLogoSection title="Louer" providers={rent?.sort((a,b) => a.display_priority - b.display_priority)} baseLink={link} />
+        <ProviderLogoSection title="Acheter" providers={buy?.sort((a,b) => a.display_priority - b.display_priority)} baseLink={link} />
+        
+        {link && (
+          <div className="mt-6 text-center">
+            <Button asChild variant="outline">
+              <a href={link} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center">
+                Voir toutes les options sur TMDB <ExternalLink className="ml-2 h-4 w-4" />
+              </a>
+            </Button>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
+
 
 export default function MediaDetailsPage() {
   const params = useParams();
@@ -56,13 +165,9 @@ export default function MediaDetailsPage() {
       try {
         const [
           mediaDetails,
-          // mediaActors, // Actors are now part of mediaDetails.credits.cast
-          // mediaDirectorData, // Director is now part of mediaDetails.credits.crew
           mediaRecommendationsData,
         ] = await Promise.all([
-          getMediaDetails(mediaId, mediaType), // This now also fetches videos and credits
-          // getMediaActors(mediaId, mediaType), // No longer needed if details includes credits
-          // getMediaDirector(mediaId, mediaType), // No longer needed if details includes credits
+          getMediaDetails(mediaId, mediaType), 
           getMediaRecommendations(mediaId, mediaType),
         ]);
 
@@ -73,16 +178,15 @@ export default function MediaDetailsPage() {
         }
 
         setMedia(mediaDetails);
-        setActors(mediaDetails.cast || []); // Use actors from mediaDetails.cast
+        setActors(mediaDetails.cast || []); 
         
-        // Extract director from credits.crew
         const directorData = mediaDetails.credits?.crew?.find((person: any) => person.job === 'Director');
         setDirector(directorData ? { id: directorData.id.toString(), name: directorData.name, profileUrl: getSafeProfileImageUrl(directorData.profile_path) } : null);
         
         setRecommendations(mediaRecommendationsData);
 
         if (mediaType === 'tv' && mediaDetails.id) {
-          const seriesSeasons = await getSeriesSeasons(mediaDetails.id);
+          const seriesSeasons = await getSeriesSeasons(mediaDetails.id.toString());
           setSeasons(seriesSeasons);
         }
       } catch (err) {
@@ -148,7 +252,7 @@ export default function MediaDetailsPage() {
 
   if (!media) {
     notFound();
-    return null; // Should not be reached if notFound() works as expected
+    return null; 
   }
   
   const isToWatch = isInList(media.id, 'toWatch');
@@ -294,6 +398,15 @@ export default function MediaDetailsPage() {
           )}
         </div>
       </section>
+      
+      {media.watchProviders && media.watchProviders.FR && (
+        <section>
+          <h2 className="text-3xl font-bold mb-6 text-foreground flex items-center gap-2">
+            <Radio className="text-primary h-7 w-7"/> Où Regarder
+          </h2>
+          <WatchProviderDisplay providers={media.watchProviders.FR} mediaTitle={media.title} />
+        </section>
+      )}
 
       {trailerToDisplay && (
         <section>
@@ -438,6 +551,35 @@ function MediaDetailsSkeleton({ mediaType }: { mediaType: 'movie' | 'tv' }) {
         </div>
       </section>
 
+      {/* Watch Providers Skeleton */}
+      <section>
+        <Skeleton className="h-10 w-52 mb-6 rounded-lg" /> {/* Title "Où Regarder" */}
+        <Card className="shadow-lg rounded-xl p-6 bg-card">
+          <div className="space-y-6">
+            <div>
+              <Skeleton className="h-6 w-40 mb-3 rounded" /> {/* Category title */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div key={`provider-skel-${i}`} className="p-3 bg-muted/30 rounded-lg">
+                    <Skeleton className="h-[60px] w-[60px] mx-auto mb-2 rounded-md" />
+                    <Skeleton className="h-3 w-3/4 mx-auto rounded" />
+                  </div>
+                ))}
+              </div>
+            </div>
+             <div> 
+              <Skeleton className="h-6 w-32 mb-3 rounded" />
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                <Skeleton className="p-3 bg-muted/30 rounded-lg">
+                  <Skeleton className="h-[60px] w-[60px] mx-auto mb-2 rounded-md" />
+                  <Skeleton className="h-3 w-3/4 mx-auto rounded" />
+                </Skeleton>
+              </div>
+            </div>
+          </div>
+        </Card>
+      </section>
+
       {/* Trailer Skeleton */}
       <section>
         <Skeleton className="h-10 w-56 mb-6 rounded-lg" /> {/* Titre Bande-annonce */}
@@ -450,7 +592,7 @@ function MediaDetailsSkeleton({ mediaType }: { mediaType: 'movie' | 'tv' }) {
           <div className="space-y-4">
             {Array.from({ length: 2 }).map((_, i) => (
               <div key={i} className="border border-border bg-card rounded-xl p-4">
-                <Skeleton className="h-12 w-full rounded-md" /> {/* Déclencheur Accordéon */}
+                <Skeleton className="h-12 w-full rounded-md" /> 
               </div>
             ))}
           </div>
@@ -475,7 +617,6 @@ function MediaDetailsSkeleton({ mediaType }: { mediaType: 'movie' | 'tv' }) {
   );
 }
 
-// Helper function to get profile image URL (already in tmdb.ts, ensure it's available or define locally if needed)
 function getSafeProfileImageUrl(path: string | null | undefined): string {
   if (path) {
     return `https://image.tmdb.org/t/p/w500${path}`;

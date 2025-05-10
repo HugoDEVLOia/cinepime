@@ -18,6 +18,26 @@ export interface Video {
   size: number; // e.g. 1080 for HD
 }
 
+export interface ProviderDetail {
+  logo_path: string | null;
+  provider_id: number;
+  provider_name: string;
+  display_priority: number;
+}
+
+export interface CountryProviderDetails {
+  link?: string;
+  flatrate?: ProviderDetail[];
+  rent?: ProviderDetail[];
+  buy?: ProviderDetail[];
+  ads?: ProviderDetail[];
+  free?: ProviderDetail[];
+}
+
+export interface WatchProvidersResults {
+  [countryCode: string]: CountryProviderDetails;
+}
+
 export interface Media {
   id: string;
   title: string;
@@ -31,11 +51,12 @@ export interface Media {
   genres?: { id: number; name: string; }[];
   cast?: Actor[];
   videos?: Video[];
-  credits?: { // Added to hold full credits response
+  credits?: { 
     cast: Actor[];
-    crew: any[]; // Define more specific type for crew if needed
+    crew: any[]; 
   };
-  popularity?: number; // Added for sorting discover results
+  watchProviders?: WatchProvidersResults; // Added watch provider information
+  popularity?: number;
 }
 
 export interface Actor {
@@ -116,12 +137,13 @@ const mapApiMediaToMedia = (item: any, mediaType: 'movie' | 'tv'): Media => ({
   runtime: item.runtime,
   numberOfSeasons: item.number_of_seasons,
   genres: item.genres || [],
-  cast: item.credits?.cast ? item.credits.cast.slice(0, 10).map(mapApiActorToActor) : (item.cast || []), // Use item.cast as fallback
+  cast: item.credits?.cast ? item.credits.cast.slice(0, 10).map(mapApiActorToActor) : (item.cast || []),
   videos: item.videos?.results ? item.videos.results.map(mapApiVideoToVideo).filter((v: Video) => v.site === 'YouTube') : [],
-  credits: item.credits ? { // Store full credits if available
+  credits: item.credits ? { 
     cast: item.credits.cast.map(mapApiActorToActor),
     crew: item.credits.crew,
    } : undefined,
+  watchProviders: item['watch/providers']?.results, // Map watch provider data
   popularity: item.popularity,
 });
 
@@ -132,7 +154,7 @@ const mapApiDirectorToDirector = (crewMember: any): Director => ({
   profileUrl: getSafeProfileImageUrl(crewMember.profile_path),
 });
 
-export async function getTrendingMedia(page: number = 1, timeWindow: TimeWindow = 'week'): Promise<{ media: Media[], totalPages: number }> {
+export async function getTrendingMedia(page: number = 1, timeWindow: Exclude<TimeWindow, 'all'> = 'week'): Promise<{ media: Media[], totalPages: number }> {
   if (timeWindow === 'day' || timeWindow === 'week') {
     try {
       const response = await fetch(`${BASE_URL}/trending/all/${timeWindow}?api_key=${API_KEY}&language=${LANGUAGE}&page=${page}`);
@@ -150,7 +172,6 @@ export async function getTrendingMedia(page: number = 1, timeWindow: TimeWindow 
       return { media: [], totalPages: 1 };
     }
   } else {
-    // Handle 'month', 'year' using /discover endpoint
     let movieParams = `api_key=${API_KEY}&language=${LANGUAGE}&page=${page}&sort_by=popularity.desc`;
     let tvParams = `api_key=${API_KEY}&language=${LANGUAGE}&page=${page}&sort_by=popularity.desc`;
 
@@ -162,7 +183,7 @@ export async function getTrendingMedia(page: number = 1, timeWindow: TimeWindow 
     if (timeWindow === 'month') {
         const firstDayOfMonth = formatDate(new Date(yyyy, today.getMonth(), 1));
         const lastDayOfMonth = formatDate(new Date(yyyy, today.getMonth() + 1, 0));
-        movieParams += `&primary_release_date.gte=${firstDayOfMonth}&primary_release_date.lte=${lastDayOfMonth}&with_release_type=2|3`; // Include theatrical limited and theatrical
+        movieParams += `&primary_release_date.gte=${firstDayOfMonth}&primary_release_date.lte=${lastDayOfMonth}&with_release_type=2|3`;
         tvParams += `&first_air_date.gte=${firstDayOfMonth}&first_air_date.lte=${lastDayOfMonth}`;
     } else if (timeWindow === 'year') {
         const firstDayOfYear = formatDate(new Date(yyyy, 0, 1));
@@ -170,8 +191,6 @@ export async function getTrendingMedia(page: number = 1, timeWindow: TimeWindow 
         movieParams += `&primary_release_date.gte=${firstDayOfYear}&primary_release_date.lte=${lastDayOfYear}&with_release_type=2|3`;
         tvParams += `&first_air_date.gte=${firstDayOfYear}&first_air_date.lte=${lastDayOfYear}`;
     }
-    // If timeWindow is not 'month' or 'year' (e.g. if 'all' was passed, though it's removed from type), 
-    // no specific date params are added here, and it sorts by overall popularity.
 
     try {
         const [movieResponse, tvResponse] = await Promise.all([
@@ -186,7 +205,7 @@ export async function getTrendingMedia(page: number = 1, timeWindow: TimeWindow 
         if (movieResponse.ok) {
             const movieData = await movieResponse.json();
             combinedMedia.push(...movieData.results
-                .filter((item: any) => item.poster_path) // Ensure poster exists
+                .filter((item: any) => item.poster_path) 
                 .map((item: any) => mapApiMediaToMedia(item, 'movie')));
             movieTotalPages = movieData.total_pages;
         } else {
@@ -196,7 +215,7 @@ export async function getTrendingMedia(page: number = 1, timeWindow: TimeWindow 
         if (tvResponse.ok) {
             const tvData = await tvResponse.json();
             combinedMedia.push(...tvData.results
-                .filter((item: any) => item.poster_path) // Ensure poster exists
+                .filter((item: any) => item.poster_path) 
                 .map((item: any) => mapApiMediaToMedia(item, 'tv')));
             tvTotalPages = tvData.total_pages;
         } else {
@@ -216,8 +235,7 @@ export async function getTrendingMedia(page: number = 1, timeWindow: TimeWindow 
 
 export async function getMediaDetails(mediaId: string, mediaType: 'movie' | 'tv'): Promise<Media | null> {
   try {
-    // Append credits (for cast/crew) and videos to the main media details call
-    const response = await fetch(`${BASE_URL}/${mediaType}/${mediaId}?api_key=${API_KEY}&language=${LANGUAGE}&append_to_response=credits,videos`);
+    const response = await fetch(`${BASE_URL}/${mediaType}/${mediaId}?api_key=${API_KEY}&language=${LANGUAGE}&append_to_response=credits,videos,watch/providers`);
     if (!response.ok) {
       console.error(`Échec de la récupération des détails ${mediaType}:`, response.status, await response.text());
       return null;
@@ -230,10 +248,6 @@ export async function getMediaDetails(mediaId: string, mediaType: 'movie' | 'tv'
   }
 }
 
-
-// getMediaActors and getMediaDirector are no longer strictly necessary if getMediaDetails fetches credits.
-// They can be kept if there's a specific use case for fetching only actors or director without other details.
-// For now, we assume MediaDetailsPage will use the cast/crew from the enhanced getMediaDetails.
 export async function getMediaActors(mediaId: string, mediaType: 'movie' | 'tv'): Promise<Actor[]> {
   try {
     const response = await fetch(`${BASE_URL}/${mediaType}/${mediaId}/credits?api_key=${API_KEY}&language=${LANGUAGE}`);
@@ -276,20 +290,16 @@ export async function getSeriesSeasons(seriesId: string): Promise<Season[]> {
     const seriesData = await seriesDetailsResponse.json();
     const seasonPromises: Promise<Season | null>[] = [];
 
-    for (let i = 1; i <= seriesData.number_of_seasons; i++) {
-      // Fetch details only for seasons that have an air_date (are released) or are special seasons (season_number 0)
+    for (let i = 0; i <= seriesData.number_of_seasons; i++) { // Include season 0 for specials
       const seasonInfo = seriesData.seasons.find((s: any) => s.season_number === i);
       if (seasonInfo && (seasonInfo.air_date || seasonInfo.season_number === 0) && seasonInfo.episode_count > 0) {
          seasonPromises.push(getSeasonDetails(seriesId, i));
       } else if (!seasonInfo || seasonInfo.episode_count === 0) {
-        // If season info is missing or has 0 episodes, create a placeholder or skip
-        // For now, let's skip unreleased or empty seasons from detailed fetching to avoid errors / empty data
-         console.log(`Skipping season ${i} for series ${seriesId} due to no air date, missing info or 0 episodes.`);
+         console.log(`Saison ${i} pour la série ${seriesId} ignorée car pas de date de diffusion, informations manquantes ou 0 épisodes.`);
       }
     }
     
     const seasonsWithDetails = await Promise.all(seasonPromises);
-    // Filter out nulls and seasons without episodes, then sort
     return seasonsWithDetails
         .filter(season => season !== null && season.episodes.length > 0)
         .sort((a, b) => (a as Season).seasonNumber - (b as Season).seasonNumber) as Season[];
@@ -310,8 +320,6 @@ async function getSeasonDetails(seriesId: string, seasonNumber: number): Promise
     }
     const data = await response.json();
      if (!data.episodes || data.episodes.length === 0) {
-      // Return a minimal season object if there are no episodes, or null to filter it out later
-      // This helps avoid errors if a season is listed but has no episode data yet.
       return {
         id: data.id?.toString() || `${seriesId}-s${seasonNumber}`,
         seasonNumber: data.season_number,
@@ -337,7 +345,7 @@ async function getSeasonDetails(seriesId: string, seasonNumber: number): Promise
         title: ep.name || `Épisode ${ep.episode_number}`,
         description: ep.overview || 'Aucune description disponible.',
         rating: ep.vote_average ? parseFloat(ep.vote_average.toFixed(1)) : 0,
-        stillPath: getSafeImageUrl(ep.still_path), // Use specific still image for episode
+        stillPath: getSafeImageUrl(ep.still_path), 
         airDate: ep.air_date,
       })),
     };
@@ -376,7 +384,7 @@ export async function getMediaRecommendations(mediaId: string, mediaType: 'movie
     const data = await response.json();
     return data.results
       .filter((item: any) => item.poster_path) 
-      .map((item: any) => mapApiMediaToMedia(item, mediaType === 'movie' ? 'movie' : 'tv' )); // Ensure correct mediaType is passed
+      .map((item: any) => mapApiMediaToMedia(item, mediaType )); 
   } catch (error) {
     console.error(`Erreur lors de la récupération des recommandations ${mediaType}:`, error);
     return [];
