@@ -4,10 +4,11 @@ import { GeistMono } from 'geist/font/mono';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import Link from 'next/link';
-import { Film, Clapperboard, Search, Tv, BarChart3, MessageSquareText } from 'lucide-react';
+import { Film, Clapperboard, Search, Tv, BarChart3, MessageSquareText, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import SearchBar from '@/components/search-bar';
 import Chatbot from '@/components/chatbot';
+import { Sheet, SheetContent, SheetClose, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 
 
 export const metadata: Metadata = {
@@ -29,8 +30,10 @@ export default function RootLayout({
                 <Clapperboard className="h-8 w-8 text-primary transition-transform group-hover:rotate-[-10deg]" />
                 <span className="text-2xl font-bold text-primary tracking-tight">CinéCollection</span>
               </Link>
-              <div className="flex items-center gap-1">
-                <nav className="hidden items-center gap-1 md:flex">
+              
+              {/* Desktop Navigation & Search */}
+              <div className="hidden md:flex items-center gap-1">
+                <nav className="flex items-center gap-1">
                   <Link href="/" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
                     <Button variant="ghost" className="gap-2 px-4 py-2">
                       <Film className="h-4 w-4" /> Tendances
@@ -51,6 +54,51 @@ export default function RootLayout({
                   <SearchBar />
                 </div>
               </div>
+
+              {/* Mobile Navigation Trigger */}
+              <div className="md:hidden">
+                <Sheet>
+                  <SheetTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <Menu className="h-6 w-6" />
+                      <span className="sr-only">Ouvrir le menu</span>
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="right" className="w-full max-w-xs p-0 bg-background text-foreground">
+                    <SheetHeader className="p-4 border-b border-border">
+                      <SheetTitle className="text-lg font-semibold text-primary">Menu</SheetTitle>
+                    </SheetHeader>
+                    <div className="p-4 space-y-4">
+                      <div className="mb-4">
+                        <SearchBar />
+                      </div>
+                      <nav className="flex flex-col space-y-1">
+                        <SheetClose asChild>
+                          <Link href="/">
+                            <Button variant="ghost" className="w-full justify-start gap-3 px-3 py-2.5 text-base">
+                              <Film className="h-5 w-5 text-muted-foreground" /> Tendances
+                            </Button>
+                          </Link>
+                        </SheetClose>
+                        <SheetClose asChild>
+                          <Link href="/my-lists">
+                            <Button variant="ghost" className="w-full justify-start gap-3 px-3 py-2.5 text-base">
+                              <Tv className="h-5 w-5 text-muted-foreground" /> Mes Listes
+                            </Button>
+                          </Link>
+                        </SheetClose>
+                        <SheetClose asChild>
+                          <Link href="/stats">
+                            <Button variant="ghost" className="w-full justify-start gap-3 px-3 py-2.5 text-base">
+                              <BarChart3 className="h-5 w-5 text-muted-foreground" /> Statistiques
+                            </Button>
+                          </Link>
+                        </SheetClose>
+                      </nav>
+                    </div>
+                  </SheetContent>
+                </Sheet>
+              </div>
             </div>
           </header>
           <main className="flex-grow container mx-auto px-4 py-8 sm:px-6 lg:px-8 md:py-12">
@@ -62,7 +110,7 @@ export default function RootLayout({
             </div>
           </footer>
           <Toaster />
-          <Chatbot /> {/* Add the Chatbot component here */}
+          <Chatbot />
       </body>
     </html>
   );
