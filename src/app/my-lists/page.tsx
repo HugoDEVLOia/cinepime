@@ -2,22 +2,28 @@
 'use client';
 
 import type { ChangeEvent } from 'react';
+import { useState } from 'react';
 import { useMediaLists, type Media } from '@/hooks/use-media-lists';
 import MediaCard from '@/components/media-card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Eye, CheckCircle, ListX, Upload, Download, FileJson, AlertTriangle } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Eye, CheckCircle, ListX, Copy, ClipboardPaste, Code2, AlertTriangle, Loader2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-
+import { Textarea } from '@/components/ui/textarea';
 
 export default function MyListsPage() {
   const { toWatchList, watchedList, addToList, removeFromList, isInList, isLoaded, setLists } = useMediaLists();
   const { toast } = useToast();
 
-  const handleExportLists = () => {
+  const [exportedCode, setExportedCode] = useState<string | null>(null);
+  const [importCode, setImportCode] = useState<string>('');
+  const [isExporting, setIsExporting] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
+
+  const handleGenerateExportCode = () => {
     if (!isLoaded) {
       toast({
         title: "Exportation impossible",
@@ -26,95 +32,113 @@ export default function MyListsPage() {
       });
       return;
     }
+    setIsExporting(true);
+    setExportedCode(null); // Clear previous code
 
-    const dataToExport = {
-      toWatchList,
-      watchedList,
-    };
-
-    const jsonString = JSON.stringify(dataToExport, null, 2);
-    const blob = new Blob([jsonString], { type: 'application/json' });
-    const href = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = href;
-    link.download = 'cinecollection_backup.json';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(href);
-
-    toast({
-      title: "Exportation réussie",
-      description: "Vos listes ont été exportées au format JSON.",
-    });
+    try {
+      const dataToExport = {
+        toWatchList,
+        watchedList,
+      };
+      const jsonString = JSON.stringify(dataToExport, null, 2);
+      const base64String = btoa(jsonString); // Encode to Base64
+      setExportedCode(base64String);
+      toast({
+        title: "Code d'exportation généré",
+        description: "Copiez le code ci-dessous pour sauvegarder vos listes.",
+      });
+    } catch (error) {
+      console.error("Erreur lors de la génération du code d'exportation:", error);
+      toast({
+        title: "Erreur d'exportation",
+        description: "Un problème est survenu lors de la génération du code.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsExporting(false);
+    }
   };
 
-  const handleImportLists = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) {
+  const handleCopyToClipboard = () => {
+    if (!exportedCode) {
       toast({
-        title: "Aucun fichier sélectionné",
-        description: "Veuillez sélectionner un fichier JSON à importer.",
+        title: "Aucun code à copier",
+        description: "Veuillez d'abord générer le code d'exportation.",
         variant: "destructive",
       });
       return;
     }
-
-    if (file.type !== 'application/json') {
+    navigator.clipboard.writeText(exportedCode)
+      .then(() => {
         toast({
-          title: "Type de fichier invalide",
-          description: "Veuillez sélectionner un fichier JSON (.json).",
+          title: "Code copié !",
+          description: "Le code d'exportation a été copié dans le presse-papiers.",
+        });
+      })
+      .catch(err => {
+        console.error("Erreur lors de la copie du code:", err);
+        toast({
+          title: "Erreur de copie",
+          description: "Impossible de copier le code automatiquement. Veuillez le copier manuellement.",
           variant: "destructive",
         });
-        return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const text = e.target?.result as string;
-        const importedData = JSON.parse(text);
-
-        if (Array.isArray(importedData.toWatchList) && Array.isArray(importedData.watchedList)) {
-          // Basic validation for media items structure (can be more thorough)
-          const isValidMediaArray = (arr: any[]): arr is Media[] => 
-            arr.every(item => typeof item.id === 'string' && typeof item.title === 'string' && (item.mediaType === 'movie' || item.mediaType === 'tv'));
-
-          if (isValidMediaArray(importedData.toWatchList) && isValidMediaArray(importedData.watchedList)) {
-            setLists(importedData.toWatchList, importedData.watchedList);
-            toast({
-              title: "Importation réussie",
-              description: "Vos listes ont été importées avec succès.",
-            });
-          } else {
-            throw new Error("Le fichier JSON importé ne contient pas de données de listes valides.");
-          }
-        } else {
-          throw new Error("Le fichier JSON importé n'a pas la structure attendue (toWatchList et watchedList).");
-        }
-      } catch (error) {
-        console.error("Erreur lors de l'importation :", error);
-        toast({
-          title: "Erreur d'importation",
-          description: error instanceof Error ? error.message : "Un problème est survenu lors de la lecture du fichier. Assurez-vous qu'il s'agit d'un fichier JSON valide exporté depuis CinéCollection.",
-          variant: "destructive",
-        });
-      } finally {
-        // Reset file input value to allow re-importing the same file if needed
-        event.target.value = '';
-      }
-    };
-    reader.onerror = () => {
-        toast({
-            title: "Erreur de lecture du fichier",
-            description: "Impossible de lire le fichier sélectionné.",
-            variant: "destructive",
-        });
-        event.target.value = '';
-    }
-    reader.readAsText(file);
+      });
   };
 
+  const handleImportFromCode = () => {
+    if (!importCode.trim()) {
+      toast({
+        title: "Aucun code à importer",
+        description: "Veuillez coller votre code d'importation dans la zone de texte.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setIsImporting(true);
+
+    try {
+      const jsonString = atob(importCode.trim()); // Decode from Base64
+      const importedData = JSON.parse(jsonString);
+
+      if (Array.isArray(importedData.toWatchList) && Array.isArray(importedData.watchedList)) {
+        const isValidMediaArray = (arr: any[]): arr is Media[] => 
+          arr.every(item => typeof item.id === 'string' && typeof item.title === 'string' && (item.mediaType === 'movie' || item.mediaType === 'tv'));
+
+        if (isValidMediaArray(importedData.toWatchList) && isValidMediaArray(importedData.watchedList)) {
+          setLists(importedData.toWatchList, importedData.watchedList);
+          toast({
+            title: "Importation réussie",
+            description: "Vos listes ont été importées avec succès.",
+          });
+          setImportCode(''); // Clear input after successful import
+          setExportedCode(null); // Clear any previously generated export code
+        } else {
+          throw new Error("Le code importé ne contient pas de données de listes valides.");
+        }
+      } else {
+        throw new Error("Le code importé n'a pas la structure attendue (toWatchList et watchedList).");
+      }
+    } catch (error) {
+      console.error("Erreur lors de l'importation depuis le code :", error);
+      let errorMessage = "Un problème est survenu lors du traitement du code. Assurez-vous qu'il s'agit d'un code valide exporté depuis CinéCollection.";
+      if (error instanceof Error) {
+        if (error.message.includes("not correctly encoded") || error.name === "InvalidCharacterError") {
+            errorMessage = "Le code fourni n'est pas un code Base64 valide.";
+        } else if (error instanceof SyntaxError) {
+            errorMessage = "Le code décodé n'est pas un JSON valide.";
+        } else {
+            errorMessage = error.message;
+        }
+      }
+      toast({
+        title: "Erreur d'importation",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setIsImporting(false);
+    }
+  };
 
   const renderList = (list: Media[], listType: 'toWatch' | 'watched') => {
     if (!isLoaded) {
@@ -149,7 +173,7 @@ export default function MyListsPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-8">
         {list.map((media) => (
           <MediaCard
-            key={`${media.id}-${media.mediaType}`} // Ensure unique key if IDs can repeat across types (though unlikely with TMDB IDs)
+            key={`${media.id}-${media.mediaType}`}
             media={media}
             onAddToList={addToList}
             onRemoveFromList={removeFromList}
@@ -162,42 +186,69 @@ export default function MyListsPage() {
 
   return (
     <div className="space-y-10">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
         <h1 className="text-3xl md:text-4xl font-extrabold text-foreground tracking-tight">Mes Listes</h1>
-        <Card className="shadow-md rounded-xl w-full sm:w-auto">
-          <CardHeader className="pb-3 pt-4 px-4">
-            <CardTitle className="text-lg font-semibold flex items-center gap-2 text-foreground">
-              <FileJson className="h-5 w-5 text-primary"/>Gestion des données
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="px-4 pb-4 flex flex-col sm:flex-row gap-3">
-            <Button onClick={handleExportLists} variant="outline" className="w-full sm:w-auto" disabled={!isLoaded}>
-              <Download className="mr-2 h-4 w-4" /> Exporter mes listes
-            </Button>
-            <Button asChild variant="outline" className="w-full sm:w-auto" disabled={!isLoaded}>
-              <label htmlFor="import-file-input" className="cursor-pointer">
-                <Upload className="mr-2 h-4 w-4" /> Importer des listes
-                <input
-                  id="import-file-input"
-                  type="file"
-                  accept=".json"
-                  onChange={handleImportLists}
-                  className="sr-only"
-                  disabled={!isLoaded}
-                />
-              </label>
-            </Button>
-          </CardContent>
-        </Card>
       </div>
       
       <Alert variant="default" className="bg-accent/20 border-accent/50 text-accent-foreground [&>svg]:text-accent">
         <AlertTriangle className="h-5 w-5" />
-        <AlertTitle className="font-semibold">Fonctionnalité d'import/export</AlertTitle>
+        <AlertTitle className="font-semibold">Gestion des données par code</AlertTitle>
         <AlertDescription>
-          Vous pouvez exporter vos listes actuelles "À Regarder" et "Vus" dans un fichier JSON. Ce fichier peut ensuite être réimporté pour restaurer vos listes. L'importation remplacera les listes existantes.
+          Vous pouvez générer un code unique (format Base64) pour sauvegarder vos listes "À Regarder" et "Vus".
+          Collez ce code ultérieurement pour restaurer vos listes. L'importation remplacera les listes existantes.
         </AlertDescription>
       </Alert>
+
+      <Card className="shadow-md rounded-xl">
+        <CardHeader>
+          <CardTitle className="text-xl font-semibold flex items-center gap-2 text-foreground">
+            <Code2 className="h-6 w-6 text-primary"/>Gérer mes données
+          </CardTitle>
+          <CardDescription>
+            Exportez vos listes sous forme de code ou importez un code pour restaurer vos données.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div>
+            <Button onClick={handleGenerateExportCode} variant="default" className="w-full sm:w-auto" disabled={!isLoaded || isExporting}>
+              {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Copy className="mr-2 h-4 w-4" />}
+              Générer le code d'exportation
+            </Button>
+            {exportedCode && (
+              <div className="mt-4 space-y-2">
+                <Textarea
+                  readOnly
+                  value={exportedCode}
+                  className="h-32 resize-none bg-muted/50 font-mono text-xs"
+                  aria-label="Code d'exportation généré"
+                />
+                <Button onClick={handleCopyToClipboard} variant="outline" size="sm" className="w-full sm:w-auto">
+                  <Copy className="mr-2 h-4 w-4" /> Copier le code
+                </Button>
+              </div>
+            )}
+          </div>
+          
+          <hr className="border-border"/>
+
+          <div>
+            <h3 className="text-lg font-medium mb-2 text-foreground">Importer depuis un code</h3>
+            <Textarea
+              placeholder="Collez votre code d'exportation ici..."
+              value={importCode}
+              onChange={(e) => setImportCode(e.target.value)}
+              className="h-32 resize-none font-mono text-xs mb-3"
+              aria-label="Zone de texte pour coller le code d'importation"
+              disabled={isImporting}
+            />
+            <Button onClick={handleImportFromCode} variant="default" className="w-full sm:w-auto" disabled={!isLoaded || isImporting || !importCode.trim()}>
+              {isImporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ClipboardPaste className="mr-2 h-4 w-4" />}
+              Importer depuis le code
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
 
       <Tabs defaultValue="toWatch" className="w-full">
         <TabsList className="grid w-full grid-cols-2 md:w-auto md:inline-flex mb-8 bg-muted p-1.5 rounded-lg">
@@ -218,3 +269,4 @@ export default function MyListsPage() {
     </div>
   );
 }
+
