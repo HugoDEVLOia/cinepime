@@ -15,6 +15,9 @@ import { Sheet, SheetContent, SheetClose, SheetTrigger, SheetHeader, SheetTitle 
 export const metadata: Metadata = {
   title: 'CinéCollection',
   description: 'Suivez les films et séries que vous regardez, voulez regarder, et obtenez des statistiques personnalisées.',
+  icons: {
+    icon: '/icone.png', // Référence à icone.png dans le dossier public
+  },
 };
 
 export default function RootLayout({
