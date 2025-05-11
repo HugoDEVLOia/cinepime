@@ -1,10 +1,11 @@
+
 import type { Metadata } from 'next';
 import { GeistSans } from 'geist/font/sans';
 import { GeistMono } from 'geist/font/mono';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import Link from 'next/link';
-import { Film, Clapperboard, Search, Tv, BarChart3, MessageSquareText, Menu } from 'lucide-react';
+import { Film, Clapperboard, Search, Tv, BarChart3, MessageSquareText, Menu, SettingsIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import SearchBar from '@/components/search-bar';
 import Chatbot from '@/components/chatbot';
@@ -49,6 +50,11 @@ export default function RootLayout({
                         <BarChart3 className="h-4 w-4" /> Statistiques
                     </Button>
                   </Link>
+                  <Link href="/settings" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+                    <Button variant="ghost" className="gap-2 px-4 py-2">
+                        <SettingsIcon className="h-4 w-4" /> Paramètres
+                    </Button>
+                  </Link>
                 </nav>
                 <div className="w-full max-w-xs md:max-w-sm ml-2">
                   <SearchBar />
@@ -91,6 +97,13 @@ export default function RootLayout({
                           <Link href="/stats">
                             <Button variant="ghost" className="w-full justify-start gap-3 px-3 py-2.5 text-base">
                               <BarChart3 className="h-5 w-5 text-muted-foreground" /> Statistiques
+                            </Button>
+                          </Link>
+                        </SheetClose>
+                        <SheetClose asChild>
+                          <Link href="/settings">
+                            <Button variant="ghost" className="w-full justify-start gap-3 px-3 py-2.5 text-base">
+                              <SettingsIcon className="h-5 w-5 text-muted-foreground" /> Paramètres
                             </Button>
                           </Link>
                         </SheetClose>
