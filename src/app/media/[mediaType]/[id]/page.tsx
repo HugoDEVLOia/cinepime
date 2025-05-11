@@ -4,6 +4,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, notFound } from 'next/navigation';
 import Image from 'next/image';
+import Link from 'next/link';
 import {
   getMediaDetails,
   getSeriesSeasons,
@@ -358,19 +359,30 @@ export default function MediaDetailsPage() {
               <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2 text-foreground"><Users className="text-primary"/>Distribution Principale</h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                 {actors.slice(0, mediaType === 'movie' ? 5 : 10).map(actor => (
-                  <Card key={actor.id} className="text-center p-3 shadow-md rounded-lg bg-card hover:shadow-lg transition-shadow">
-                    <Image
-                      src={actor.profileUrl}
-                      alt={actor.name}
-                      width={100}
-                      height={150}
-                      className="rounded-md object-cover mx-auto mb-2 aspect-[2/3]"
-                      data-ai-hint="profil acteur"
-                       onError={(e) => { e.currentTarget.src = 'https://picsum.photos/100/150?grayscale'; }}
-                    />
-                    <p className="text-sm font-medium text-foreground">{actor.name}</p>
-                    {actor.character && <p className="text-xs text-muted-foreground line-clamp-2">{actor.character}</p>}
-                  </Card>
+                  <a 
+                    key={actor.id} 
+                    href={`https://www.google.com/search?q=${encodeURIComponent(actor.name)}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="block group"
+                    title={`Rechercher ${actor.name} sur Google`}
+                  >
+                    <Card className="text-center p-3 shadow-md rounded-lg bg-card group-hover:shadow-lg transition-shadow h-full flex flex-col">
+                      <div className="aspect-[2/3] w-full overflow-hidden rounded-md mb-2">
+                        <Image
+                          src={actor.profileUrl}
+                          alt={actor.name}
+                          width={100}
+                          height={150}
+                          className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
+                          data-ai-hint="profil acteur"
+                          onError={(e) => { e.currentTarget.src = 'https://picsum.photos/100/150?grayscale'; }}
+                        />
+                      </div>
+                      <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{actor.name}</p>
+                      {actor.character && <p className="text-xs text-muted-foreground line-clamp-2 mt-auto pt-1">{actor.character}</p>}
+                    </Card>
+                  </a>
                 ))}
               </div>
             </div>
@@ -379,21 +391,31 @@ export default function MediaDetailsPage() {
           {director && (
             <div>
               <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2 text-foreground"><User className="text-primary"/>Réalisation</h2>
-              <Card className="flex items-center p-4 gap-4 shadow-md rounded-lg bg-card hover:shadow-lg transition-shadow w-full sm:w-auto sm:max-w-xs">
-                <Image
-                  src={director.profileUrl}
-                  alt={director.name}
-                  width={60}
-                  height={90}
-                  className="rounded-md object-cover aspect-[2/3]"
-                  data-ai-hint="profil realisateur"
-                  onError={(e) => { e.currentTarget.src = 'https://picsum.photos/60/90?grayscale'; }}
-                />
-                <div>
-                  <p className="text-md font-semibold text-foreground">{director.name}</p>
-                  <p className="text-sm text-muted-foreground">Réalisateur</p>
-                </div>
-              </Card>
+              <a 
+                href={`https://www.google.com/search?q=${encodeURIComponent(director.name + " réalisateur")}`} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="inline-block group"
+                title={`Rechercher ${director.name} sur Google`}
+              >
+                <Card className="flex items-center p-4 gap-4 shadow-md rounded-lg bg-card group-hover:shadow-lg transition-shadow w-full sm:w-auto sm:max-w-xs">
+                  <div className="aspect-[2/3] w-[60px] h-[90px] rounded-md overflow-hidden">
+                    <Image
+                      src={director.profileUrl}
+                      alt={director.name}
+                      width={60}
+                      height={90}
+                      className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
+                      data-ai-hint="profil realisateur"
+                      onError={(e) => { e.currentTarget.src = 'https://picsum.photos/60/90?grayscale'; }}
+                    />
+                  </div>
+                  <div>
+                    <p className="text-md font-semibold text-foreground group-hover:text-primary transition-colors">{director.name}</p>
+                    <p className="text-sm text-muted-foreground">Réalisateur</p>
+                  </div>
+                </Card>
+              </a>
             </div>
           )}
         </div>
