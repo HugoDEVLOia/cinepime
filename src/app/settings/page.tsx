@@ -1,4 +1,3 @@
-
 'use client';
 
 import type { ChangeEvent } from 'react';
@@ -38,7 +37,8 @@ export default function SettingsPage() {
         watchedList,
       };
       const jsonString = JSON.stringify(dataToExport, null, 2);
-      const base64String = btoa(jsonString); 
+      // Encode to Base64, handling potential UTF-8 characters
+      const base64String = btoa(unescape(encodeURIComponent(jsonString)));
       setExportedCode(base64String);
       toast({
         title: "Code d'exportation généré",
@@ -94,7 +94,8 @@ export default function SettingsPage() {
     setIsImporting(true);
 
     try {
-      const jsonString = atob(importCode.trim()); 
+      // Decode from Base64, handling potential UTF-8 characters
+      const jsonString = decodeURIComponent(escape(atob(importCode.trim())));
       const importedData = JSON.parse(jsonString);
 
       if (Array.isArray(importedData.toWatchList) && Array.isArray(importedData.watchedList)) {
@@ -119,8 +120,8 @@ export default function SettingsPage() {
       console.error("Erreur lors de l'importation depuis le code :", error);
       let errorMessage = "Un problème est survenu lors du traitement du code. Assurez-vous qu'il s'agit d'un code valide exporté depuis CinéCollection.";
       if (error instanceof Error) {
-        if (error.message.includes("not correctly encoded") || error.name === "InvalidCharacterError") {
-            errorMessage = "Le code fourni n'est pas un code Base64 valide.";
+        if (error.message.includes("not correctly encoded") || error.name === "InvalidCharacterError" || error.message.toLowerCase().includes("the string to be decoded is not correctly encoded")) {
+            errorMessage = "Le code fourni n'est pas un code Base64 valide ou est corrompu.";
         } else if (error instanceof SyntaxError) {
             errorMessage = "Le code décodé n'est pas un JSON valide.";
         } else {
@@ -207,3 +208,4 @@ export default function SettingsPage() {
     </div>
   );
 }
+
