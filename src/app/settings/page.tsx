@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { ChangeEvent } from 'react';
@@ -5,10 +6,11 @@ import { useState } from 'react';
 import { useMediaLists, type Media } from '@/hooks/use-media-lists';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Copy, ClipboardPaste, Code2, AlertTriangle, Loader2, SettingsIcon } from 'lucide-react';
+import { Copy, ClipboardPaste, Code2, AlertTriangle, Loader2, SettingsIcon, SunMoon } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Textarea } from '@/components/ui/textarea';
+import { ThemeSwitcher } from '@/components/theme-switcher';
 
 export default function SettingsPage() {
   const { toWatchList, watchedList, setLists, isLoaded } = useMediaLists();
@@ -94,13 +96,17 @@ export default function SettingsPage() {
     setIsImporting(true);
 
     try {
-      // Decode from Base64, handling potential UTF-8 characters
       const jsonString = decodeURIComponent(escape(atob(importCode.trim())));
       const importedData = JSON.parse(jsonString);
 
       if (Array.isArray(importedData.toWatchList) && Array.isArray(importedData.watchedList)) {
         const isValidMediaArray = (arr: any[]): arr is Media[] => 
-          arr.every(item => typeof item.id === 'string' && typeof item.title === 'string' && (item.mediaType === 'movie' || item.mediaType === 'tv'));
+          arr.every(item => 
+            typeof item.id === 'string' && // TMDB IDs are numbers but we store them as strings
+            typeof item.title === 'string' && 
+            (item.mediaType === 'movie' || item.mediaType === 'tv')
+            // Add other essential property checks if necessary
+          );
 
         if (isValidMediaArray(importedData.toWatchList) && isValidMediaArray(importedData.watchedList)) {
           setLists(importedData.toWatchList, importedData.watchedList);
@@ -111,27 +117,28 @@ export default function SettingsPage() {
           setImportCode(''); 
           setExportedCode(null); 
         } else {
-          throw new Error("Le code importé ne contient pas de données de listes valides.");
+          throw new Error("Le code importé ne contient pas de données de listes valides (structure ou types incorrects).");
         }
       } else {
-        throw new Error("Le code importé n'a pas la structure attendue (toWatchList et watchedList).");
+        throw new Error("Le code importé n'a pas la structure attendue (toWatchList et watchedList arrays).");
       }
     } catch (error) {
       console.error("Erreur lors de l'importation depuis le code :", error);
       let errorMessage = "Un problème est survenu lors du traitement du code. Assurez-vous qu'il s'agit d'un code valide exporté depuis CinéCollection.";
       if (error instanceof Error) {
-        if (error.message.includes("not correctly encoded") || error.name === "InvalidCharacterError" || error.message.toLowerCase().includes("the string to be decoded is not correctly encoded")) {
+        if (error.message.includes("not correctly encoded") || error.name === "InvalidCharacterError" || error.message.toLowerCase().includes("the string to be decoded is not correctly encoded") || error.message.toLowerCase().includes("failed to execute 'atob'")) {
             errorMessage = "Le code fourni n'est pas un code Base64 valide ou est corrompu.";
-        } else if (error instanceof SyntaxError) {
-            errorMessage = "Le code décodé n'est pas un JSON valide.";
+        } else if (error instanceof SyntaxError) { // JSON.parse error
+            errorMessage = "Le code décodé n'est pas un JSON valide. Il pourrait être corrompu ou malformé.";
         } else {
-            errorMessage = error.message;
+            errorMessage = error.message; // Use the specific error message if available
         }
       }
       toast({
         title: "Erreur d'importation",
         description: errorMessage,
         variant: "destructive",
+        duration: 7000, // Longer duration for error messages
       });
     } finally {
       setIsImporting(false);
@@ -159,10 +166,24 @@ export default function SettingsPage() {
       <Card className="shadow-md rounded-xl">
         <CardHeader>
           <CardTitle className="text-xl font-semibold flex items-center gap-2 text-foreground">
-            <Code2 className="h-6 w-6 text-primary"/>Gérer mes données
+            <SunMoon className="h-6 w-6 text-primary"/>Thème de l'application
           </CardTitle>
           <CardDescription>
-            Exportez vos listes sous forme de code ou importez un code pour restaurer vos données.
+            Choisissez votre thème préféré pour l'interface.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ThemeSwitcher />
+        </CardContent>
+      </Card>
+
+      <Card className="shadow-md rounded-xl">
+        <CardHeader>
+          <CardTitle className="text-xl font-semibold flex items-center gap-2 text-foreground">
+            <Code2 className="h-6 w-6 text-primary"/>Gérer mes données (Listes)
+          </CardTitle>
+          <CardDescription>
+            Exportez vos listes "À Regarder" et "Vus" sous forme de code ou importez un code pour restaurer vos données.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -208,4 +229,3 @@ export default function SettingsPage() {
     </div>
   );
 }
-

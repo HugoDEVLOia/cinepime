@@ -10,13 +10,14 @@ import { Button } from '@/components/ui/button';
 import SearchBar from '@/components/search-bar';
 import Chatbot from '@/components/chatbot';
 import { Sheet, SheetContent, SheetClose, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { ThemeProvider } from '@/contexts/theme-provider';
 
 
 export const metadata: Metadata = {
   title: 'CinéCollection',
   description: 'Suivez les films et séries que vous regardez, voulez regarder, et obtenez des statistiques personnalisées.',
   icons: {
-    icon: '/icone.png', // Référence à icone.png dans le dossier public
+    icon: '/icone.png', 
   },
 };
 
@@ -26,8 +27,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" className="scrollbar-thin">
-      <body className={`${GeistSans.variable} ${GeistMono.variable} antialiased flex flex-col min-h-screen bg-background`}>
+    <html lang="fr" className="scrollbar-thin" suppressHydrationWarning>
+      <body className={`${GeistSans.variable} ${GeistMono.variable} antialiased flex flex-col min-h-screen`}>
+        <ThemeProvider
+          defaultTheme="system"
+          storageKey="cinecollection-ui-theme"
+        >
           <header className="sticky top-0 z-50 w-full border-b border-border bg-card/80 backdrop-blur-md shadow-sm">
             <div className="container flex h-20 items-center justify-between px-4 sm:px-6 lg:px-8">
               <Link href="/" className="flex items-center gap-2 group">
@@ -127,6 +132,7 @@ export default function RootLayout({
           </footer>
           <Toaster />
           <Chatbot />
+        </ThemeProvider>
       </body>
     </html>
   );
