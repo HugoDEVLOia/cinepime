@@ -118,6 +118,13 @@ export function useMediaLists() {
     return false;
   }, [toWatchList, watchedList, isLoaded]);
 
+  const setLists = useCallback((newToWatch: Media[], newWatched: Media[]) => {
+    setToWatchList(newToWatch);
+    updateLocalStorage('toWatch', newToWatch);
+    setWatchedList(newWatched);
+    updateLocalStorage('watched', newWatched);
+  }, [updateLocalStorage]);
+
   return {
     toWatchList,
     watchedList,
@@ -125,5 +132,6 @@ export function useMediaLists() {
     removeFromList,
     isInList,
     isLoaded,
+    setLists, // Export the new function
   };
 }
