@@ -1,4 +1,3 @@
-
 'use client';
 
 import type { Actor } from '@/services/tmdb';
@@ -141,10 +140,10 @@ export default function StatsPage() {
       <div>
         <h1 className="text-3xl md:text-4xl font-extrabold mb-8 text-foreground tracking-tight">Mes Statistiques</h1>
         <Tabs defaultValue="stats" className="w-full">
-          <TabsList className="grid w-full grid-cols-1 md:grid-cols-3 md:w-auto md:inline-flex mb-8 bg-muted p-1.5 rounded-lg">
-            <TabsTrigger value="stats" className="gap-2 px-4 py-2.5 text-sm data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md"><BarChartBig className="h-4 w-4" />Statistiques</TabsTrigger>
-            <TabsTrigger value="genres" className="gap-2 px-4 py-2.5 text-sm data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md"><Pyramid className="h-4 w-4" />Genres</TabsTrigger>
-            <TabsTrigger value="actors" className="gap-2 px-4 py-2.5 text-sm data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md"><Users className="h-4 w-4" />Acteurs</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 sm:w-auto mb-8 bg-muted p-1.5 rounded-lg">
+            <TabsTrigger value="stats" className="flex items-center justify-center rounded-md gap-2 px-3 py-2 text-xs sm:px-4 sm:py-2.5 sm:text-sm data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md"><BarChartBig className="h-4 w-4" />Statistiques</TabsTrigger>
+            <TabsTrigger value="genres" className="flex items-center justify-center rounded-md gap-2 px-3 py-2 text-xs sm:px-4 sm:py-2.5 sm:text-sm data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md"><Pyramid className="h-4 w-4" />Genres</TabsTrigger>
+            <TabsTrigger value="actors" className="flex items-center justify-center rounded-md gap-2 px-3 py-2 text-xs sm:px-4 sm:py-2.5 sm:text-sm data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md"><Users className="h-4 w-4" />Acteurs</TabsTrigger>
           </TabsList>
           
           <TabsContent value="stats">
@@ -211,14 +210,14 @@ export default function StatsPage() {
     <div>
       <h1 className="text-3xl md:text-4xl font-extrabold mb-8 text-foreground tracking-tight">Mes Statistiques</h1>
       <Tabs defaultValue="stats" className="w-full">
-        <TabsList className="grid w-full grid-cols-1 md:grid-cols-3 md:w-auto md:inline-flex mb-8 bg-muted p-1.5 rounded-lg">
-          <TabsTrigger value="stats" className="gap-2 px-4 py-2.5 text-sm data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md">
+        <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 sm:w-auto mb-8 bg-muted p-1.5 rounded-lg">
+          <TabsTrigger value="stats" className="flex items-center justify-center rounded-md gap-2 px-3 py-2 text-xs sm:px-4 sm:py-2.5 sm:text-sm data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md">
             <BarChartBig className="h-4 w-4" />Statistiques
           </TabsTrigger>
-          <TabsTrigger value="genres" className="gap-2 px-4 py-2.5 text-sm data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md">
+          <TabsTrigger value="genres" className="flex items-center justify-center rounded-md gap-2 px-3 py-2 text-xs sm:px-4 sm:py-2.5 sm:text-sm data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md">
             <Pyramid className="h-4 w-4" />Genres
           </TabsTrigger>
-          <TabsTrigger value="actors" className="gap-2 px-4 py-2.5 text-sm data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md">
+          <TabsTrigger value="actors" className="flex items-center justify-center rounded-md gap-2 px-3 py-2 text-xs sm:px-4 sm:py-2.5 sm:text-sm data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md">
             <Users className="h-4 w-4" />Acteurs
           </TabsTrigger>
         </TabsList>
@@ -308,21 +307,23 @@ export default function StatsPage() {
           {genreStats.length > 0 ? (
             <Card className="shadow-lg rounded-xl p-6 bg-card">
               <ChartContainer config={genreChartConfig} className="w-full h-[400px]">
-                <BarChart data={genreChartData} layout="vertical" margin={{ right: 30, left: 50 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                  <XAxis type="number" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                  <YAxis type="category" dataKey="name" stroke="hsl(var(--muted-foreground))" width={120} fontSize={12} interval={0} />
-                  <ChartTooltip 
-                    cursor={{ fill: 'hsl(var(--accent)/0.3)'}}
-                    content={<ChartTooltipContent />} 
-                   />
-                  <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
-                  <Bar dataKey="total" name="Nombre de titres">
-                     {genreChartData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.fill} />
-                      ))}
-                  </Bar>
-                </BarChart>
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={genreChartData} layout="vertical" margin={{ right: 30, left: 50, bottom: 20 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis type="number" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                    <YAxis type="category" dataKey="name" stroke="hsl(var(--muted-foreground))" width={120} fontSize={12} interval={0} tick={{dy: 2}} />
+                    <ChartTooltip 
+                      cursor={{ fill: 'hsl(var(--accent)/0.3)'}}
+                      content={<ChartTooltipContent />} 
+                     />
+                    <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
+                    <Bar dataKey="total" name="Nombre de titres">
+                       {genreChartData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.fill} />
+                        ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
               </ChartContainer>
             </Card>
           ) : (
@@ -372,3 +373,4 @@ export default function StatsPage() {
     </div>
   );
 }
+
