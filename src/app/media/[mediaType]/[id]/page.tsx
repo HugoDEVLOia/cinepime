@@ -22,7 +22,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Star, Users, User, Clapperboard, Tv, CalendarDays, Clock, Eye, CheckCircle, FilmIcon, ServerCrash, Info, ChevronRight, Loader2, PlaySquare, Radio, ExternalLink } from 'lucide-react';
+import { Star, Users, User, Clapperboard, Tv, CalendarDays, Clock, Eye, CheckCircle, FilmIcon, ServerCrash, Info, ChevronRight, Loader2, PlaySquare, Radio, ExternalLink, Shield } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import MediaCard from '@/components/media-card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -324,6 +324,23 @@ export default function MediaDetailsPage() {
                   <span>{media.numberOfSeasons} Saison{media.numberOfSeasons > 1 ? 's' : ''}</span>
                 </div>
               )}
+              {media.contentRating && (
+                <div className="flex items-center" title={`Classification : ${media.contentRating}`}>
+                  <Shield className="w-5 h-5 mr-1.5 text-primary" />
+                  <Badge
+                    variant={
+                      media.contentRating === 'TP' || media.contentRating === 'Tous publics'
+                        ? 'secondary'
+                        : ['16', '18', '18+', '-18', 'TV-MA'].some(r => media.contentRating?.includes(r))
+                        ? 'destructive'
+                        : 'outline'
+                    }
+                    className="text-xs font-semibold"
+                  >
+                    {media.contentRating}
+                  </Badge>
+                </div>
+              )}
             </div>
           </div>
 
@@ -542,6 +559,7 @@ function MediaDetailsSkeleton({ mediaType }: { mediaType: 'movie' | 'tv' }) {
             <Skeleton className="h-6 w-40 rounded-md" /> {/* Date de sortie */}
             {mediaType === 'movie' && <Skeleton className="h-6 w-24 rounded-md" />} {/* Durée */}
             {mediaType === 'tv' && <Skeleton className="h-6 w-28 rounded-md" />} {/* Saisons */}
+            <Skeleton className="h-6 w-16 rounded-md" /> {/* Content Rating Skeleton */}
           </div>
           <Skeleton className="h-24 w-full rounded-lg" /> {/* Description */}
           <div className="flex flex-col sm:flex-row gap-3">

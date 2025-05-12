@@ -55,8 +55,9 @@ export interface Media {
     cast: Actor[];
     crew: any[]; 
   };
-  watchProviders?: WatchProvidersResults; // Added watch provider information
+  watchProviders?: WatchProvidersResults;
   popularity?: number;
+  contentRating?: string; // PEGI/Certification rating
 }
 
 export interface Actor {
@@ -126,26 +127,55 @@ const mapApiActorToActor = (actor: any): Actor => ({
   character: actor.character,
 });
 
-const mapApiMediaToMedia = (item: any, mediaType: 'movie' | 'tv'): Media => ({
-  id: item.id.toString(),
-  title: item.title || item.name || 'Titre inconnu',
-  description: item.overview || 'Aucune description disponible.',
-  posterUrl: getSafeImageUrl(item.poster_path),
-  averageRating: item.vote_average ? parseFloat(item.vote_average.toFixed(1)) : 0,
-  mediaType,
-  releaseDate: item.release_date || item.first_air_date,
-  runtime: item.runtime,
-  numberOfSeasons: item.number_of_seasons,
-  genres: item.genres || [],
-  cast: item.credits?.cast ? item.credits.cast.slice(0, 10).map(mapApiActorToActor) : (item.cast || []),
-  videos: item.videos?.results ? item.videos.results.map(mapApiVideoToVideo).filter((v: Video) => v.site === 'YouTube') : [],
-  credits: item.credits ? { 
-    cast: item.credits.cast.map(mapApiActorToActor),
-    crew: item.credits.crew,
-   } : undefined,
-  watchProviders: item['watch/providers']?.results, // Map watch provider data
-  popularity: item.popularity,
-});
+const mapApiMediaToMedia = (item: any, mediaType: 'movie' | 'tv'): Media => {
+  let contentRating: string | undefined = undefined;
+
+  if (mediaType === 'movie' && item.release_dates && item.release_dates.results) {
+    const frReleaseInfo = item.release_dates.results.find((r: any) => r.iso_3166_1 === 'FR');
+    if (frReleaseInfo && frReleaseInfo.release_dates && frReleaseInfo.release_dates.length > 0) {
+      const validCertifications = frReleaseInfo.release_dates
+        .filter((rd: any) => rd.certification && rd.certification.trim() !== "")
+        .sort((a: any, b: any) => {
+          const typePriority = (type: number) => (type === 3 ? 1 : type === 4 ? 2 : 3); // Prioritize Theatrical, then Digital
+          return typePriority(a.type) - typePriority(b.type);
+        });
+      if (validCertifications.length > 0) {
+        contentRating = validCertifications[0].certification;
+      }
+    }
+  } else if (mediaType === 'tv' && item.content_ratings && item.content_ratings.results) {
+    const frRatingInfo = item.content_ratings.results.find((r: any) => r.iso_3166_1 === 'FR');
+    if (frRatingInfo && frRatingInfo.rating && frRatingInfo.rating.trim() !== '') {
+      contentRating = frRatingInfo.rating;
+    }
+  }
+  
+  // Standardize "Tous publics"
+  if (contentRating === 'U') contentRating = 'TP';
+
+
+  return {
+    id: item.id.toString(),
+    title: item.title || item.name || 'Titre inconnu',
+    description: item.overview || 'Aucune description disponible.',
+    posterUrl: getSafeImageUrl(item.poster_path),
+    averageRating: item.vote_average ? parseFloat(item.vote_average.toFixed(1)) : 0,
+    mediaType,
+    releaseDate: item.release_date || item.first_air_date,
+    runtime: item.runtime,
+    numberOfSeasons: item.number_of_seasons,
+    genres: item.genres || [],
+    cast: item.credits?.cast ? item.credits.cast.slice(0, 10).map(mapApiActorToActor) : (item.cast || []),
+    videos: item.videos?.results ? item.videos.results.map(mapApiVideoToVideo).filter((v: Video) => v.site === 'YouTube') : [],
+    credits: item.credits ? {
+      cast: item.credits.cast.map(mapApiActorToActor),
+      crew: item.credits.crew,
+    } : undefined,
+    watchProviders: item['watch/providers']?.results,
+    popularity: item.popularity,
+    contentRating: contentRating,
+  };
+};
 
 
 const mapApiDirectorToDirector = (crewMember: any): Director => ({
@@ -235,7 +265,12 @@ export async function getTrendingMedia(page: number = 1, timeWindow: Exclude<Tim
 
 export async function getMediaDetails(mediaId: string, mediaType: 'movie' | 'tv'): Promise<Media | null> {
   try {
-    const response = await fetch(`${BASE_URL}/${mediaType}/${mediaId}?api_key=${API_KEY}&language=${LANGUAGE}&append_to_response=credits,videos,watch/providers`);
+    // Added release_dates for movies and content_ratings for TV for certification info
+    const appendToResponse = 'credits,videos,watch/providers' +
+                             (mediaType === 'movie' ? ',release_dates' : '') +
+                             (mediaType === 'tv' ? ',content_ratings' : '');
+
+    const response = await fetch(`${BASE_URL}/${mediaType}/${mediaId}?api_key=${API_KEY}&language=${LANGUAGE}&append_to_response=${appendToResponse}`);
     if (!response.ok) {
       console.error(`Échec de la récupération des détails ${mediaType}:`, response.status, await response.text());
       return null;
