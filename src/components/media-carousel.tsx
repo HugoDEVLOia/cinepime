@@ -44,7 +44,7 @@ export default function MediaCarousel({
                   <MediaCard
                     media={item}
                     onAddToList={onAddToList}
-                    onRemoveFromList={removeFromList}
+                    onRemoveFromList={onRemoveFromList}
                     isInList={isInList}
                     imageLoading={index < 4 ? 'eager' : 'lazy'} // Prioritize loading for first few items
                   />
