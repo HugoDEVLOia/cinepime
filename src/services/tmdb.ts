@@ -60,6 +60,19 @@ export interface Media {
   contentRating?: string; // PEGI/Certification rating
 }
 
+// Minimal media type for credits list
+export interface PersonCreditMedia {
+  id: string;
+  title: string;
+  posterUrl: string;
+  mediaType: 'movie' | 'tv';
+  character?: string; // For acting credits
+  job?: string; // For crew credits
+  releaseDate?: string;
+  averageRating: number;
+}
+
+
 export interface Actor {
   id: string;
   name: string;
@@ -71,6 +84,22 @@ export interface Director {
   id: string;
   name: string;
   profileUrl: string;
+}
+
+export interface Person {
+    id: string;
+    name: string;
+    biography: string;
+    profileUrl: string;
+    birthday: string | null;
+    deathday: string | null;
+    placeOfBirth: string | null;
+    knownForDepartment: string; // "Acting", "Directing", etc.
+    alsoKnownAs: string[];
+    filmography: {
+        cast: PersonCreditMedia[];
+        crew: PersonCreditMedia[];
+    }
 }
 
 export interface Season {
@@ -94,19 +123,20 @@ export interface Episode {
   airDate?: string;
 }
 
-const getSafeImageUrl = (path: string | null | undefined): string => {
+const getSafeImageUrl = (path: string | null | undefined, size: 'w500' | 'original' = 'w500'): string => {
   if (path) {
-    return `${IMAGE_BASE_URL}${path}`;
+    return `https://image.tmdb.org/t/p/${size}${path}`;
   }
   return 'https://picsum.photos/500/750?grayscale&blur=2'; 
 };
 
 const getSafeProfileImageUrl = (path: string | null | undefined): string => {
   if (path) {
-    return `${IMAGE_BASE_URL}${path}`;
+    return `https://image.tmdb.org/t/p/w500${path}`;
   }
-  return 'https://picsum.photos/100/150?grayscale'; 
+  return 'https://picsum.photos/500/750?grayscale'; 
 };
+
 
 const mapApiVideoToVideo = (video: any): Video => ({
   id: video.id,
@@ -426,4 +456,66 @@ export async function getMediaRecommendations(mediaId: string, mediaType: 'movie
   }
 }
 
-    
+const mapApiCreditToPersonCreditMedia = (credit: any): PersonCreditMedia => {
+    const mediaType = credit.media_type === 'movie' ? 'movie' : 'tv';
+    return {
+        id: credit.id.toString(),
+        title: credit.title || credit.name || 'Titre inconnu',
+        posterUrl: getSafeImageUrl(credit.poster_path),
+        mediaType: mediaType,
+        character: credit.character,
+        job: credit.job,
+        releaseDate: credit.release_date || credit.first_air_date,
+        averageRating: credit.vote_average ? parseFloat(credit.vote_average.toFixed(1)) : 0,
+    };
+};
+
+export async function getPersonDetails(personId: string): Promise<Person | null> {
+    try {
+        const appendToResponse = 'combined_credits';
+        const response = await fetch(`${BASE_URL}/person/${personId}?api_key=${API_KEY}&language=${LANGUAGE}&append_to_response=${appendToResponse}`);
+        
+        if (!response.ok) {
+            console.error(`Échec de la récupération des détails de la personne:`, response.status, await response.text());
+            return null;
+        }
+        
+        const data = await response.json();
+
+        // Process credits
+        const filmography = {
+            cast: data.combined_credits.cast
+                .filter((c: any) => (c.media_type === 'movie' || c.media_type === 'tv') && c.poster_path)
+                .map(mapApiCreditToPersonCreditMedia),
+            crew: data.combined_credits.crew
+                .filter((c: any) => (c.media_type === 'movie' || c.media_type === 'tv') && c.poster_path)
+                .map(mapApiCreditToPersonCreditMedia)
+        };
+
+        // Remove duplicates and sort by date
+        const uniqueCast = Array.from(new Map(filmography.cast.map(item => [item.id, item])).values())
+            .sort((a, b) => new Date(b.releaseDate || 0).getTime() - new Date(a.releaseDate || 0).getTime());
+        
+        const uniqueCrew = Array.from(new Map(filmography.crew.map(item => [item.id, item])).values())
+            .sort((a, b) => new Date(b.releaseDate || 0).getTime() - new Date(a.releaseDate || 0).getTime());
+
+        return {
+            id: data.id.toString(),
+            name: data.name,
+            biography: data.biography || "Aucune biographie disponible.",
+            profileUrl: getSafeProfileImageUrl(data.profile_path),
+            birthday: data.birthday,
+            deathday: data.deathday,
+            placeOfBirth: data.place_of_birth,
+            knownForDepartment: data.known_for_department,
+            alsoKnownAs: data.also_known_as,
+            filmography: {
+                cast: uniqueCast,
+                crew: uniqueCrew,
+            }
+        };
+    } catch (error) {
+        console.error('Erreur lors de la récupération des détails de la personne:', error);
+        return null;
+    }
+}

@@ -376,13 +376,11 @@ export default function MediaDetailsPage() {
               <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2 text-foreground"><Users className="text-primary"/>Distribution Principale</h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                 {actors.slice(0, mediaType === 'movie' ? 5 : 10).map(actor => (
-                  <a 
+                  <Link
                     key={actor.id} 
-                    href={`https://www.google.com/search?q=${encodeURIComponent(actor.name)}`} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
+                    href={`/person/${actor.id}`}
                     className="block group"
-                    title={`Rechercher ${actor.name} sur Google`}
+                    title={`Voir le profil de ${actor.name}`}
                   >
                     <Card className="text-center p-3 shadow-md rounded-lg bg-card group-hover:shadow-lg transition-shadow h-full flex flex-col">
                       <div className="aspect-[2/3] w-full overflow-hidden rounded-md mb-2">
@@ -399,7 +397,7 @@ export default function MediaDetailsPage() {
                       <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{actor.name}</p>
                       {actor.character && <p className="text-xs text-muted-foreground line-clamp-2 mt-auto pt-1">{actor.character}</p>}
                     </Card>
-                  </a>
+                  </Link>
                 ))}
               </div>
             </div>
@@ -408,12 +406,10 @@ export default function MediaDetailsPage() {
           {director && (
             <div>
               <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2 text-foreground"><User className="text-primary"/>Réalisation</h2>
-              <a 
-                href={`https://www.google.com/search?q=${encodeURIComponent(director.name + " réalisateur")}`} 
-                target="_blank" 
-                rel="noopener noreferrer" 
+              <Link 
+                href={`/person/${director.id}`}
                 className="inline-block group"
-                title={`Rechercher ${director.name} sur Google`}
+                title={`Voir le profil de ${director.name}`}
               >
                 <Card className="flex items-center p-4 gap-4 shadow-md rounded-lg bg-card group-hover:shadow-lg transition-shadow w-full sm:w-auto sm:max-w-xs">
                   <div className="aspect-[2/3] w-[60px] h-[90px] rounded-md overflow-hidden">
@@ -432,7 +428,7 @@ export default function MediaDetailsPage() {
                     <p className="text-sm text-muted-foreground">Réalisateur</p>
                   </div>
                 </Card>
-              </a>
+              </Link>
             </div>
           )}
         </div>
@@ -684,9 +680,5 @@ function getSafeProfileImageUrl(path: string | null | undefined): string {
   if (path) {
     return `https://image.tmdb.org/t/p/w500${path}`;
   }
-  return 'https://picsum.photos/100/150?grayscale'; 
+  return 'https://picsum.photos/500/750?grayscale'; 
 }
-
-    
-
-    
