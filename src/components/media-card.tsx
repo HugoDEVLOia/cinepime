@@ -3,11 +3,13 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Eye, CheckCircle, Star, CalendarDays, Film, TvIcon } from 'lucide-react';
+import { Eye, CheckCircle, Star, CalendarDays, Film, TvIcon, Loader2 } from 'lucide-react';
 import type { ListType } from '@/hooks/use-media-lists';
 import { Badge } from './ui/badge';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Skeleton } from './ui/skeleton';
+import { useMediaLists } from '@/hooks/use-media-lists';
+
 
 interface MediaCardProps {
   media: Media;
@@ -18,28 +20,27 @@ interface MediaCardProps {
 }
 
 export default function MediaCard({ media, onAddToList, onRemoveFromList, isInList, imageLoading = 'lazy' }: MediaCardProps) {
+  const [isProcessing, setIsProcessing] = useState<ListType | null>(null);
+
   const isToWatch = isInList(media.id, 'toWatch');
   const isWatched = isInList(media.id, 'watched');
-  const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleToggleList = async (list: ListType) => {
-    setIsProcessing(true);
-    const currentlyInList = isInList(media.id, list);
-    
-    if (currentlyInList) {
-      onRemoveFromList(media.id, list);
-    } else {
-      await onAddToList(media, list);
-      // This logic should now be correctly handled by the hook's updated state
-      if (list === 'watched' && isInList(media.id, 'toWatch')) {
-         onRemoveFromList(media.id, 'toWatch');
-      } else if (list === 'toWatch' && isInList(media.id, 'watched')) {
-         onRemoveFromList(media.id, 'watched');
-      }
+  const handleToggleList = useCallback(async (listType: ListType) => {
+    setIsProcessing(listType);
+    try {
+        const currentlyInList = isInList(media.id, listType);
+        if (currentlyInList) {
+            onRemoveFromList(media.id, listType);
+        } else {
+            await onAddToList(media, listType);
+        }
+    } catch (error) {
+        console.error(`Error toggling list for ${media.title}:`, error);
+    } finally {
+        // A short delay to provide visual feedback before the state updates and re-renders the component
+        setTimeout(() => setIsProcessing(null), 400);
     }
-    // Artificial delay to let user see the effect. Consider removing or replacing with optimistic UI.
-    setTimeout(() => setIsProcessing(false), 300);
-  };
+  }, [media, onAddToList, onRemoveFromList, isInList]);
 
   return (
     <Card className="overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out flex flex-col h-full group border border-border/60 hover:border-primary/50 bg-card rounded-xl">
@@ -99,9 +100,9 @@ export default function MediaCard({ media, onAddToList, onRemoveFromList, isInLi
             aria-pressed={isToWatch}
             title={isToWatch ? "Retirer de 'À Regarder'" : "Ajouter à 'À Regarder'"}
             className="flex-1 text-xs py-2.5"
-            disabled={isProcessing}
+            disabled={!!isProcessing}
           >
-            <Eye className="mr-1.5 h-4 w-4" />
+            {isProcessing === 'toWatch' ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <Eye className="mr-1.5 h-4 w-4" />}
             À Regarder
           </Button>
           <Button
@@ -111,9 +112,9 @@ export default function MediaCard({ media, onAddToList, onRemoveFromList, isInLi
             aria-pressed={isWatched}
             title={isWatched ? "Retirer de 'Vus'" : "Marquer comme Vu"}
             className="flex-1 text-xs py-2.5"
-            disabled={isProcessing}
+            disabled={!!isProcessing}
           >
-            <CheckCircle className="mr-1.5 h-4 w-4" />
+            {isProcessing === 'watched' ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <CheckCircle className="mr-1.5 h-4 w-4" />}
             Vu
           </Button>
         </div>
@@ -133,3 +134,5 @@ export function MediaCardSkeleton() {
     </div>
   )
 }
+
+    

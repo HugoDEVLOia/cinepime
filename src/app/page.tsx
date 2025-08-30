@@ -15,7 +15,7 @@ import {
 import { useMediaLists } from '@/hooks/use-media-lists';
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ServerCrash, Star, CalendarDays, Clapperboard, Flame, Tv, Film } from 'lucide-react';
+import { ServerCrash, Star, CalendarDays, Clapperboard, Flame, Tv, Film, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import MediaCarousel from '@/components/media-carousel';
@@ -29,7 +29,7 @@ export default function HomePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const { addToList, removeFromList, isInList } = useMediaLists();
+  const { addToList, removeFromList, isInList, toWatchList, isLoaded } = useMediaLists();
 
   useEffect(() => {
     async function fetchAllMedia() {
@@ -129,6 +129,17 @@ export default function HomePage() {
           </div>
         </section>
       )}
+
+      {isLoaded && toWatchList.length > 0 && (
+         <MediaCarousel 
+          title="Ma Liste (À Regarder)"
+          media={toWatchList}
+          icon={<Eye className="h-7 w-7 text-primary" />}
+          onAddToList={addToList}
+          onRemoveFromList={removeFromList}
+          isInList={isInList}
+        />
+      )}
       
       {trending.length > 0 && (
          <MediaCarousel 
@@ -201,3 +212,5 @@ const HomePageSkeleton = () => (
     ))}
   </div>
 );
+
+    
