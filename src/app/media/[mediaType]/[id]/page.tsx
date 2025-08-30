@@ -686,3 +686,5 @@ function getSafeProfileImageUrl(path: string | null | undefined): string {
   }
   return 'https://picsum.photos/100/150?grayscale'; 
 }
+
+    
