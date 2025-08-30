@@ -22,7 +22,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Star, Users, User, Clapperboard, Tv, CalendarDays, Clock, Eye, CheckCircle, FilmIcon, ServerCrash, Info, ChevronRight, Loader2, PlaySquare, Radio, ExternalLink, Shield } from 'lucide-react';
+import { Star, Users, User, Clapperboard, Tv, CalendarDays, Clock, Eye, CheckCircle, FilmIcon, ServerCrash, Info, ChevronRight, Loader2, PlaySquare, Radio, ExternalLink, Shield, Link2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import MediaCard from '@/components/media-card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -446,6 +446,29 @@ export default function MediaDetailsPage() {
           <WatchProviderDisplay providers={media.watchProviders.FR} mediaTitle={media.title} />
         </section>
       )}
+
+      <section>
+        <h2 className="text-3xl font-bold mb-6 text-foreground flex items-center gap-2">
+          <Link2 className="text-primary h-7 w-7"/> Liens Directs
+        </h2>
+        <Card className="shadow-lg rounded-xl p-4 md:p-6 bg-card">
+          <CardContent className="p-0">
+            <div className="flex flex-wrap gap-3">
+              <Button asChild>
+                <a 
+                  href={`https://cinepulse.to/catalog?query=${encodeURIComponent(media.title)}&sort-by=pertinence`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center"
+                >
+                  Cinepulse <ExternalLink className="ml-2 h-4 w-4" />
+                </a>
+              </Button>
+              {/* D'autres boutons de services peuvent être ajoutés ici */}
+            </div>
+          </CardContent>
+        </Card>
+      </section>
 
       {trailerToDisplay && (
         <section>
