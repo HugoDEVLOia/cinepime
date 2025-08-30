@@ -337,7 +337,7 @@ export async function getSeriesSeasons(seriesId: string): Promise<Season[]> {
     const seasonsWithDetails = await Promise.all(seasonPromises);
     return seasonsWithDetails
         .filter(season => season !== null && season.episodes.length > 0)
-        .sort((a, b) => (a as Season).seasonNumber - (b as Season).seasonNumber) as Season[];
+        .sort((a, b) => ((a as Season).seasonNumber === 0 ? -1 : (a as Season).seasonNumber) - ((b as Season).seasonNumber === 0 ? -1 : (b as Season).seasonNumber)) as Season[];
 
 
   } catch (error) {
@@ -425,3 +425,5 @@ export async function getMediaRecommendations(mediaId: string, mediaType: 'movie
     return [];
   }
 }
+
+    

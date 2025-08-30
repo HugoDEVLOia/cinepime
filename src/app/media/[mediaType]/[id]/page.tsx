@@ -491,7 +491,7 @@ export default function MediaDetailsPage() {
 
       {mediaType === 'tv' && seasons.length > 0 && (
         <section>
-          <h2 className="text-3xl font-bold mb-6 text-foreground flex items-center gap-2"><Tv className="text-primary"/>Saisons &amp; Épisodes</h2>
+          <h2 className="text-3xl font-bold mb-6 text-foreground flex items-center gap-2"><Tv className="text-primary h-7 w-7"/>Saisons &amp; Épisodes</h2>
           <Accordion type="single" collapsible className="w-full space-y-4">
             {seasons.sort((a,b) => a.seasonNumber - b.seasonNumber).map(season => (
               <AccordionItem value={`season-${season.seasonNumber}`} key={season.id} className="border border-border bg-card rounded-xl shadow-sm hover:shadow-md transition-shadow">
@@ -548,7 +548,7 @@ export default function MediaDetailsPage() {
 
       {recommendations.length > 0 && (
         <section>
-          <h2 className="text-3xl font-bold mb-6 text-foreground flex items-center gap-2"><FilmIcon className="text-primary"/>Recommandations Similaires</h2>
+          <h2 className="text-3xl font-bold mb-6 text-foreground flex items-center gap-2"><FilmIcon className="text-primary h-7 w-7"/>Recommandations Similaires</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-8">
             {recommendations.slice(0, mediaType === 'movie' ? 5 : 10).map(rec => ( 
               <MediaCard
@@ -686,5 +686,7 @@ function getSafeProfileImageUrl(path: string | null | undefined): string {
   }
   return 'https://picsum.photos/100/150?grayscale'; 
 }
+
+    
 
     
