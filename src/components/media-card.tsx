@@ -7,42 +7,45 @@ import { Eye, CheckCircle, Star, CalendarDays, Film, TvIcon } from 'lucide-react
 import type { ListType } from '@/hooks/use-media-lists';
 import { Badge } from './ui/badge';
 import { useState } from 'react';
+import { Skeleton } from './ui/skeleton';
 
 interface MediaCardProps {
   media: Media;
   onAddToList: (media: Media, list: ListType) => Promise<void>;
   onRemoveFromList: (mediaId: string, list: ListType) => void;
   isInList: (mediaId: string, list: ListType) => boolean;
+  imageLoading?: 'eager' | 'lazy';
 }
 
-export default function MediaCard({ media, onAddToList, onRemoveFromList, isInList }: MediaCardProps) {
+export default function MediaCard({ media, onAddToList, onRemoveFromList, isInList, imageLoading = 'lazy' }: MediaCardProps) {
   const isToWatch = isInList(media.id, 'toWatch');
   const isWatched = isInList(media.id, 'watched');
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleToggleList = async (list: ListType) => {
     setIsProcessing(true);
-    if (isInList(media.id, list)) {
+    const currentlyInList = isInList(media.id, list);
+    
+    if (currentlyInList) {
       onRemoveFromList(media.id, list);
     } else {
       await onAddToList(media, list);
-      // La logique de suppression automatique de l'autre liste doit être gérée
-      // après que l'état de la liste actuelle a été mis à jour (ce qui est fait par onAddToList/onRemoveFromList)
-      // Il est préférable de s'appuyer sur les valeurs mises à jour de isInList après l'opération principale.
+      // This logic should now be correctly handled by the hook's updated state
       if (list === 'watched' && isInList(media.id, 'toWatch')) {
          onRemoveFromList(media.id, 'toWatch');
       } else if (list === 'toWatch' && isInList(media.id, 'watched')) {
          onRemoveFromList(media.id, 'watched');
       }
     }
-    setIsProcessing(false);
+    // Artificial delay to let user see the effect. Consider removing or replacing with optimistic UI.
+    setTimeout(() => setIsProcessing(false), 300);
   };
 
   return (
     <Card className="overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out flex flex-col h-full group border border-border/60 hover:border-primary/50 bg-card rounded-xl">
       <CardHeader className="p-0 relative">
         <Link href={`/media/${media.mediaType}/${media.id}`} aria-label={`Voir les détails de ${media.title}`} className="block">
-          <div className="aspect-[2/3] w-full overflow-hidden rounded-t-xl">
+          <div className="aspect-[2/3] w-full overflow-hidden rounded-t-xl bg-muted">
             <Image
               src={media.posterUrl}
               alt={`Affiche de ${media.title}`}
@@ -50,10 +53,11 @@ export default function MediaCard({ media, onAddToList, onRemoveFromList, isInLi
               height={750}
               className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
               data-ai-hint={`${media.mediaType === 'movie' ? 'affiche film' : 'affiche serie'}`}
+              loading={imageLoading}
               onError={(e) => {
                 e.currentTarget.src = 'https://picsum.photos/500/750?grayscale&blur=2';
               }}
-              priority={false} 
+              priority={imageLoading === 'eager'} 
             />
           </div>
         </Link>
@@ -62,10 +66,10 @@ export default function MediaCard({ media, onAddToList, onRemoveFromList, isInLi
           {media.mediaType === 'movie' ? 'Film' : 'Série'}
         </Badge>
       </CardHeader>
-      <CardContent className="p-4 flex-grow flex flex-col justify-between">
+      <CardContent className="p-3 flex-grow flex flex-col justify-between">
         <div>
           <Link href={`/media/${media.mediaType}/${media.id}`} className="hover:text-primary transition-colors">
-            <CardTitle className="text-lg font-bold mb-1.5 line-clamp-2 leading-tight text-foreground">
+            <CardTitle className="text-md font-bold mb-1.5 line-clamp-2 leading-tight text-foreground group-hover:text-primary">
               {media.title}
             </CardTitle>
           </Link>
@@ -87,8 +91,8 @@ export default function MediaCard({ media, onAddToList, onRemoveFromList, isInLi
         </div>
       </CardContent>
       <CardFooter className="p-3 pt-0 flex flex-col items-center sm:flex-row sm:justify-center gap-2 border-t border-border/50 mt-auto">
-        <div className="flex gap-2">
-        <Button
+        <div className="flex gap-2 w-full">
+          <Button
             variant={isToWatch ? "default" : "outline"}
             size="sm"
             onClick={() => handleToggleList('toWatch')}
@@ -116,4 +120,16 @@ export default function MediaCard({ media, onAddToList, onRemoveFromList, isInLi
       </CardFooter>
     </Card>
   );
+}
+
+export function MediaCardSkeleton() {
+  return (
+     <div className="flex flex-col space-y-3">
+      <Skeleton className="h-[270px] sm:h-[330px] w-full rounded-xl" />
+      <div className="space-y-2 p-1">
+        <Skeleton className="h-4 w-5/6" />
+        <Skeleton className="h-4 w-2/3" />
+      </div>
+    </div>
+  )
 }

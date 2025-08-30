@@ -1,200 +1,203 @@
 
 'use client';
 
-import { useEffect, useState, useCallback, useRef } from 'react';
-import { getTrendingMedia, type Media, type TimeWindow } from '@/services/tmdb';
-import MediaCard from '@/components/media-card';
+import { useEffect, useState } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+
+import { 
+  getTrendingMedia, 
+  getPopularMedia,
+  type Media, 
+  type MediaType
+} from '@/services/tmdb';
+
 import { useMediaLists } from '@/hooks/use-media-lists';
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ServerCrash, Loader2 } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ServerCrash, Star, CalendarDays, Clapperboard, Flame, Tv, Film } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import MediaCarousel from '@/components/media-carousel';
 
-const pageTitleMap: Record<Exclude<TimeWindow, 'all'>, string> = {
-  day: "Tendances du Jour",
-  week: "Tendances de la Semaine",
-  month: "Tendances du Mois",
-  year: "Tendances de l'Année",
-};
 
 export default function HomePage() {
-  const [trendingMedia, setTrendingMedia] = useState<Media[]>([]);
+  const [heroMedia, setHeroMedia] = useState<Media | null>(null);
+  const [trending, setTrending] = useState<Media[]>([]);
+  const [popularMovies, setPopularMovies] = useState<Media[]>([]);
+  const [popularTv, setPopularTv] = useState<Media[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [currentTimeWindow, setCurrentTimeWindow] = useState<Exclude<TimeWindow, 'all'>>('week');
+
   const { addToList, removeFromList, isInList } = useMediaLists();
 
-  const observer = useRef<IntersectionObserver | null>(null);
-  const lastMediaElementRef = useCallback((node: HTMLDivElement | null) => {
-    if (isLoading || isLoadingMore) return;
-    if (observer.current) observer.current.disconnect();
-    observer.current = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting && currentPage < totalPages) {
-        setCurrentPage(prevPage => prevPage + 1);
-      }
-    });
-    if (node) observer.current.observe(node);
-  }, [isLoading, isLoadingMore, currentPage, totalPages]);
-
-  const fetchTrending = useCallback(async (pageToLoad: number, activeWindow: Exclude<TimeWindow, 'all'>) => {
-    if (pageToLoad === 1) {
-      setIsLoading(true);
-      setTrendingMedia([]); // Clear media when fetching page 1 for a new window or initial load
-    } else {
-      setIsLoadingMore(true);
-    }
-    setError(null);
-    try {
-      // Cast activeWindow to TimeWindow as getTrendingMedia expects the broader type for now,
-      // but we are only passing valid, non-'all' values.
-      const { media, totalPages: newTotalPages } = await getTrendingMedia(pageToLoad, activeWindow as TimeWindow);
-      if (pageToLoad === 1) {
-        setTrendingMedia(media); 
-      } else {
-        setTrendingMedia(prevMedia => [
-          ...prevMedia,
-          ...media.filter(newItem => !prevMedia.find(existingItem => existingItem.id === newItem.id))
-        ]);
-      }
-      setTotalPages(newTotalPages);
-    } catch (err) {
-      console.error(`Erreur lors de la récupération des médias populaires (${activeWindow}):`, err);
-      setError(`Échec du chargement des médias populaires. Veuillez réessayer plus tard.`);
-      if (pageToLoad === 1) setTrendingMedia([]); 
-    } finally {
-      if (pageToLoad === 1) {
-        setIsLoading(false);
-      } else {
-        setIsLoadingMore(false);
-      }
-    }
-  }, []); // Dependencies are stable setters: setIsLoading, setIsLoadingMore, setError, setTrendingMedia, setTotalPages
-
   useEffect(() => {
-    // This effect handles fetching data when page or time window changes.
-    // Fetch for page 1 if currentTimeWindow changes, otherwise fetch for currentPage
-    if (currentPage === 1) { // Ensures that when time window changes (and page is reset to 1), it fetches fresh
-      fetchTrending(1, currentTimeWindow);
-    } else { // For infinite scroll
-      fetchTrending(currentPage, currentTimeWindow);
+    async function fetchAllMedia() {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const [
+          trendingData,
+          popularMoviesData,
+          popularTvData
+        ] = await Promise.all([
+          getTrendingMedia(1, 'week'),
+          getPopularMedia('movie'),
+          getPopularMedia('tv')
+        ]);
+        
+        if (trendingData.media.length > 0) {
+          // Select a random media for the hero section from trending, preferring one with a backdrop
+          const heroCandidates = trendingData.media.filter(m => m.backdropUrl && m.backdropUrl.includes('image.tmdb.org'));
+          setHeroMedia(heroCandidates.length > 0 ? heroCandidates[0] : trendingData.media[0]);
+          setTrending(trendingData.media);
+        }
+        
+        setPopularMovies(popularMoviesData.media);
+        setPopularTv(popularTvData.media);
+
+      } catch (err) {
+        console.error("Erreur lors de la récupération des médias pour la page d'accueil:", err);
+        setError("Impossible de charger le contenu. Veuillez réessayer plus tard.");
+      } finally {
+        setIsLoading(false);
+      }
     }
-  }, [currentPage, currentTimeWindow, fetchTrending]);
+    fetchAllMedia();
+  }, []);
 
-
-  const handleTimeWindowChange = (newWindow: string) => {
-    const newTimeWindow = newWindow as Exclude<TimeWindow, 'all'>;
-    if (newTimeWindow !== currentTimeWindow) {
-      setCurrentTimeWindow(newTimeWindow);
-      setCurrentPage(1); // Reset to page 1 for the new time window
-      // fetchTrending will be called by the useEffect due to currentTimeWindow and currentPage change
-    }
-  };
-
-  const pageTitle = pageTitleMap[currentTimeWindow] || "Tendances";
-
-  const renderTabs = () => (
-    <Tabs defaultValue={currentTimeWindow} onValueChange={handleTimeWindowChange}>
-      <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 md:inline-flex md:w-auto gap-1.5 bg-muted p-1.5 rounded-lg">
-        <TabsTrigger value="day" className="flex items-center justify-center rounded-md gap-2 px-3 py-2 text-xs sm:px-4 sm:py-2.5 sm:text-sm data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md">Aujourd'hui</TabsTrigger>
-        <TabsTrigger value="week" className="flex items-center justify-center rounded-md gap-2 px-3 py-2 text-xs sm:px-4 sm:py-2.5 sm:text-sm data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md">Cette Semaine</TabsTrigger>
-        <TabsTrigger value="month" className="flex items-center justify-center rounded-md gap-2 px-3 py-2 text-xs sm:px-4 sm:py-2.5 sm:text-sm data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md">Ce Mois-ci</TabsTrigger>
-        <TabsTrigger value="year" className="flex items-center justify-center rounded-md gap-2 px-3 py-2 text-xs sm:px-4 sm:py-2.5 sm:text-sm data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md">Cette Année</TabsTrigger>
-      </TabsList>
-    </Tabs>
-  );
-  
-  if (isLoading && currentPage === 1) {
-    return (
-      <div>
-        <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-extrabold mb-4 text-foreground tracking-tight">{pageTitle}</h1>
-          {renderTabs()}
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-8">
-          {Array.from({ length: 10 }).map((_, index) => (
-            <div key={index} className="flex flex-col space-y-3">
-              <Skeleton className="h-[300px] w-full rounded-xl" />
-              <div className="space-y-2 p-2">
-                <Skeleton className="h-4 w-[200px]" />
-                <Skeleton className="h-4 w-[150px]" />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
+  if (isLoading) {
+    return <HomePageSkeleton />;
   }
 
-  if (error && trendingMedia.length === 0 && currentPage === 1) {
+  if (error) {
     return (
-      <div>
-         <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-extrabold mb-4 text-foreground tracking-tight">{pageTitle}</h1>
-          {renderTabs()}
-        </div>
-        <div className="flex flex-col items-center justify-center h-[calc(100vh-300px)]">
-          <Alert variant="destructive" className="max-w-md">
-            <ServerCrash className="h-5 w-5" />
-            <AlertTitle>Erreur</AlertTitle>
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        </div>
+      <div className="flex flex-col items-center justify-center h-[calc(100vh-200px)]">
+        <Alert variant="destructive" className="max-w-md shadow-lg">
+          <ServerCrash className="h-5 w-5" />
+          <AlertTitle>Erreur de Chargement</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       </div>
     );
   }
 
   return (
-    <div>
-      <div className="mb-8">
-        <h1 className="text-3xl md:text-4xl font-extrabold mb-4 text-foreground tracking-tight">{pageTitle}</h1>
-        {renderTabs()}
-      </div>
-
-      {trendingMedia.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-8">
-          {trendingMedia.map((media, index) => {
-            const card = (
-              <MediaCard                   
-                media={media}
-                onAddToList={addToList}
-                onRemoveFromList={removeFromList}
-                isInList={isInList}
-              />
-            );
-            if (trendingMedia.length === index + 1 && currentPage < totalPages && !isLoadingMore) {
-              return (
-                <div ref={lastMediaElementRef} key={`${media.id}-${media.mediaType}-observed`}>
-                  {card}
+    <div className="space-y-12 md:space-y-16">
+      {heroMedia && (
+        <section className="relative -mx-4 sm:-mx-6 lg:-mx-8 -mt-8 md:-mt-12 h-[60vh] md:h-[75vh] flex items-center justify-center text-white overflow-hidden rounded-b-2xl shadow-2xl">
+          <div className="absolute inset-0 z-0">
+            <Image
+              src={heroMedia.backdropUrl || heroMedia.posterUrl}
+              alt={`Image de fond pour ${heroMedia.title}`}
+              fill
+              className="object-cover object-center"
+              priority
+              data-ai-hint="hero background"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent z-10"></div>
+            <div className="absolute inset-0 bg-black/40 z-0"></div>
+          </div>
+          <div className="relative z-20 flex flex-col items-start max-w-2xl w-full text-left px-4 sm:px-6 lg:px-8">
+            <Badge variant={heroMedia.mediaType === 'movie' ? 'default' : 'secondary'} className="text-sm capitalize !px-3 !py-1.5 shadow-lg mb-4">
+                {heroMedia.mediaType === 'movie' ? <Film className="h-4 w-4 mr-1.5"/> : <Tv className="h-4 w-4 mr-1.5" />}
+                {heroMedia.mediaType === 'movie' ? 'Film' : 'Série'}
+            </Badge>
+            <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-white shadow-2xl">
+              {heroMedia.title}
+            </h1>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-white/90 text-sm md:text-base mt-3 mb-5">
+              <div className="flex items-center">
+                <Star className="w-5 h-5 mr-1.5 text-yellow-400 fill-yellow-400" />
+                <span className="font-medium">{heroMedia.averageRating.toFixed(1)}</span>
+              </div>
+              {heroMedia.releaseDate && (
+                <div className="flex items-center">
+                  <CalendarDays className="w-5 h-5 mr-1.5" />
+                  <span>{new Date(heroMedia.releaseDate).getFullYear()}</span>
                 </div>
-              );
-            }
-            return <div key={`${media.id}-${media.mediaType}`}>{card}</div>;
-          })}
-        </div>
+              )}
+            </div>
+            <p className="text-md md:text-lg text-white/80 leading-relaxed line-clamp-3 mb-6">
+              {heroMedia.description}
+            </p>
+            <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg">
+              <Link href={`/media/${heroMedia.mediaType}/${heroMedia.id}`}>
+                Voir les détails
+              </Link>
+            </Button>
+          </div>
+        </section>
       )}
-      {isLoadingMore && (
-        <div className="flex justify-center items-center my-10">
-          <Loader2 className="h-10 w-10 animate-spin text-primary" />
-          <p className="ml-3 text-muted-foreground">Chargement de plus de contenu...</p>
-        </div>
+      
+      {trending.length > 0 && (
+         <MediaCarousel 
+          title="Tendances Actuelles"
+          media={trending}
+          icon={<Flame className="h-7 w-7 text-primary" />}
+          onAddToList={addToList}
+          onRemoveFromList={removeFromList}
+          isInList={isInList}
+        />
       )}
-       {!isLoading && !isLoadingMore && trendingMedia.length === 0 && !error && (
-         <p className="text-center text-muted-foreground mt-12 text-lg">Aucun média populaire trouvé pour le moment.</p>
+
+      {popularMovies.length > 0 && (
+        <MediaCarousel 
+          title="Films Populaires"
+          media={popularMovies}
+          icon={<Film className="h-7 w-7 text-primary" />}
+          onAddToList={addToList}
+          onRemoveFromList={removeFromList}
+          isInList={isInList}
+        />
       )}
-      {error && trendingMedia.length > 0 && currentPage > 1 && ( // Show error for subsequent loads if they fail
-         <Alert variant="destructive" className="mt-10">
-          <ServerCrash className="h-5 w-5" />
-          <AlertTitle>Erreur lors du chargement</AlertTitle>
-          <AlertDescription>{error} Essayez de rafraîchir la page.</AlertDescription>
-        </Alert>
-      )}
-      {!isLoadingMore && currentPage >= totalPages && trendingMedia.length > 0 && (
-        <p className="text-center text-muted-foreground mt-12 text-lg">Vous avez atteint la fin des médias populaires.</p>
+
+      {popularTv.length > 0 && (
+        <MediaCarousel 
+          title="Séries Populaires"
+          media={popularTv}
+          icon={<Tv className="h-7 w-7 text-primary" />}
+          onAddToList={addToList}
+          onRemoveFromList={removeFromList}
+          isInList={isInList}
+        />
       )}
     </div>
   );
 }
 
+const HomePageSkeleton = () => (
+  <div className="space-y-12 md:space-y-16 animate-pulse">
+    {/* Hero Skeleton */}
+    <div className="relative -mx-4 sm:-mx-6 lg:-mx-8 -mt-8 md:-mt-12 h-[60vh] md:h-[75vh] bg-muted rounded-b-2xl">
+      <div className="relative z-20 flex flex-col items-start max-w-2xl w-full text-left p-8 md:p-12 self-end">
+        <Skeleton className="h-8 w-24 mb-4 rounded-full" />
+        <Skeleton className="h-14 md:h-20 w-3/4 mb-4 rounded-lg" />
+        <div className="flex gap-4 mb-5">
+            <Skeleton className="h-6 w-20 rounded-md" />
+            <Skeleton className="h-6 w-20 rounded-md" />
+        </div>
+        <Skeleton className="h-20 w-full mb-6 rounded-lg" />
+        <Skeleton className="h-12 w-40 rounded-lg" />
+      </div>
+    </div>
+    
+    {/* Carousel Skeleton */}
+    {[1, 2, 3].map((n) => (
+      <div key={n}>
+        <Skeleton className="h-10 w-64 mb-6 rounded-lg" />
+        <div className="flex space-x-6 md:space-x-8 overflow-hidden">
+          {Array.from({ length: 5 }).map((_, index) => (
+            <div key={index} className="flex flex-col space-y-3 min-w-[180px] sm:min-w-[220px]">
+              <Skeleton className="h-[270px] sm:h-[330px] w-full rounded-xl" />
+              <div className="space-y-2 p-1">
+                <Skeleton className="h-4 w-5/6" />
+                <Skeleton className="h-4 w-2/3" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    ))}
+  </div>
+);

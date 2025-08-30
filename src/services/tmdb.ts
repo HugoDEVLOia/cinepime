@@ -2,9 +2,11 @@
 const API_KEY = '7f47e5a98ff4014fedea0408a8390069';
 const BASE_URL = 'https://api.themoviedb.org/3';
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500'; // For posters and profile pictures
+const BACKDROP_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/original'; // For backdrop images
 const LANGUAGE = 'fr-FR';
 
 export type TimeWindow = 'day' | 'week' | 'month' | 'year';
+export type MediaType = 'movie' | 'tv';
 
 export interface Video {
   id: string;
@@ -43,8 +45,9 @@ export interface Media {
   title: string;
   description: string;
   posterUrl: string;
+  backdropUrl?: string;
   averageRating: number;
-  mediaType: 'movie' | 'tv';
+  mediaType: MediaType;
   releaseDate?: string;
   runtime?: number; // in minutes for movies
   numberOfSeasons?: number; // for tv shows
@@ -125,9 +128,10 @@ export interface Episode {
 
 const getSafeImageUrl = (path: string | null | undefined, size: 'w500' | 'original' = 'w500'): string => {
   if (path) {
-    return `https://image.tmdb.org/t/p/${size}${path}`;
+    const baseUrl = size === 'original' ? BACKDROP_IMAGE_BASE_URL : IMAGE_BASE_URL;
+    return `${baseUrl}${path}`;
   }
-  return 'https://picsum.photos/500/750?grayscale&blur=2'; 
+  return size === 'original' ? 'https://picsum.photos/1280/720?grayscale&blur=2' : 'https://picsum.photos/500/750?grayscale&blur=2'; 
 };
 
 const getSafeProfileImageUrl = (path: string | null | undefined): string => {
@@ -189,6 +193,7 @@ const mapApiMediaToMedia = (item: any, mediaType: 'movie' | 'tv'): Media => {
     title: item.title || item.name || 'Titre inconnu',
     description: item.overview || 'Aucune description disponible.',
     posterUrl: getSafeImageUrl(item.poster_path),
+    backdropUrl: getSafeImageUrl(item.backdrop_path, 'original'),
     averageRating: item.vote_average ? parseFloat(item.vote_average.toFixed(1)) : 0,
     mediaType,
     releaseDate: item.release_date || item.first_air_date,
@@ -214,6 +219,25 @@ const mapApiDirectorToDirector = (crewMember: any): Director => ({
   profileUrl: getSafeProfileImageUrl(crewMember.profile_path),
 });
 
+export async function getPopularMedia(mediaType: MediaType, page: number = 1): Promise<{ media: Media[], totalPages: number }> {
+  try {
+    const response = await fetch(`${BASE_URL}/${mediaType}/popular?api_key=${API_KEY}&language=${LANGUAGE}&page=${page}`);
+    if (!response.ok) {
+      console.error(`Failed to fetch popular ${mediaType}:`, response.status, await response.text());
+      return { media: [], totalPages: 1 };
+    }
+    const data = await response.json();
+    const media = data.results
+      .filter((item: any) => item.poster_path)
+      .map((item: any) => mapApiMediaToMedia(item, mediaType));
+    return { media, totalPages: data.total_pages };
+  } catch (error) {
+    console.error(`Error fetching popular ${mediaType}:`, error);
+    return { media: [], totalPages: 1 };
+  }
+}
+
+
 export async function getTrendingMedia(page: number = 1, timeWindow: Exclude<TimeWindow, 'all'> = 'week'): Promise<{ media: Media[], totalPages: number }> {
   if (timeWindow === 'day' || timeWindow === 'week') {
     try {
@@ -224,7 +248,7 @@ export async function getTrendingMedia(page: number = 1, timeWindow: Exclude<Tim
       }
       const data = await response.json();
       const media = data.results
-        .filter((item: any) => item.media_type === 'movie' || item.media_type === 'tv')
+        .filter((item: any) => (item.media_type === 'movie' || item.media_type === 'tv') && item.poster_path && item.backdrop_path)
         .map((item: any) => mapApiMediaToMedia(item, item.media_type as 'movie' | 'tv'));
       return { media, totalPages: data.total_pages };
     } catch (error) {
