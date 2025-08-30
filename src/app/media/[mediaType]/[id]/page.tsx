@@ -259,6 +259,7 @@ export default function MediaDetailsPage() {
   const isToWatch = isInList(media.id, 'toWatch');
   const isWatched = isInList(media.id, 'watched');
   const trailerToDisplay = findBestTrailer(media.videos);
+  const isAnimation = media.genres?.some(g => g.id === 16);
 
   const handleToggleList = async (listType: 'toWatch' | 'watched') => {
     if (!media) return;
@@ -460,7 +461,18 @@ export default function MediaDetailsPage() {
                   Cinepulse <ExternalLink className="ml-2 h-4 w-4" />
                 </a>
               </Button>
-              {/* D'autres boutons de services peuvent être ajoutés ici */}
+              {isAnimation && (
+                 <Button asChild>
+                  <a 
+                    href={`https://anime-sama.fr/catalogue/${media.title.toLowerCase().replace(/[\s:]/g, '-')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center"
+                  >
+                    Anime-Sama <ExternalLink className="ml-2 h-4 w-4" />
+                  </a>
+                </Button>
+              )}
             </div>
           </CardContent>
         </Card>
