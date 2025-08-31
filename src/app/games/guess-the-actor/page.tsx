@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getPopularMedia, getMediaDetails, searchActors, type Media, type Actor } from '@/services/tmdb';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Gamepad2, Trophy, Check, X, RotateCw, Home, ChevronsRight, Search, UserCheck, UserX, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
@@ -195,14 +194,13 @@ function ActorCombobox({
           setSearchTerm("");
           setSearchResults([]);
           setIsSearching(false);
-          // Keep selectedActorName to display the choice
       } else {
-         setSelectedActorName(""); // Clear name for new round
+         setSelectedActorName(""); 
       }
   }, [disabled]);
 
   useEffect(() => {
-    if (debouncedSearchTerm && open) {
+    if (debouncedSearchTerm) {
       setIsSearching(true);
       searchActors(debouncedSearchTerm).then(results => {
         setSearchResults(results);
@@ -210,23 +208,17 @@ function ActorCombobox({
       });
     } else {
       setSearchResults([]);
+      setIsSearching(false);
     }
-  }, [debouncedSearchTerm, open]);
+  }, [debouncedSearchTerm]);
 
   const handleSelect = (actor: Actor) => {
     onActorSelect(actor);
     setSelectedActorName(actor.name);
-    setSearchTerm(""); // Clear search input
+    setSearchTerm(""); 
     setOpen(false);
   };
   
-  // Clear search results when popover is closed
-  useEffect(() => {
-    if (!open) {
-      setSearchTerm("");
-    }
-  }, [open]);
-
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -248,7 +240,7 @@ function ActorCombobox({
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[300px] sm:w-[400px] p-0" align="start">
-        <Command>
+        <Command shouldFilter={false}>
           <CommandInput 
             placeholder="Chercher un acteur/actrice..." 
             value={searchTerm}
@@ -266,7 +258,7 @@ function ActorCombobox({
                   {searchResults.map((actor) => (
                     <CommandItem
                       key={actor.id}
-                      value={actor.id}
+                      value={actor.name} // Use name for value to allow CMDK filtering
                       onSelect={() => handleSelect(actor)}
                       className="flex items-center gap-2"
                     >
