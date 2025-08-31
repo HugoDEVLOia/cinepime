@@ -202,7 +202,7 @@ function ActorCombobox({
 
 
   useEffect(() => {
-    if (debouncedSearchTerm) {
+    if (debouncedSearchTerm.trim()) {
       setIsSearching(true);
       searchActors(debouncedSearchTerm).then(results => {
         setSearchResults(results);
@@ -217,9 +217,9 @@ function ActorCombobox({
   }, [debouncedSearchTerm, disabled]);
 
   const handleSelect = (actor: Actor) => {
-    onActorSelect(actor);
+    setSearchTerm(actor.name);
     setSelectedActorName(actor.name);
-    setSearchTerm(actor.name); 
+    onActorSelect(actor);
     setOpen(false);
   };
   
@@ -249,7 +249,6 @@ function ActorCombobox({
             placeholder="Chercher un acteur/actrice..." 
             value={searchTerm}
             onValueChange={setSearchTerm}
-            onFocus={() => setOpen(true)}
           />
           <CommandList>
             {isSearching ? (
@@ -265,7 +264,6 @@ function ActorCombobox({
                       key={actor.id}
                       value={actor.name}
                       onSelect={() => handleSelect(actor)}
-                      onClick={() => handleSelect(actor)}
                       className="flex items-center gap-2 cursor-pointer"
                     >
                       <Image 
