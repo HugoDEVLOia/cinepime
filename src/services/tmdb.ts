@@ -238,26 +238,32 @@ export async function getPopularMedia(
     page: number = 1,
     timeWindow?: Exclude<TimeWindow, 'all'>,
     genreId?: number,
-    decade?: number
+    decade?: number,
+    popularity?: 'popular' | 'niche',
+    rating?: number
 ): Promise<{ media: Media[], totalPages: number }> {
     let endpoint;
     let params = `api_key=${API_KEY}&language=${LANGUAGE}&page=${page}`;
 
-    if (genreId || decade) {
+    if (genreId || decade || popularity || rating) {
         endpoint = `/discover/${mediaType}`;
-        params += '&sort_by=popularity.desc';
+        const sortBy = popularity === 'niche' ? 'popularity.asc' : 'popularity.desc';
+        params += `&sort_by=${sortBy}`;
+        
         if (genreId) {
             params += `&with_genres=${genreId}`;
         }
         if (decade) {
             const startDate = `${decade}-01-01`;
             const endDate = `${decade + 9}-12-31`;
-            if (mediaType === 'movie') {
-                params += `&primary_release_date.gte=${startDate}&primary_release_date.lte=${endDate}`;
-            } else { // tv
-                params += `&first_air_date.gte=${startDate}&first_air_date.lte=${endDate}`;
-            }
+            const dateParam = mediaType === 'movie' ? 'primary_release_date' : 'first_air_date';
+            params += `&${dateParam}.gte=${startDate}&${dateParam}.lte=${endDate}`;
         }
+        if (rating) {
+            params += `&vote_average.gte=${rating}`;
+        }
+        // Add a minimum vote count to avoid obscure, unrated titles
+        params += '&vote_count.gte=100'; 
     } else {
         endpoint = `/${mediaType}/popular`;
     }
@@ -270,7 +276,7 @@ export async function getPopularMedia(
         }
         const data = await response.json();
         const media = data.results
-            .filter((item: any) => item.poster_path && item.vote_count > 50) // Filter out items with no poster or low vote count
+            .filter((item: any) => item.poster_path) // Filter out items with no poster
             .map((item: any) => mapApiMediaToMedia(item, mediaType));
         return { media, totalPages: data.total_pages };
     } catch (error) {

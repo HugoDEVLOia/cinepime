@@ -24,12 +24,14 @@ interface ChatMessage {
   timestamp: Date;
 }
 
-type QuizState = 'initial' | 'type' | 'genre' | 'decade' | 'results' | 'finished';
+type QuizState = 'initial' | 'type' | 'genre' | 'decade' | 'popularity' | 'rating' | 'results' | 'finished';
 
 interface QuizAnswers {
   mediaType: 'movie' | 'tv' | null;
   genre: { id: number; name: string } | null;
   decade: string | null;
+  popularity: 'popular' | 'niche' | null;
+  rating: number | null;
 }
 
 interface QuizOption {
@@ -51,6 +53,8 @@ const GENRES = [
 
 const DECADES = ["2020", "2010", "2000", "1990", "1980", "1970"];
 
+const RATINGS = ["8", "7", "6", "5", "Peu importe"];
+
 const QUIZ_QUESTIONS: Record<Exclude<QuizState, 'initial' | 'results' | 'finished'>, { question: string; options: QuizOption[] }> = {
   type: {
     question: "Bonjour ! Je suis CinéConseiller. Je vais vous poser quelques questions pour trouver votre film ou série idéal(e).\n\nCommençons : cherchez-vous un **Film** ou une **Série** ?",
@@ -64,16 +68,26 @@ const QUIZ_QUESTIONS: Record<Exclude<QuizState, 'initial' | 'results' | 'finishe
     question: "Noté ! Dans quelle décennie devrions-nous chercher ?",
     options: DECADES.map(d => ({ value: d, label: `Années ${d}`})),
   },
+  popularity: {
+    question: "Préférez-vous un grand succès populaire ou une pépite plus confidentielle ?",
+    options: [
+        { value: 'popular', label: 'Populaire' },
+        { value: 'niche', label: 'Pépite méconnue' }
+    ]
+  },
+  rating: {
+    question: "Quelle note minimale (sur 10) des spectateurs attendez-vous ?",
+    options: RATINGS.map(r => ({ value: r, label: r === "Peu importe" ? r : `${r}/10 et plus` }))
+  }
 };
 
 
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [quizState, setQuizState] = useState<QuizState>('initial');
-  const [answers, setAnswers] = useState<QuizAnswers>({ mediaType: null, genre: null, decade: null });
+  const [answers, setAnswers] = useState<QuizAnswers>({ mediaType: null, genre: null, decade: null, popularity: null, rating: null });
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   // --- Fonctions utilitaires ---
@@ -116,26 +130,21 @@ export default function Chatbot() {
   // --- Logique du Quiz ---
    const startQuiz = () => {
     setMessages([]);
-    setAnswers({ mediaType: null, genre: null, decade: null });
+    setAnswers({ mediaType: null, genre: null, decade: null, popularity: null, rating: null });
     setQuizState('initial');
   };
 
   useEffect(() => {
-    if (isOpen) {
-      if (quizState === 'initial') {
-        setMessages([]);
-        setAnswers({ mediaType: null, genre: null, decade: null });
+    if (isOpen && quizState === 'initial') {
+        startQuiz();
         setQuizState('type');
-      } else if (quizState === 'finished') {
-        // Ne rien faire pour permettre à l'utilisateur de voir les résultats
-      }
     }
   }, [isOpen, quizState]);
 
   useEffect(() => {
-    const askQuestion = async () => {
-      if (isLoading) return; // Don't ask if we are processing an answer
+    if (!isOpen || isLoading) return;
 
+    const askQuestion = async () => {
       let questionData;
       switch(quizState) {
         case 'type':
@@ -146,6 +155,12 @@ export default function Chatbot() {
           break;
         case 'decade':
           questionData = QUIZ_QUESTIONS.decade;
+          break;
+        case 'popularity':
+          questionData = QUIZ_QUESTIONS.popularity;
+          break;
+        case 'rating':
+          questionData = QUIZ_QUESTIONS.rating;
           break;
         case 'results':
             setIsLoading(true);
@@ -164,7 +179,7 @@ export default function Chatbot() {
       );
     }
     
-    if (isOpen && ['type', 'genre', 'decade', 'results'].includes(quizState)) {
+    if (['type', 'genre', 'decade', 'popularity', 'rating', 'results'].includes(quizState)) {
       askQuestion();
     }
   }, [quizState, isOpen, isLoading]);
@@ -172,29 +187,38 @@ export default function Chatbot() {
 
   const handleAnswer = (value: string, label: string) => {
     if (isLoading) return;
-    addMessage('user', label);
     setIsLoading(true);
+    addMessage('user', label);
 
-    let nextState: QuizState = quizState;
     const newAnswers = { ...answers };
+    let nextState: QuizState = quizState;
 
-    if (quizState === 'type') {
-      newAnswers.mediaType = value as 'movie' | 'tv';
-      nextState = 'genre';
-    } else if (quizState === 'genre') {
-      const selectedGenre = GENRES.find(g => g.name === value);
-      if (selectedGenre) {
-        newAnswers.genre = selectedGenre;
-      }
-      nextState = 'decade';
-    } else if (quizState === 'decade') {
-      newAnswers.decade = value;
-      nextState = 'results';
+    switch (quizState) {
+        case 'type':
+            newAnswers.mediaType = value as 'movie' | 'tv';
+            nextState = 'genre';
+            break;
+        case 'genre':
+            const selectedGenre = GENRES.find(g => g.name === value);
+            if (selectedGenre) newAnswers.genre = selectedGenre;
+            nextState = 'decade';
+            break;
+        case 'decade':
+            newAnswers.decade = value;
+            nextState = 'popularity';
+            break;
+        case 'popularity':
+            newAnswers.popularity = value as 'popular' | 'niche';
+            nextState = 'rating';
+            break;
+        case 'rating':
+            newAnswers.rating = value === "Peu importe" ? 0 : parseInt(value);
+            nextState = 'results';
+            break;
     }
     
     setAnswers(newAnswers);
-
-    // Use a small timeout to show the loading state and then trigger the next step
+    
     setTimeout(() => {
       setQuizState(nextState);
       setIsLoading(false);
@@ -212,9 +236,13 @@ export default function Chatbot() {
       
       try {
         const results = await getPopularMedia(
-            finalAnswers.mediaType!, 1, undefined, 
+            finalAnswers.mediaType!, 
+            1, 
+            undefined, 
             finalAnswers.genre?.id, 
-            finalAnswers.decade ? parseInt(finalAnswers.decade) : undefined
+            finalAnswers.decade ? parseInt(finalAnswers.decade) : undefined,
+            finalAnswers.popularity ?? undefined,
+            finalAnswers.rating ?? undefined,
         );
 
         if (results.media.length >= 3) {
@@ -354,5 +382,3 @@ export default function Chatbot() {
     </>
   );
 }
-
-    
