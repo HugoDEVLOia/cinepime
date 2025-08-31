@@ -6,7 +6,7 @@ const BACKDROP_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/original'; // For ba
 const LANGUAGE = 'fr-FR';
 
 export type TimeWindow = 'day' | 'week' | 'month' | 'year';
-export type MediaType = 'movie' | 'tv';
+export type MediaType = 'movie' | 'tv' | 'person';
 
 export interface Video {
   id: string;
@@ -61,6 +61,7 @@ export interface Media {
   watchProviders?: WatchProvidersResults;
   popularity?: number;
   contentRating?: string; // PEGI/Certification rating
+  knownForDepartment?: string;
 }
 
 // Minimal media type for credits list
@@ -161,8 +162,21 @@ const mapApiActorToActor = (actor: any): Actor => ({
   character: actor.character,
 });
 
-const mapApiMediaToMedia = (item: any, mediaType: 'movie' | 'tv'): Media => {
+const mapApiMediaToMedia = (item: any, mediaType: MediaType): Media => {
   let contentRating: string | undefined = undefined;
+
+  if (mediaType === 'person') {
+    return {
+      id: item.id.toString(),
+      title: item.name || 'Nom inconnu',
+      description: item.known_for_department || 'Artiste',
+      posterUrl: getSafeProfileImageUrl(item.profile_path),
+      averageRating: 0, 
+      mediaType: 'person',
+      knownForDepartment: item.known_for_department,
+      popularity: item.popularity
+    }
+  }
 
   if (mediaType === 'movie' && item.release_dates && item.release_dates.results) {
     const frReleaseInfo = item.release_dates.results.find((r: any) => r.iso_3166_1 === 'FR');
@@ -219,7 +233,7 @@ const mapApiDirectorToDirector = (crewMember: any): Director => ({
   profileUrl: getSafeProfileImageUrl(crewMember.profile_path),
 });
 
-export async function getPopularMedia(mediaType: MediaType, page: number = 1): Promise<{ media: Media[], totalPages: number }> {
+export async function getPopularMedia(mediaType: 'movie' | 'tv', page: number = 1): Promise<{ media: Media[], totalPages: number }> {
   try {
     const response = await fetch(`${BASE_URL}/${mediaType}/popular?api_key=${API_KEY}&language=${LANGUAGE}&page=${page}`);
     if (!response.ok) {
@@ -455,8 +469,8 @@ export async function searchMedia(query: string): Promise<Media[]> {
     }
     const data = await response.json();
     return data.results
-      .filter((item: any) => (item.media_type === 'movie' || item.media_type === 'tv') && item.poster_path) 
-      .map((item: any) => mapApiMediaToMedia(item, item.media_type as 'movie' | 'tv'));
+      .filter((item: any) => (item.media_type === 'movie' || item.media_type === 'tv' || item.media_type === 'person') && (item.poster_path || item.profile_path))
+      .map((item: any) => mapApiMediaToMedia(item, item.media_type as MediaType));
   } catch (error) {
     console.error('Erreur lors de la recherche de médias:', error);
     return [];

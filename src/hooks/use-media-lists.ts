@@ -27,7 +27,6 @@ export function useMediaLists() {
         }
       } catch (error) {
         console.error("Erreur lors du chargement des listes depuis localStorage:", error);
-        // Potentiellement réinitialiser les listes ou informer l'utilisateur
       }
       setIsLoaded(true);
     }
@@ -42,73 +41,7 @@ export function useMediaLists() {
       }
     }
   }, []);
-
-  const addToList = useCallback(async (mediaItem: Media, list: ListType) => {
-    // We create a fresh copy to avoid unintended mutations and ensure no stale data is used.
-    let itemToAdd = { ...mediaItem };
-
-    // When adding to 'watched', we want the most complete data for stats.
-    // Check if we need to fetch more details.
-    const needsDetails =
-      list === 'watched' && (
-      !itemToAdd.genres?.length ||
-      !itemToAdd.cast?.length ||
-      (itemToAdd.mediaType === 'movie' && (typeof itemToAdd.runtime !== 'number' || itemToAdd.runtime === 0))
-    );
-
-    if (needsDetails) {
-      console.log(`Récupération des détails pour "${itemToAdd.title}" avant l'ajout à la liste des vus.`);
-      try {
-        // Fetch full, fresh details from the API.
-        const detailedMedia = await getMediaDetails(itemToAdd.id, itemToAdd.mediaType);
-        if (detailedMedia) {
-          itemToAdd = detailedMedia; // Use the complete, detailed media object.
-        } else {
-          console.warn(`Impossible de récupérer les détails pour "${itemToAdd.title}". Utilisation des données potentiellement incomplètes.`);
-        }
-      } catch (error) {
-        console.error(`Erreur lors de la récupération des détails pour "${itemToAdd.title}":`, error);
-        // Continue with the current itemToAdd (potentially incomplete) as a fallback.
-      }
-    }
-
-    const performListUpdate = (
-      setListFn: React.Dispatch<React.SetStateAction<Media[]>>,
-      storageKey: ListType
-    ) => {
-      setListFn((currentList) => {
-        // Prevent duplicates by checking if the item already exists.
-        if (currentList.some(item => item.id === itemToAdd.id)) {
-          // If it's already in the 'watched' list, we might want to update it with the new detailed info.
-          if (storageKey === 'watched') {
-              const updatedList = currentList.map(item => item.id === itemToAdd.id ? itemToAdd : item);
-              updateLocalStorage(storageKey, updatedList);
-              return updatedList;
-          }
-          return currentList; // No change if it already exists in 'toWatch'.
-        }
-        
-        // Add the new item to the beginning of the list.
-        const newList = [itemToAdd, ...currentList];
-        updateLocalStorage(storageKey, newList);
-        return newList;
-      });
-    };
-    
-    // Logic to handle moving items between lists.
-    // If an item is marked as 'watched', it should be removed from 'toWatch'.
-    if (list === 'watched') {
-      performListUpdate(setWatchedList, 'watched');
-      removeFromList(itemToAdd.id, 'toWatch');
-    } 
-    // If an item is added to 'toWatch', it should be removed from 'watched'.
-    else if (list === 'toWatch') {
-      performListUpdate(setToWatchList, 'toWatch');
-      removeFromList(itemToAdd.id, 'watched');
-    }
-  }, [updateLocalStorage]);
-
-
+  
   const removeFromList = useCallback((mediaId: string, list: ListType) => {
     const updateListState = (setListFn: React.Dispatch<React.SetStateAction<Media[]>>, storageKey: ListType) => {
       setListFn(prevList => {
@@ -126,6 +59,63 @@ export function useMediaLists() {
       updateListState(setWatchedList, 'watched');
     }
   }, [updateLocalStorage]);
+
+
+  const addToList = useCallback(async (mediaItem: Media, list: ListType) => {
+    let itemToAdd = { ...mediaItem };
+
+    const needsDetails =
+      list === 'watched' &&
+      itemToAdd.mediaType !== 'person' && 
+      (
+        !itemToAdd.genres?.length ||
+        !itemToAdd.cast?.length ||
+        (itemToAdd.mediaType === 'movie' && (typeof itemToAdd.runtime !== 'number' || itemToAdd.runtime === 0))
+      );
+
+    if (needsDetails && itemToAdd.mediaType !== 'person') {
+      console.log(`Récupération des détails pour "${itemToAdd.title}" avant l'ajout à la liste des vus.`);
+      try {
+        const detailedMedia = await getMediaDetails(itemToAdd.id, itemToAdd.mediaType);
+        if (detailedMedia) {
+          itemToAdd = detailedMedia;
+        } else {
+          console.warn(`Impossible de récupérer les détails pour "${itemToAdd.title}". Utilisation des données potentiellement incomplètes.`);
+        }
+      } catch (error) {
+        console.error(`Erreur lors de la récupération des détails pour "${itemToAdd.title}":`, error);
+      }
+    }
+
+    const performListUpdate = (
+      setListFn: React.Dispatch<React.SetStateAction<Media[]>>,
+      storageKey: ListType
+    ) => {
+      setListFn((currentList) => {
+        if (currentList.some(item => item.id === itemToAdd.id)) {
+          if (storageKey === 'watched') {
+              const updatedList = currentList.map(item => item.id === itemToAdd.id ? itemToAdd : item);
+              updateLocalStorage(storageKey, updatedList);
+              return updatedList;
+          }
+          return currentList; 
+        }
+        
+        const newList = [itemToAdd, ...currentList];
+        updateLocalStorage(storageKey, newList);
+        return newList;
+      });
+    };
+    
+    if (list === 'watched') {
+      performListUpdate(setWatchedList, 'watched');
+      removeFromList(itemToAdd.id, 'toWatch');
+    } 
+    else if (list === 'toWatch') {
+      performListUpdate(setToWatchList, 'toWatch');
+      removeFromList(itemToAdd.id, 'watched');
+    }
+  }, [updateLocalStorage, removeFromList]);
 
   const isInList = useCallback((mediaId: string, list: ListType): boolean => {
     if (!isLoaded) return false;
@@ -151,8 +141,6 @@ export function useMediaLists() {
     removeFromList,
     isInList,
     isLoaded,
-    setLists, // Export the new function
+    setLists,
   };
 }
-
-    
