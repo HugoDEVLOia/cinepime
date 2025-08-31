@@ -11,7 +11,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { ServerCrash, Gamepad2, Trophy, Check, X, RotateCw, Home, ChevronsRight, Search, UserCheck } from 'lucide-react';
 import Link from 'next/link';
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
-import { Command, CommandInput, CommandEmpty, CommandGroup, CommandItem } from "@/components/ui/command"
+import { Command, CommandInput, CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command"
 import { cn } from '@/lib/utils';
 
 type GameState = 'idle' | 'loading' | 'playing' | 'answered';
@@ -91,7 +91,8 @@ export default function GuessTheActorPage() {
               
               <ActorCombobox 
                 actors={cast} 
-                onSelect={handleActorSelect} 
+                onActorSelect={handleActorSelect}
+                selectedActor={selectedActor}
                 disabled={gameState === 'answered'}
               />
               
@@ -145,17 +146,26 @@ export default function GuessTheActorPage() {
   );
 }
 
-function ActorCombobox({ actors, onSelect, disabled }: { actors: Actor[], onSelect: (actor: Actor) => void, disabled: boolean }) {
-  const [open, setOpen] = useState(false)
-  const [value, setValue] = useState("")
+function ActorCombobox({
+  actors,
+  onActorSelect,
+  selectedActor,
+  disabled
+}: {
+  actors: Actor[],
+  onActorSelect: (actor: Actor) => void,
+  selectedActor: Actor | null,
+  disabled: boolean
+}) {
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState(selectedActor?.id || "");
 
-  const handleSelect = (currentValue: string) => {
-    const selectedActor = actors.find(actor => actor.id === currentValue);
-    if(selectedActor) {
-        onSelect(selectedActor);
+  useEffect(() => {
+    // Reset value if selectedActor is cleared (e.g., new game)
+    if (!selectedActor) {
+      setValue("");
     }
-    setOpen(false)
-  }
+  }, [selectedActor]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -167,36 +177,61 @@ function ActorCombobox({ actors, onSelect, disabled }: { actors: Actor[], onSele
           className="w-full max-w-sm justify-between h-12 text-lg"
           disabled={disabled}
         >
-          <Search className="mr-2 h-5 w-5 shrink-0 opacity-50" />
-          Trouver un acteur...
+          {value && selectedActor ? (
+            <span className="truncate">{selectedActor.name}</span>
+          ) : (
+             <span className="flex items-center font-normal text-muted-foreground">
+                <Search className="mr-2 h-5 w-5 shrink-0 opacity-50" />
+                Trouver un acteur...
+             </span>
+          )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[300px] sm:w-[400px] p-0">
-        <Command>
+      <PopoverContent className="w-[300px] sm:w-[400px] p-0" align="start">
+        <Command
+           // Add a filter function for better matching
+           filter={(value, search) => {
+            const actor = actors.find(a => a.id === value);
+            if (actor) {
+                return actor.name.toLowerCase().includes(search.toLowerCase()) ? 1 : 0;
+            }
+            return 0;
+          }}
+        >
           <CommandInput placeholder="Chercher un acteur/actrice..." />
-          <CommandEmpty>Aucun acteur trouvé.</CommandEmpty>
-          <CommandGroup className="max-h-64 overflow-y-auto">
-            {actors.map((actor) => (
-              <CommandItem
-                key={actor.id}
-                value={actor.id}
-                onSelect={handleSelect}
-              >
-                <Check
-                  className={cn(
-                    "mr-2 h-4 w-4",
-                    value === actor.id ? "opacity-100" : "opacity-0"
-                  )}
-                />
-                {actor.name}
-              </CommandItem>
-            ))}
-          </CommandGroup>
+          <CommandList>
+            <CommandEmpty>Aucun acteur trouvé.</CommandEmpty>
+            <CommandGroup>
+              {actors.map((actor) => (
+                <CommandItem
+                  key={actor.id}
+                  value={actor.id}
+                  onSelect={(currentValue) => {
+                    const actorToSelect = actors.find(a => a.id === currentValue);
+                    if (actorToSelect) {
+                      setValue(actorToSelect.id);
+                      onActorSelect(actorToSelect);
+                    }
+                    setOpen(false);
+                  }}
+                >
+                  <Check
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      value === actor.id ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+                  {actor.name}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
         </Command>
       </PopoverContent>
     </Popover>
-  )
+  );
 }
+
 
 function GameLoadingSkeleton() {
     return (
