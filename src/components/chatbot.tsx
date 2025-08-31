@@ -62,8 +62,8 @@ const QUIZ_QUESTIONS: Record<Exclude<QuizState, 'initial' | 'results' | 'finishe
   },
   decade: {
     question: "Noté ! Dans quelle décennie devrions-nous chercher ?",
-    options: DECADES.map(d => ({ value: d, label: `Années ${d}`}))
-  }
+    options: DECADES.map(d => ({ value: d, label: `Années ${d}`})),
+  },
 };
 
 
@@ -106,7 +106,7 @@ export default function Chatbot() {
   const createOptionButtons = (options: QuizOption[], onSelect: (value: string, label: string) => void) => (
       <div className="flex flex-wrap gap-2 mt-3">
           {options.map(option => (
-              <Button key={option.value} variant="outline" size="sm" onClick={() => onSelect(option.value, option.label)} className="text-xs h-auto py-1.5 px-3">
+              <Button key={option.value} variant="outline" size="sm" onClick={() => onSelect(option.value, option.label)} className="text-xs h-auto py-1.5 px-3" disabled={isLoading}>
                   {option.label}
               </Button>
           ))}
@@ -133,7 +133,9 @@ export default function Chatbot() {
   }, [isOpen, quizState]);
 
   useEffect(() => {
-    const askQuestion = () => {
+    const askQuestion = async () => {
+      if (isLoading) return; // Don't ask if we are processing an answer
+
       let questionData;
       switch(quizState) {
         case 'type':
@@ -145,6 +147,11 @@ export default function Chatbot() {
         case 'decade':
           questionData = QUIZ_QUESTIONS.decade;
           break;
+        case 'results':
+            setIsLoading(true);
+            await findResults(answers);
+            setIsLoading(false);
+            return;
         default:
           return;
       }
@@ -157,48 +164,45 @@ export default function Chatbot() {
       );
     }
     
-    if (isOpen && ['type', 'genre', 'decade'].includes(quizState)) {
+    if (isOpen && ['type', 'genre', 'decade', 'results'].includes(quizState)) {
       askQuestion();
     }
-  }, [quizState, isOpen]);
+  }, [quizState, isOpen, isLoading]);
 
 
-  const handleAnswer = async (value: string, label: string) => {
+  const handleAnswer = (value: string, label: string) => {
     if (isLoading) return;
     addMessage('user', label);
     setIsLoading(true);
 
-    const newAnswers = { ...answers };
     let nextState: QuizState = quizState;
+    const newAnswers = { ...answers };
 
     if (quizState === 'type') {
       newAnswers.mediaType = value as 'movie' | 'tv';
-      setQuizState('genre');
+      nextState = 'genre';
     } else if (quizState === 'genre') {
       const selectedGenre = GENRES.find(g => g.name === value);
       if (selectedGenre) {
         newAnswers.genre = selectedGenre;
       }
-      setQuizState('decade');
+      nextState = 'decade';
     } else if (quizState === 'decade') {
       newAnswers.decade = value;
-      setQuizState('results');
+      nextState = 'results';
     }
     
     setAnswers(newAnswers);
 
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    if (quizState === 'decade') { // This logic was flawed, check state *before* update
-      await findResults(newAnswers);
-    } 
-    
-    setIsLoading(false);
+    // Use a small timeout to show the loading state and then trigger the next step
+    setTimeout(() => {
+      setQuizState(nextState);
+      setIsLoading(false);
+    }, 500);
   };
 
 
   const findResults = async (finalAnswers: QuizAnswers) => {
-      setQuizState('results');
       addMessage('model', 
         <div className="flex items-center gap-2">
             <Loader2 className="h-4 w-4 animate-spin" />
@@ -315,7 +319,7 @@ export default function Chatbot() {
                 )}
               </div>
             ))}
-            {isLoading && quizState !== 'results' && (
+            {isLoading && (
               <div className="flex items-start justify-start gap-3">
                  <Avatar className="h-9 w-9 shrink-0">
                     <AvatarFallback className="bg-primary text-primary-foreground text-sm">
@@ -350,3 +354,5 @@ export default function Chatbot() {
     </>
   );
 }
+
+    
