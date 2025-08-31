@@ -4,8 +4,32 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Gamepad2, ImageIcon, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
+import { getPopularMedia } from '@/services/tmdb';
 
-export default function GamesPage() {
+export default async function GamesPage() {
+  let gameImageUrl = "https://picsum.photos/600/400?blur=2";
+  let gameImageAlt = "Image d'ambiance pour le jeu Devine l'Affiche";
+
+  try {
+    // Fetch popular movies to get a dynamic image
+    const { media: popularMovies } = await getPopularMedia('movie');
+    if (popularMovies.length > 0) {
+      // Pick a random movie that has a backdrop image
+      const moviesWithBackdrop = popularMovies.filter(m => m.backdropUrl && !m.backdropUrl.includes('picsum.photos'));
+      if (moviesWithBackdrop.length > 0) {
+        const randomMovie = moviesWithBackdrop[Math.floor(Math.random() * moviesWithBackdrop.length)];
+        if(randomMovie.backdropUrl) {
+            gameImageUrl = randomMovie.backdropUrl;
+            gameImageAlt = `Affiche du film ${randomMovie.title}`;
+        }
+      }
+    }
+  } catch (error) {
+    console.error("Failed to fetch dynamic image for games page:", error);
+    // Fallback to the default picsum image in case of an error
+  }
+
+
   return (
     <div className="space-y-10">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
@@ -19,11 +43,11 @@ export default function GamesPage() {
           <CardHeader className="p-0">
             <div className="relative h-48 w-full">
               <Image 
-                src="https://picsum.photos/600/400?blur=2"
-                alt="Image d'ambiance pour le jeu Devine l'Affiche"
+                src={gameImageUrl}
+                alt={gameImageAlt}
                 fill
                 className="object-cover transition-transform duration-300 group-hover:scale-105"
-                data-ai-hint="jeu affiche"
+                data-ai-hint="jeu affiche film"
               />
                <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
                   <ImageIcon className="h-20 w-20 text-white/80" />
