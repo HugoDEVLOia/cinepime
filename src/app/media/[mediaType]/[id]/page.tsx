@@ -279,9 +279,9 @@ export default function MediaDetailsPage() {
 
   return (
     <div className="space-y-12 md:space-y-16">
-      <section className="grid lg:grid-cols-12 gap-8 md:gap-12 items-start">
-        <div className="lg:col-span-4 xl:col-span-3">
-          <Card className="overflow-hidden shadow-xl rounded-xl">
+      <section className="grid md:grid-cols-12 gap-8 md:gap-12 items-start">
+        <div className="md:col-span-4 xl:col-span-3 flex justify-center md:justify-start">
+          <Card className="overflow-hidden shadow-xl rounded-xl w-[250px] sm:w-[300px] md:w-full">
             <Image
               src={media.posterUrl}
               alt={`Affiche de ${media.title}`}
@@ -295,7 +295,7 @@ export default function MediaDetailsPage() {
           </Card>
         </div>
 
-        <div className="lg:col-span-8 xl:col-span-9 space-y-6">
+        <div className="md:col-span-8 xl:col-span-9 space-y-6">
           <div className="space-y-3">
             <Badge variant={media.mediaType === 'movie' ? 'default' : 'secondary'} className="text-sm capitalize !px-3 !py-1.5 shadow">
               {media.mediaType === 'movie' ? <FilmIcon className="h-4 w-4 mr-1.5"/> : <Tv className="h-4 w-4 mr-1.5" />}
@@ -578,11 +578,11 @@ export default function MediaDetailsPage() {
 function MediaDetailsSkeleton({ mediaType }: { mediaType: 'movie' | 'tv' }) {
   return (
     <div className="space-y-12 md:space-y-16 animate-pulse">
-      <section className="grid lg:grid-cols-12 gap-8 md:gap-12 items-start">
-        <div className="lg:col-span-4 xl:col-span-3">
-          <Skeleton className="w-full aspect-[2/3] rounded-xl" />
+      <section className="grid md:grid-cols-12 gap-8 md:gap-12 items-start">
+        <div className="md:col-span-4 xl:col-span-3 flex justify-center md:justify-start">
+          <Skeleton className="w-[250px] sm:w-[300px] md:w-full aspect-[2/3] rounded-xl" />
         </div>
-        <div className="lg:col-span-8 xl:col-span-9 space-y-6">
+        <div className="md:col-span-8 xl:col-span-9 space-y-6">
           <Skeleton className="h-8 w-28 rounded-md" /> {/* Badge */}
           <Skeleton className="h-12 w-4/5 rounded-lg" /> {/* Titre */}
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
@@ -694,3 +694,5 @@ function getSafeProfileImageUrl(path: string | null | undefined): string {
   }
   return 'https://picsum.photos/500/750?grayscale'; 
 }
+
+    
