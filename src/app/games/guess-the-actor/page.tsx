@@ -1,34 +1,39 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getPopularMedia, getMediaDetails, type Media, type Actor } from '@/services/tmdb';
+import { getPopularMedia, getMediaDetails, searchActors, type Media, type Actor } from '@/services/tmdb';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { ServerCrash, Gamepad2, Trophy, Check, X, RotateCw, Home, ChevronsRight, Search, UserCheck } from 'lucide-react';
+import { Gamepad2, Trophy, Check, X, RotateCw, Home, ChevronsRight, Search, UserCheck, UserX, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
 import { Command, CommandInput, CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command"
 import { cn } from '@/lib/utils';
+import { useDebounce } from '@/hooks/use-debounce';
+
 
 type GameState = 'idle' | 'loading' | 'playing' | 'answered';
 
 export default function GuessTheActorPage() {
   const [gameState, setGameState] = useState<GameState>('idle');
   const [movie, setMovie] = useState<Media | null>(null);
-  const [cast, setCast] = useState<Actor[]>([]);
+  const [correctCast, setCorrectCast] = useState<Actor[]>([]);
   const [feedback, setFeedback] = useState<'correct' | 'incorrect' | null>(null);
   const [selectedActor, setSelectedActor] = useState<Actor | null>(null);
+  const [lastAnswer, setLastAnswer] = useState<{ actor: Actor; correct: boolean } | null>(null);
 
   const fetchNewMovie = useCallback(async () => {
     setGameState('loading');
     setMovie(null);
-    setCast([]);
+    setCorrectCast([]);
     setFeedback(null);
     setSelectedActor(null);
+    setLastAnswer(null);
+
     try {
       let foundMovieWithCast = false;
       while (!foundMovieWithCast) {
@@ -41,7 +46,7 @@ export default function GuessTheActorPage() {
             const details = await getMediaDetails(randomMovie.id, 'movie');
             if (details && details.cast && details.cast.length > 5) {
                 setMovie(details);
-                setCast(details.cast);
+                setCorrectCast(details.cast);
                 foundMovieWithCast = true;
             }
         }
@@ -59,7 +64,11 @@ export default function GuessTheActorPage() {
 
   const handleActorSelect = (actor: Actor) => {
     setSelectedActor(actor);
-    setFeedback('correct'); // In this game, any selection from the list is correct
+
+    const isCorrect = correctCast.some(correctActor => correctActor.id === actor.id);
+    const feedbackValue = isCorrect ? 'correct' : 'incorrect';
+    setFeedback(feedbackValue);
+    setLastAnswer({ actor, correct: isCorrect });
     setGameState('answered');
   };
 
@@ -90,21 +99,42 @@ export default function GuessTheActorPage() {
               <h3 className="text-3xl font-extrabold text-primary text-center md:text-left mb-6">{movie.title}</h3>
               
               <ActorCombobox 
-                actors={cast} 
                 onActorSelect={handleActorSelect}
-                selectedActor={selectedActor}
                 disabled={gameState === 'answered'}
               />
               
-              {gameState === 'answered' && feedback === 'correct' && selectedActor && (
-                 <Card className="mt-6 w-full bg-green-50 border-green-200 shadow-lg animate-fade-in">
+              {gameState === 'answered' && lastAnswer && (
+                 <Card className={cn("mt-6 w-full shadow-lg animate-fade-in", {
+                    "bg-green-50 border-green-200": lastAnswer.correct,
+                    "bg-red-50 border-red-200": !lastAnswer.correct,
+                 })}>
                     <CardContent className="p-4 flex flex-col items-center text-center">
-                        <UserCheck className="h-12 w-12 text-green-500 mb-2"/>
-                        <p className="text-xl font-bold text-green-700">Bien joué !</p>
-                        <p className="text-md text-green-600">
-                           <span className="font-semibold">{selectedActor.name}</span> joue bien le rôle de <span className="font-semibold">{selectedActor.character}</span> dans ce film.
+                        {lastAnswer.correct ? (
+                           <UserCheck className="h-12 w-12 text-green-500 mb-2"/>
+                        ) : (
+                           <UserX className="h-12 w-12 text-red-500 mb-2"/>
+                        )}
+                        <p className={cn("text-xl font-bold", {
+                            "text-green-700": lastAnswer.correct,
+                            "text-red-700": !lastAnswer.correct,
+                        })}>
+                           {lastAnswer.correct ? "Bien joué !" : "Dommage !"}
                         </p>
-                         <Button onClick={fetchNewMovie} size="lg" className="mt-4 w-full sm:w-auto bg-green-600 hover:bg-green-700">
+                        <p className={cn("text-md", {
+                            "text-green-600": lastAnswer.correct,
+                            "text-red-600": !lastAnswer.correct,
+                        })}>
+                           {lastAnswer.correct ? (
+                            <>
+                                <span className="font-semibold">{lastAnswer.actor.name}</span> joue bien un rôle dans ce film.
+                            </>
+                           ) : (
+                             <>
+                                <span className="font-semibold">{lastAnswer.actor.name}</span> ne semble pas jouer dans ce film.
+                             </>
+                           )}
+                        </p>
+                         <Button onClick={fetchNewMovie} size="lg" className="mt-4 w-full sm:w-auto">
                             <ChevronsRight className="mr-2 h-5 w-5" /> Film Suivant
                         </Button>
                     </CardContent>
@@ -147,25 +177,55 @@ export default function GuessTheActorPage() {
 }
 
 function ActorCombobox({
-  actors,
   onActorSelect,
-  selectedActor,
   disabled
 }: {
-  actors: Actor[],
   onActorSelect: (actor: Actor) => void,
-  selectedActor: Actor | null,
   disabled: boolean
 }) {
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState(selectedActor?.id || "");
+  const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
+  const [searchResults, setSearchResults] = useState<Actor[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [selectedActorName, setSelectedActorName] = useState("");
 
   useEffect(() => {
-    // Reset value if selectedActor is cleared (e.g., new game)
-    if (!selectedActor) {
-      setValue("");
+      if(disabled) {
+          setSearchTerm("");
+          setSearchResults([]);
+          setIsSearching(false);
+          // Keep selectedActorName to display the choice
+      } else {
+         setSelectedActorName(""); // Clear name for new round
+      }
+  }, [disabled]);
+
+  useEffect(() => {
+    if (debouncedSearchTerm && open) {
+      setIsSearching(true);
+      searchActors(debouncedSearchTerm).then(results => {
+        setSearchResults(results);
+        setIsSearching(false);
+      });
+    } else {
+      setSearchResults([]);
     }
-  }, [selectedActor]);
+  }, [debouncedSearchTerm, open]);
+
+  const handleSelect = (actor: Actor) => {
+    onActorSelect(actor);
+    setSelectedActorName(actor.name);
+    setSearchTerm(""); // Clear search input
+    setOpen(false);
+  };
+  
+  // Clear search results when popover is closed
+  useEffect(() => {
+    if (!open) {
+      setSearchTerm("");
+    }
+  }, [open]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -177,8 +237,8 @@ function ActorCombobox({
           className="w-full max-w-sm justify-between h-12 text-lg"
           disabled={disabled}
         >
-          {value && selectedActor ? (
-            <span className="truncate">{selectedActor.name}</span>
+          {selectedActorName && disabled ? (
+            <span className="truncate">{selectedActorName}</span>
           ) : (
              <span className="flex items-center font-normal text-muted-foreground">
                 <Search className="mr-2 h-5 w-5 shrink-0 opacity-50" />
@@ -188,43 +248,40 @@ function ActorCombobox({
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[300px] sm:w-[400px] p-0" align="start">
-        <Command
-           // Add a filter function for better matching
-           filter={(value, search) => {
-            const actor = actors.find(a => a.id === value);
-            if (actor) {
-                return actor.name.toLowerCase().includes(search.toLowerCase()) ? 1 : 0;
-            }
-            return 0;
-          }}
-        >
-          <CommandInput placeholder="Chercher un acteur/actrice..." />
+        <Command>
+          <CommandInput 
+            placeholder="Chercher un acteur/actrice..." 
+            value={searchTerm}
+            onValueChange={setSearchTerm}
+          />
           <CommandList>
-            <CommandEmpty>Aucun acteur trouvé.</CommandEmpty>
-            <CommandGroup>
-              {actors.map((actor) => (
-                <CommandItem
-                  key={actor.id}
-                  value={actor.id}
-                  onSelect={(currentValue) => {
-                    const actorToSelect = actors.find(a => a.id === currentValue);
-                    if (actorToSelect) {
-                      setValue(actorToSelect.id);
-                      onActorSelect(actorToSelect);
-                    }
-                    setOpen(false);
-                  }}
-                >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      value === actor.id ? "opacity-100" : "opacity-0"
-                    )}
-                  />
-                  {actor.name}
-                </CommandItem>
-              ))}
-            </CommandGroup>
+            {isSearching ? (
+                <div className="p-4 flex justify-center items-center">
+                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                </div>
+            ) : searchResults.length === 0 && debouncedSearchTerm ? (
+                <CommandEmpty>Aucun acteur trouvé pour "{debouncedSearchTerm}".</CommandEmpty>
+            ) : (
+                <CommandGroup>
+                  {searchResults.map((actor) => (
+                    <CommandItem
+                      key={actor.id}
+                      value={actor.id}
+                      onSelect={() => handleSelect(actor)}
+                      className="flex items-center gap-2"
+                    >
+                      <Image 
+                        src={actor.profileUrl}
+                        alt={`Photo de ${actor.name}`}
+                        width={40}
+                        height={60}
+                        className="rounded-sm aspect-[2/3]"
+                      />
+                      {actor.name}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+            )}
           </CommandList>
         </Command>
       </PopoverContent>

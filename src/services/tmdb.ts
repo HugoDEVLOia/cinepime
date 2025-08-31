@@ -511,6 +511,28 @@ export async function searchMedia(query: string): Promise<Media[]> {
   }
 }
 
+export async function searchActors(query: string): Promise<Actor[]> {
+  if (!query.trim()) return [];
+  try {
+    const response = await fetch(`${BASE_URL}/search/person?api_key=${API_KEY}&language=${LANGUAGE}&query=${encodeURIComponent(query)}`);
+    if (!response.ok) {
+      console.error('Échec de la recherche de personnes:', response.status, await response.text());
+      return [];
+    }
+    const data = await response.json();
+    return data.results
+      .filter((item: any) => item.profile_path)
+      .map((item: any) => ({
+        id: item.id.toString(),
+        name: item.name,
+        profileUrl: getSafeProfileImageUrl(item.profile_path),
+      }));
+  } catch (error) {
+    console.error('Erreur lors de la recherche de personnes:', error);
+    return [];
+  }
+}
+
 export async function getMediaRecommendations(mediaId: string, mediaType: 'movie' | 'tv'): Promise<Media[]> {
   try {
     const response = await fetch(`${BASE_URL}/${mediaType}/${mediaId}/recommendations?api_key=${API_KEY}&language=${LANGUAGE}`);
