@@ -10,18 +10,17 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { MessageSquareText, Send, Bot, User, Loader2, ThumbsUp } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
-import { searchMedia, getPopularMedia } from '@/services/tmdb';
+import { getPopularMedia } from '@/services/tmdb';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 
 // --- Types de données ---
 
 interface ChatMessage {
   id: string;
   role: 'user' | 'model';
-  content: string | React.ReactNode;
+  content: React.ReactNode;
   timestamp: Date;
 }
 
@@ -31,6 +30,11 @@ interface QuizAnswers {
   mediaType: 'movie' | 'tv' | null;
   genre: { id: number; name: string } | null;
   decade: string | null;
+}
+
+interface QuizOption {
+    value: string;
+    label: string;
 }
 
 // --- Contenu du Quiz ---
@@ -47,7 +51,7 @@ const GENRES = [
 
 const DECADES = ["2020", "2010", "2000", "1990", "1980", "1970"];
 
-const QUIZ_QUESTIONS: Record<Exclude<QuizState, 'initial' | 'results' | 'finished'>, { question: string; options?: { value: string; label: string }[] }> = {
+const QUIZ_QUESTIONS: Record<Exclude<QuizState, 'initial' | 'results' | 'finished'>, { question: string; options: QuizOption[] }> = {
   type: {
     question: "Bonjour ! Je suis CinéConseiller. Je vais vous poser quelques questions pour trouver votre film ou série idéal(e).\n\nCommençons : cherchez-vous un **Film** ou une **Série** ?",
     options: [{ value: 'movie', label: 'Film' }, { value: 'tv', label: 'Série' }]
@@ -73,10 +77,9 @@ export default function Chatbot() {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   // --- Fonctions utilitaires ---
-
-  const addMessage = (role: 'user' | 'model', content: string | React.ReactNode) => {
+  const addMessage = (role: 'user' | 'model', content: React.ReactNode) => {
     setMessages(prev => [...prev, {
-      id: Date.now().toString() + `-${role}`,
+      id: `${Date.now()}-${role}-${Math.random()}`,
       role,
       content,
       timestamp: new Date()
@@ -87,7 +90,6 @@ export default function Chatbot() {
      if (scrollAreaRef.current) {
         const scrollViewport = scrollAreaRef.current.querySelector('div[data-radix-scroll-area-viewport]');
         if (scrollViewport) {
-          // Use setTimeout to ensure the DOM has updated before scrolling
           setTimeout(() => {
             scrollViewport.scrollTop = scrollViewport.scrollHeight;
           }, 50);
@@ -100,6 +102,16 @@ export default function Chatbot() {
       scrollToBottom();
     }
   }, [messages, isOpen]);
+  
+  const createOptionButtons = (options: QuizOption[], onSelect: (value: string, label: string) => void) => (
+      <div className="flex flex-wrap gap-2 mt-3">
+          {options.map(option => (
+              <Button key={option.value} variant="outline" size="sm" onClick={() => onSelect(option.value, option.label)} className="text-xs h-auto py-1.5 px-3">
+                  {option.label}
+              </Button>
+          ))}
+      </div>
+  );
 
   // --- Logique du Quiz ---
 
@@ -107,66 +119,87 @@ export default function Chatbot() {
     setMessages([]);
     setAnswers({ mediaType: null, genre: null, decade: null });
     setQuizState('type');
-    addMessage('model', QUIZ_QUESTIONS.type.question);
   };
   
   useEffect(() => {
-    if (isOpen && quizState === 'initial') {
+    if (isOpen && (quizState === 'initial' || quizState === 'finished')) {
       startQuiz();
     }
-  }, [isOpen, quizState]);
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (quizState === 'type') {
+      addMessage('model', 
+        <div>
+          <p className="whitespace-pre-wrap">{QUIZ_QUESTIONS.type.question}</p>
+          {createOptionButtons(QUIZ_QUESTIONS.type.options, (value, label) => handleAnswer(value, label))}
+        </div>
+      );
+    }
+  }, [quizState]);
 
 
-  const handleAnswer = async (answer: string) => {
-    addMessage('user', answer);
+  const handleAnswer = async (value: string, label: string) => {
+    if (isLoading) return;
+    addMessage('user', label);
     setIsLoading(true);
 
     let nextState: QuizState = quizState;
     const newAnswers = { ...answers };
+    let nextQuestion = '';
+    let nextOptions: QuizOption[] = [];
 
     if (quizState === 'type') {
-        const selectedType = QUIZ_QUESTIONS.type.options?.find(o => o.label.toLowerCase() === answer.toLowerCase());
-        if (selectedType) {
-            newAnswers.mediaType = selectedType.value as 'movie' | 'tv';
-            nextState = 'genre';
-            addMessage('model', QUIZ_QUESTIONS.genre.question);
-        } else {
-            addMessage('model', `Désolé, je n'ai pas compris. Veuillez choisir entre "Film" et "Série".`);
-        }
+        newAnswers.mediaType = value as 'movie' | 'tv';
+        nextState = 'genre';
+        nextQuestion = QUIZ_QUESTIONS.genre.question;
+        nextOptions = QUIZ_QUESTIONS.genre.options;
+
     } else if (quizState === 'genre') {
-        const selectedGenre = GENRES.find(g => g.name.toLowerCase() === answer.toLowerCase());
+        const selectedGenre = GENRES.find(g => g.name === value);
         if (selectedGenre) {
             newAnswers.genre = selectedGenre;
             nextState = 'decade';
-            addMessage('model', QUIZ_QUESTIONS.decade.question);
-        } else {
-             addMessage('model', `Genre non valide. Veuillez choisir parmi les options proposées.`);
+            nextQuestion = QUIZ_QUESTIONS.decade.question;
+            nextOptions = QUIZ_QUESTIONS.decade.options;
         }
     } else if (quizState === 'decade') {
-        if (DECADES.some(d => answer.includes(d))) {
-            newAnswers.decade = answer.replace(/\D/g, ''); // Garde seulement les chiffres
-            nextState = 'results';
-        } else {
-             addMessage('model', `Décennie non valide. Veuillez choisir parmi les options proposées.`);
-        }
+        newAnswers.decade = value;
+        nextState = 'results';
     }
     
     setAnswers(newAnswers);
-    setQuizState(nextState);
+    
+    // Use a short delay to make the bot feel more natural
+    await new Promise(resolve => setTimeout(resolve, 500));
 
     if (nextState === 'results') {
         await findResults(newAnswers);
+    } else {
+        addMessage('model', 
+            <div>
+              <p className="whitespace-pre-wrap">{nextQuestion}</p>
+              {createOptionButtons(nextOptions, (value, label) => handleAnswer(value, label))}
+            </div>
+        );
+        setQuizState(nextState);
     }
 
     setIsLoading(false);
   };
 
   const findResults = async (finalAnswers: QuizAnswers) => {
-      addMessage('model', "Excellent choix ! Je cherche les meilleures correspondances pour vous...");
+      setQuizState('results');
+      addMessage('model', 
+        <div className="flex items-center gap-2">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Excellent choix ! Je cherche...
+        </div>
+      );
       
       try {
         const results = await getPopularMedia(
-            finalAnswers.mediaType!, 1, 'week', 
+            finalAnswers.mediaType!, 1, undefined, 
             finalAnswers.genre?.id, 
             finalAnswers.decade ? parseInt(finalAnswers.decade) : undefined
         );
@@ -178,7 +211,7 @@ export default function Chatbot() {
                     <p>Voici mon top 3 pour vous :</p>
                     <div className="space-y-3">
                         {top3.map((media, index) => (
-                           <Link key={media.id} href={`/media/${media.mediaType}/${media.id}`} target="_blank" rel="noopener noreferrer" className="block">
+                           <Link key={media.id} href={`/media/${media.mediaType}/${media.id}`} target="_blank" rel="noopener noreferrer" className="block" onClick={() => setIsOpen(false)}>
                              <Card className="overflow-hidden hover:bg-muted/50 transition-colors">
                                 <CardContent className="p-3 flex gap-3 items-start">
                                    <div className="w-16 shrink-0">
@@ -209,18 +242,8 @@ export default function Chatbot() {
     }
   };
 
-
-  const handleFormSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const handleFormSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!inputValue.trim() || isLoading) return;
-    
-    if (quizState === 'finished') {
-        startQuiz();
-    } else {
-        handleAnswer(inputValue.trim());
-    }
-
-    setInputValue('');
   };
 
 
@@ -269,11 +292,7 @@ export default function Chatbot() {
                       : 'bg-card text-card-foreground rounded-bl-lg border border-border'
                   )}
                 >
-                    {typeof msg.content === 'string' ? (
-                        <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
-                    ) : (
-                        <div className="text-sm leading-relaxed">{msg.content}</div>
-                    )}
+                    <div className="text-sm leading-relaxed">{msg.content}</div>
                    <p className={cn("text-xs mt-2 opacity-70", msg.role === 'user' ? 'text-right' : 'text-left')}>
                     {msg.timestamp.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
                   </p>
@@ -287,7 +306,7 @@ export default function Chatbot() {
                 )}
               </div>
             ))}
-            {isLoading && (
+            {isLoading && quizState !== 'results' && (
               <div className="flex items-start justify-start gap-3">
                  <Avatar className="h-9 w-9 shrink-0">
                     <AvatarFallback className="bg-primary text-primary-foreground text-sm">
@@ -301,35 +320,26 @@ export default function Chatbot() {
             )}
           </ScrollArea>
            
-          {quizState !== 'results' && (
-            <SheetFooter className="p-4 border-t border-border bg-background sticky bottom-0 z-10">
-                <form onSubmit={handleFormSubmit} className="flex w-full items-center gap-3">
-                <Input
-                    type="text"
-                    placeholder={quizState === 'finished' ? "Écrire pour recommencer..." : "Votre réponse..."}
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
-                    className="flex-grow h-12 text-sm rounded-lg focus:ring-primary focus:ring-2 transition-shadow shadow-sm"
-                    disabled={isLoading}
-                    autoFocus
-                />
-                <Button type="submit" size="icon" className="h-12 w-12 shrink-0 rounded-lg shadow-sm hover:bg-primary/90 transition-colors" disabled={isLoading || !inputValue.trim()}>
-                    <Send className="h-5 w-5" />
-                    <span className="sr-only">Envoyer</span>
-                </Button>
-                </form>
-            </SheetFooter>
-           )}
-           {quizState === 'finished' && (
-            <SheetFooter className="p-4 border-t border-border bg-background sticky bottom-0 z-10">
+          <SheetFooter className="p-4 border-t border-border bg-background sticky bottom-0 z-10">
+            {quizState === 'finished' ? (
                 <Button onClick={startQuiz} className="w-full h-12 text-base">
                     <ThumbsUp className="mr-2 h-5 w-5" /> Recommencer un nouveau quiz
                 </Button>
+            ) : (
+                <form onSubmit={handleFormSubmit} className="flex w-full items-center gap-3">
+                   <Input
+                        type="text"
+                        placeholder="Cliquez sur une option ci-dessus..."
+                        className="flex-grow h-12 text-sm rounded-lg"
+                        disabled={true}
+                    />
+                </form>
+            )}
             </SheetFooter>
-           )}
         </SheetContent>
       </Sheet>
     </>
   );
 }
 
+    
