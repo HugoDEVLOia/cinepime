@@ -173,27 +173,25 @@ export default function Chatbot() {
 
     if (quizState === 'type') {
       newAnswers.mediaType = value as 'movie' | 'tv';
-      nextState = 'genre';
+      setQuizState('genre');
     } else if (quizState === 'genre') {
       const selectedGenre = GENRES.find(g => g.name === value);
       if (selectedGenre) {
         newAnswers.genre = selectedGenre;
       }
-      nextState = 'decade';
+      setQuizState('decade');
     } else if (quizState === 'decade') {
       newAnswers.decade = value;
-      nextState = 'results';
+      setQuizState('results');
     }
     
     setAnswers(newAnswers);
 
     await new Promise(resolve => setTimeout(resolve, 500));
 
-    if (nextState === 'results') {
+    if (quizState === 'decade') { // This logic was flawed, check state *before* update
       await findResults(newAnswers);
-    } else {
-      setQuizState(nextState);
-    }
+    } 
     
     setIsLoading(false);
   };
@@ -222,7 +220,7 @@ export default function Chatbot() {
                     <p>Voici mon top 3 pour vous :</p>
                     <div className="space-y-3">
                         {top3.map((media, index) => (
-                           <Link key={media.id} href={`/media/${media.mediaType}/${media.id}`} target="_blank" rel="noopener noreferrer" className="block" onClick={() => setIsOpen(false)}>
+                           <Link key={media.id} href={`/media/${media.mediaType}/${media.id}`} className="block" onClick={() => setIsOpen(false)}>
                              <Card className="overflow-hidden hover:bg-muted/50 transition-colors">
                                 <CardContent className="p-3 flex gap-3 items-start">
                                    <div className="w-16 shrink-0">
