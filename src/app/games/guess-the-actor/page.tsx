@@ -100,6 +100,7 @@ export default function GuessTheActorPage() {
               <ActorCombobox 
                 onActorSelect={handleActorSelect}
                 disabled={gameState === 'answered'}
+                selectedActor={selectedActor}
               />
               
               {gameState === 'answered' && lastAnswer && (
@@ -177,48 +178,43 @@ export default function GuessTheActorPage() {
 
 function ActorCombobox({
   onActorSelect,
-  disabled
+  disabled,
+  selectedActor
 }: {
-  onActorSelect: (actor: Actor) => void,
-  disabled: boolean
+  onActorSelect: (actor: Actor) => void;
+  disabled: boolean;
+  selectedActor: Actor | null;
 }) {
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
   const [searchResults, setSearchResults] = useState<Actor[]>([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [selectedActorName, setSelectedActorName] = useState("");
 
+  // Reset search term when the component is no longer disabled (new game starts)
   useEffect(() => {
-      if(disabled) {
-          // Keep search term to show the answer, but clear results
-          setSearchResults([]);
-          setIsSearching(false);
-      } else {
-         setSelectedActorName(""); 
-         setSearchTerm("");
-      }
+    if (!disabled) {
+      setSearchTerm("");
+    }
   }, [disabled]);
 
-
   useEffect(() => {
-    if (debouncedSearchTerm.trim()) {
+    if (debouncedSearchTerm.trim() && open) {
       setIsSearching(true);
       searchActors(debouncedSearchTerm).then(results => {
         setSearchResults(results);
         setIsSearching(false);
       });
-    } else {
+    } else if (!debouncedSearchTerm.trim()) {
       setSearchResults([]);
       setIsSearching(false);
     }
-  }, [debouncedSearchTerm]);
+  }, [debouncedSearchTerm, open]);
 
   const handleSelect = (actor: Actor) => {
-    setSearchTerm(actor.name);
-    setSelectedActorName(actor.name);
-    onActorSelect(actor);
-    setOpen(false);
+    setOpen(false); // Close the popover on selection
+    setSearchTerm(actor.name); // Set the input to the selected actor's name
+    onActorSelect(actor); // Trigger the parent component's handler
   };
   
   return (
@@ -231,8 +227,8 @@ function ActorCombobox({
           className="w-full max-w-sm justify-between h-12 text-lg"
           disabled={disabled}
         >
-          {selectedActorName && disabled ? (
-            <span className="truncate">{selectedActorName}</span>
+          {selectedActor ? (
+            <span className="truncate">{selectedActor.name}</span>
           ) : (
              <span className="flex items-center font-normal text-muted-foreground">
                 <Search className="mr-2 h-5 w-5 shrink-0 opacity-50" />
@@ -247,13 +243,14 @@ function ActorCombobox({
             placeholder="Chercher un acteur/actrice..." 
             value={searchTerm}
             onValueChange={setSearchTerm}
+            disabled={disabled}
           />
           <CommandList>
             {isSearching ? (
                 <div className="p-4 flex justify-center items-center">
                     <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
                 </div>
-            ) : searchResults.length === 0 && debouncedSearchTerm ? (
+            ) : !isSearching && searchResults.length === 0 && debouncedSearchTerm ? (
                 <CommandEmpty>Aucun acteur trouvé pour "{debouncedSearchTerm}".</CommandEmpty>
             ) : (
                 <CommandGroup>
@@ -271,10 +268,13 @@ function ActorCombobox({
                         height={60}
                         className="rounded-sm aspect-[2/3]"
                       />
-                      {actor.name}
+                      <span className="truncate">{actor.name}</span>
                     </CommandItem>
                   ))}
                 </CommandGroup>
+            )}
+            {!debouncedSearchTerm && !isSearching && searchResults.length === 0 && (
+                <CommandEmpty>Commencez à taper pour rechercher...</CommandEmpty>
             )}
           </CommandList>
         </Command>
