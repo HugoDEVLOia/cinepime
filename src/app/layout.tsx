@@ -186,7 +186,7 @@ export default function RootLayout({
           </main>
           <footer className="border-t border-border bg-card/50 py-8">
             <div className="container px-4 text-center text-sm text-muted-foreground md:px-6">
-              © {new Date().getFullYear()} CinéCollection. Tous droits réservés. Conçu avec soin.
+              CinéCollection - HugoDEVLO - 2025
             </div>
           </footer>
           <Toaster />
