@@ -53,10 +53,10 @@ export default function GuessThePosterPage() {
       if (validMovies.length < 10) throw new Error("Pas assez de films valides pour démarrer le jeu.");
       
       setMovies(shuffleArray(validMovies));
-      setGameState('playing');
       setCurrentRound(0);
       setScore(0);
       setTimeLeft(GAME_DURATION);
+      setGameState('playing');
     } catch (error) {
       console.error("Erreur lors de la récupération des films:", error);
       setGameState('idle');
@@ -64,8 +64,16 @@ export default function GuessThePosterPage() {
   }, []);
 
   const startGame = () => {
-    fetchMovies();
+    // We call fetchMovies inside useEffect now to avoid hydration issues
+    setGameState('loading');
   };
+
+  useEffect(() => {
+    // This useEffect will run on the client side only
+    if (gameState === 'loading' && movies.length === 0) {
+      fetchMovies();
+    }
+  }, [gameState, fetchMovies, movies.length]);
 
   useEffect(() => {
     if (gameState !== 'playing') return;
@@ -97,8 +105,8 @@ export default function GuessThePosterPage() {
       if (currentRound + 1 < movies.length) {
         setCurrentRound(prev => prev + 1);
       } else {
-        // Fetch more movies if we run out
-        fetchMovies();
+        // Fetch more movies if we run out, setting state to loading will trigger useEffect
+        setGameState('loading');
       }
     }, 1000); // 1-second feedback
   };
