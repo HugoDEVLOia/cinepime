@@ -36,8 +36,21 @@ export default function RootLayout({
   return (
     <html lang="fr" className="scrollbar-thin" suppressHydrationWarning>
       <head>
-        {/* Favicon link can be placed directly in head for client components if needed, or managed via page-level metadata */}
-        <link rel="icon" href="/icone.png" sizes="any" />
+        <meta name="application-name" content="CinéCollection" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="CinéCollection" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="msapplication-config" content="/icons/browserconfig.xml" />
+        <meta name="msapplication-TileColor" content="#1A237E" />
+        <meta name="msapplication-tap-highlight" content="no" />
+        <meta name="theme-color" content="#1A237E" />
+        
+        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+        <link rel="manifest" href="/manifest.json" />
+        <link rel="shortcut icon" href="/favicon.ico" />
+
         <title>CinéCollection</title>
         <meta name="description" content="Suivez les films et séries que vous regardez, voulez regarder, et obtenez des statistiques personnalisées." />
       </head>

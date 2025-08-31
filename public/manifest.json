@@ -1,0 +1,28 @@
+{
+  "name": "CinéCollection",
+  "short_name": "CinéCollect",
+  "description": "Suivez les films et séries que vous regardez, voulez regarder, et obtenez des statistiques personnalisées.",
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+     {
+      "src": "/icons/maskable-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "theme_color": "#1A237E",
+  "background_color": "#F8F9FA",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait"
+}
