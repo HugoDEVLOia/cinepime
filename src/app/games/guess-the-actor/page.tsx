@@ -191,13 +191,15 @@ function ActorCombobox({
 
   useEffect(() => {
       if(disabled) {
-          setSearchTerm("");
+          // Keep search term to show the answer, but clear results
           setSearchResults([]);
           setIsSearching(false);
       } else {
          setSelectedActorName(""); 
+         setSearchTerm("");
       }
   }, [disabled]);
+
 
   useEffect(() => {
     if (debouncedSearchTerm) {
@@ -207,15 +209,17 @@ function ActorCombobox({
         setIsSearching(false);
       });
     } else {
-      setSearchResults([]);
+      if (!disabled) { // Do not clear results if an answer was just given
+          setSearchResults([]);
+      }
       setIsSearching(false);
     }
-  }, [debouncedSearchTerm]);
+  }, [debouncedSearchTerm, disabled]);
 
   const handleSelect = (actor: Actor) => {
     onActorSelect(actor);
     setSelectedActorName(actor.name);
-    setSearchTerm(""); 
+    setSearchTerm(actor.name); 
     setOpen(false);
   };
   
@@ -245,6 +249,7 @@ function ActorCombobox({
             placeholder="Chercher un acteur/actrice..." 
             value={searchTerm}
             onValueChange={setSearchTerm}
+            onFocus={() => setOpen(true)}
           />
           <CommandList>
             {isSearching ? (
@@ -259,8 +264,11 @@ function ActorCombobox({
                     <CommandItem
                       key={actor.id}
                       value={actor.name} // Use name for value to allow CMDK filtering
-                      onSelect={() => handleSelect(actor)}
-                      className="flex items-center gap-2"
+                      onMouseDown={(e) => {
+                          e.preventDefault(); // Prevent focus issues
+                          handleSelect(actor)
+                      }}
+                      className="flex items-center gap-2 cursor-pointer"
                     >
                       <Image 
                         src={actor.profileUrl}
