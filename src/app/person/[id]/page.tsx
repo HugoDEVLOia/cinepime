@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { getPersonDetails, type Person, type PersonCreditMedia } from '@/services/tmdb';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { ServerCrash, User, Calendar, MapPin, Clapperboard, Tv, Star, Briefcase, Film } from 'lucide-react';
@@ -65,6 +65,7 @@ export default function PersonDetailsPage() {
   const [person, setPerson] = useState<Person | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeFilmography, setActiveFilmography] = useState<'acting' | 'crew'>('acting');
 
   useEffect(() => {
     if (!personId) {
@@ -134,6 +135,45 @@ export default function PersonDetailsPage() {
   const directingCredits = person.filmography.crew.filter(c => c.job === 'Director');
   const otherCrewCredits = person.filmography.crew.filter(c => c.job !== 'Director');
 
+
+  const renderFilmography = () => {
+    if (activeFilmography === 'acting') {
+      return actingCredits.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-8">
+          {actingCredits.map(credit => <FilmographyCard key={`${credit.id}-${credit.character || credit.job}`} credit={credit} />)}
+        </div>
+      ) : (
+        <p className="text-muted-foreground text-center py-8">Aucun crédit d'acteur trouvé.</p>
+      );
+    }
+
+    if (activeFilmography === 'crew') {
+       if (person.filmography.crew.length === 0) {
+         return <p className="text-muted-foreground text-center py-8">Aucun crédit d'équipe trouvé.</p>;
+       }
+       return (
+        <div className="space-y-8">
+          {directingCredits.length > 0 && (
+            <div>
+              <h3 className="text-xl font-semibold mb-4">Réalisation ({directingCredits.length})</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-8">
+                {directingCredits.map(credit => <FilmographyCard key={`${credit.id}-${credit.job}-director`} credit={credit} />)}
+              </div>
+            </div>
+          )}
+          {otherCrewCredits.length > 0 && (
+            <div>
+              <h3 className="text-xl font-semibold mb-4">Autre ({otherCrewCredits.length})</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-8">
+                {otherCrewCredits.map(credit => <FilmographyCard key={`${credit.id}-${credit.job}-other`} credit={credit} />)}
+              </div>
+            </div>
+          )}
+        </div>
+       );
+    }
+    return null;
+  }
 
   return (
     <div className="space-y-12 md:space-y-16">
@@ -205,49 +245,32 @@ export default function PersonDetailsPage() {
       </section>
 
       <section>
-          <h2 className="text-3xl font-bold mb-6 text-foreground flex items-center gap-2">
-              <Film className="text-primary h-7 w-7"/> Filmographie
-          </h2>
-           <Tabs defaultValue="acting" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 md:w-auto md:inline-flex mb-8 bg-muted p-1.5 rounded-lg">
-                    <TabsTrigger value="acting" className="gap-2 px-4 py-2.5 text-sm data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md">
-                        <Clapperboard className="h-4 w-4" /> En tant qu'acteur/actrice ({actingCredits.length})
-                    </TabsTrigger>
-                    <TabsTrigger value="crew" className="gap-2 px-4 py-2.5 text-sm data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md">
-                        <Briefcase className="h-4 w-4" /> En tant que membre d'équipe ({person.filmography.crew.length})
-                    </TabsTrigger>
-                </TabsList>
-                <TabsContent value="acting">
-                   {actingCredits.length > 0 ? (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-8">
-                           {actingCredits.map(credit => <FilmographyCard key={`${credit.id}-${credit.character}`} credit={credit} />)}
-                        </div>
-                   ) : (
-                       <p className="text-muted-foreground text-center py-8">Aucun crédit d'acteur trouvé.</p>
-                   )}
-                </TabsContent>
-                <TabsContent value="crew">
-                     {directingCredits.length > 0 && (
-                        <div className="mb-8">
-                            <h3 className="text-xl font-semibold mb-4">Réalisation ({directingCredits.length})</h3>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-8">
-                                {directingCredits.map(credit => <FilmographyCard key={`${credit.id}-${credit.job}-director`} credit={credit} />)}
-                            </div>
-                        </div>
-                     )}
-                      {otherCrewCredits.length > 0 && (
-                        <div>
-                            <h3 className="text-xl font-semibold mb-4">Autre ({otherCrewCredits.length})</h3>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-8">
-                                {otherCrewCredits.map(credit => <FilmographyCard key={`${credit.id}-${credit.job}-other`} credit={credit} />)}
-                            </div>
-                        </div>
-                     )}
-                     {person.filmography.crew.length === 0 && (
-                        <p className="text-muted-foreground text-center py-8">Aucun crédit d'équipe trouvé.</p>
-                     )}
-                </TabsContent>
-           </Tabs>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+            <h2 className="text-3xl font-bold text-foreground flex items-center gap-2">
+                <Film className="text-primary h-7 w-7"/> Filmographie
+            </h2>
+             <Select value={activeFilmography} onValueChange={(value) => setActiveFilmography(value as 'acting' | 'crew')}>
+              <SelectTrigger className="w-full sm:w-[320px] h-11 text-base">
+                  <SelectValue placeholder="Sélectionnez une filmographie" />
+              </SelectTrigger>
+              <SelectContent>
+                  <SelectItem value="acting">
+                      <div className="flex items-center gap-2">
+                          <Clapperboard className="h-4 w-4 text-muted-foreground" />
+                          <span>En tant qu'acteur/actrice ({actingCredits.length})</span>
+                      </div>
+                  </SelectItem>
+                  <SelectItem value="crew">
+                      <div className="flex items-center gap-2">
+                          <Briefcase className="h-4 w-4 text-muted-foreground" />
+                          <span>En tant que membre d'équipe ({person.filmography.crew.length})</span>
+                      </div>
+                  </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          
+          {renderFilmography()}
       </section>
 
     </div>
@@ -279,22 +302,21 @@ function PersonDetailsSkeleton() {
       </section>
       
       <section>
-          <Skeleton className="h-10 w-64 mb-6 rounded-lg" /> {/* Titre Filmographie */}
-          <div className="flex gap-2 mb-8">
-              <Skeleton className="h-12 w-48 rounded-lg" />
-              <Skeleton className="h-12 w-48 rounded-lg" />
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-8">
-            {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="flex flex-col space-y-3">
-                    <Skeleton className="h-[250px] w-full rounded-xl" />
-                    <div className="space-y-2 p-2">
-                        <Skeleton className="h-4 w-3/4" />
-                        <Skeleton className="h-3 w-1/2" />
-                    </div>
-                </div>
-            ))}
-          </div>
+        <div className="flex justify-between items-center mb-8">
+          <Skeleton className="h-10 w-64 rounded-lg" /> {/* Titre Filmographie */}
+          <Skeleton className="h-11 w-48 rounded-lg" /> {/* Menu déroulant */}
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-8">
+          {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="flex flex-col space-y-3">
+                  <Skeleton className="h-[250px] w-full rounded-xl" />
+                  <div className="space-y-2 p-2">
+                      <Skeleton className="h-4 w-3/4" />
+                      <Skeleton className="h-3 w-1/2" />
+                  </div>
+              </div>
+          ))}
+        </div>
       </section>
     </div>
   );
