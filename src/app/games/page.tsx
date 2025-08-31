@@ -2,31 +2,41 @@
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Gamepad2, ImageIcon, ArrowRight } from 'lucide-react';
+import { Gamepad2, ImageIcon, ArrowRight, UserSearch } from 'lucide-react';
 import Image from 'next/image';
 import { getPopularMedia } from '@/services/tmdb';
 
 export default async function GamesPage() {
-  let gameImageUrl = "https://picsum.photos/600/400?blur=2";
-  let gameImageAlt = "Image d'ambiance pour le jeu Devine l'Affiche";
+  let guessThePosterImageUrl = "https://picsum.photos/600/400?blur=2";
+  let guessThePosterImageAlt = "Image d'ambiance pour le jeu Devine l'Affiche";
+  let guessTheActorImageUrl = "https://picsum.photos/600/400?blur=1";
+  let guessTheActorImageAlt = "Image d'ambiance pour le jeu Devine l'Acteur";
 
   try {
-    // Fetch popular movies to get a dynamic image
     const { media: popularMovies } = await getPopularMedia('movie');
-    if (popularMovies.length > 0) {
-      // Pick a random movie that has a backdrop image
+    if (popularMovies.length > 1) {
       const moviesWithBackdrop = popularMovies.filter(m => m.backdropUrl && !m.backdropUrl.includes('picsum.photos'));
-      if (moviesWithBackdrop.length > 0) {
-        const randomMovie = moviesWithBackdrop[Math.floor(Math.random() * moviesWithBackdrop.length)];
-        if(randomMovie.backdropUrl) {
-            gameImageUrl = randomMovie.backdropUrl;
-            gameImageAlt = `Affiche du film ${randomMovie.title}`;
+      if (moviesWithBackdrop.length > 1) {
+        const randomMovie1 = moviesWithBackdrop[Math.floor(Math.random() * moviesWithBackdrop.length)];
+        let randomMovie2 = moviesWithBackdrop[Math.floor(Math.random() * moviesWithBackdrop.length)];
+        
+        // Ensure we have two different movies
+        while(randomMovie1.id === randomMovie2.id) {
+            randomMovie2 = moviesWithBackdrop[Math.floor(Math.random() * moviesWithBackdrop.length)];
+        }
+
+        if(randomMovie1.backdropUrl) {
+            guessThePosterImageUrl = randomMovie1.backdropUrl;
+            guessThePosterImageAlt = `Affiche du film ${randomMovie1.title}`;
+        }
+        if(randomMovie2.backdropUrl) {
+            guessTheActorImageUrl = randomMovie2.backdropUrl;
+            guessTheActorImageAlt = `Affiche du film ${randomMovie2.title}`;
         }
       }
     }
   } catch (error) {
     console.error("Failed to fetch dynamic image for games page:", error);
-    // Fallback to the default picsum image in case of an error
   }
 
 
@@ -43,8 +53,8 @@ export default async function GamesPage() {
           <CardHeader className="p-0">
             <div className="relative h-48 w-full">
               <Image 
-                src={gameImageUrl}
-                alt={gameImageAlt}
+                src={guessThePosterImageUrl}
+                alt={guessThePosterImageAlt}
                 fill
                 className="object-cover transition-transform duration-300 group-hover:scale-105"
                 data-ai-hint="jeu affiche film"
@@ -57,10 +67,38 @@ export default async function GamesPage() {
           <CardContent className="p-6">
             <CardTitle className="text-2xl font-bold text-foreground mb-2">Devine l'Affiche</CardTitle>
             <CardDescription className="mb-6 min-h-[40px]">
-              Une affiche de film, quatre propositions. Trouvez le bon titre le plus de fois possible en 30 secondes chrono !
+              Une affiche, quatre propositions. Trouvez le bon titre le plus de fois possible en 30 secondes chrono !
             </CardDescription>
             <Button asChild className="w-full" size="lg">
               <Link href="/games/guess-the-poster">
+                Jouer maintenant <ArrowRight className="ml-2 h-5 w-5" />
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+        
+        <Card className="shadow-lg rounded-xl overflow-hidden group hover:shadow-2xl transition-shadow duration-300">
+          <CardHeader className="p-0">
+            <div className="relative h-48 w-full">
+              <Image 
+                src={guessTheActorImageUrl}
+                alt={guessTheActorImageAlt}
+                fill
+                className="object-cover transition-transform duration-300 group-hover:scale-105"
+                data-ai-hint="jeu acteur film"
+              />
+               <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                  <UserSearch className="h-20 w-20 text-white/80" />
+               </div>
+            </div>
+          </CardHeader>
+          <CardContent className="p-6">
+            <CardTitle className="text-2xl font-bold text-foreground mb-2">Devine l'Acteur</CardTitle>
+            <CardDescription className="mb-6 min-h-[40px]">
+              À partir d'une affiche, retrouvez un acteur ou une actrice qui joue dans le film.
+            </CardDescription>
+            <Button asChild className="w-full" size="lg">
+              <Link href="/games/guess-the-actor">
                 Jouer maintenant <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>
