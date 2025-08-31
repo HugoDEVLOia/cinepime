@@ -114,29 +114,53 @@ export default function Chatbot() {
   );
 
   // --- Logique du Quiz ---
-
-  const startQuiz = () => {
+   const startQuiz = () => {
     setMessages([]);
     setAnswers({ mediaType: null, genre: null, decade: null });
-    setQuizState('type');
+    setQuizState('initial');
   };
-  
-  useEffect(() => {
-    if (isOpen && (quizState === 'initial' || quizState === 'finished')) {
-      startQuiz();
-    }
-  }, [isOpen]);
 
   useEffect(() => {
-    if (quizState === 'type') {
+    if (isOpen) {
+      if (quizState === 'initial') {
+        setMessages([]);
+        setAnswers({ mediaType: null, genre: null, decade: null });
+        setQuizState('type');
+      } else if (quizState === 'finished') {
+        // Ne rien faire pour permettre à l'utilisateur de voir les résultats
+      }
+    }
+  }, [isOpen, quizState]);
+
+  useEffect(() => {
+    const askQuestion = () => {
+      let questionData;
+      switch(quizState) {
+        case 'type':
+          questionData = QUIZ_QUESTIONS.type;
+          break;
+        case 'genre':
+          questionData = QUIZ_QUESTIONS.genre;
+          break;
+        case 'decade':
+          questionData = QUIZ_QUESTIONS.decade;
+          break;
+        default:
+          return;
+      }
+      
       addMessage('model', 
         <div>
-          <p className="whitespace-pre-wrap">{QUIZ_QUESTIONS.type.question}</p>
-          {createOptionButtons(QUIZ_QUESTIONS.type.options, (value, label) => handleAnswer(value, label))}
+          <p className="whitespace-pre-wrap">{questionData.question}</p>
+          {createOptionButtons(questionData.options, (value, label) => handleAnswer(value, label))}
         </div>
       );
     }
-  }, [quizState]);
+    
+    if (isOpen && ['type', 'genre', 'decade'].includes(quizState)) {
+      askQuestion();
+    }
+  }, [quizState, isOpen]);
 
 
   const handleAnswer = async (value: string, label: string) => {
@@ -144,49 +168,36 @@ export default function Chatbot() {
     addMessage('user', label);
     setIsLoading(true);
 
-    let nextState: QuizState = quizState;
     const newAnswers = { ...answers };
-    let nextQuestion = '';
-    let nextOptions: QuizOption[] = [];
+    let nextState: QuizState = quizState;
 
     if (quizState === 'type') {
-        newAnswers.mediaType = value as 'movie' | 'tv';
-        nextState = 'genre';
-        nextQuestion = QUIZ_QUESTIONS.genre.question;
-        nextOptions = QUIZ_QUESTIONS.genre.options;
-
+      newAnswers.mediaType = value as 'movie' | 'tv';
+      nextState = 'genre';
     } else if (quizState === 'genre') {
-        const selectedGenre = GENRES.find(g => g.name === value);
-        if (selectedGenre) {
-            newAnswers.genre = selectedGenre;
-            nextState = 'decade';
-            nextQuestion = QUIZ_QUESTIONS.decade.question;
-            nextOptions = QUIZ_QUESTIONS.decade.options;
-        }
+      const selectedGenre = GENRES.find(g => g.name === value);
+      if (selectedGenre) {
+        newAnswers.genre = selectedGenre;
+      }
+      nextState = 'decade';
     } else if (quizState === 'decade') {
-        newAnswers.decade = value;
-        nextState = 'results';
+      newAnswers.decade = value;
+      nextState = 'results';
     }
     
     setAnswers(newAnswers);
-    
-    // Use a short delay to make the bot feel more natural
+
     await new Promise(resolve => setTimeout(resolve, 500));
 
     if (nextState === 'results') {
-        await findResults(newAnswers);
+      await findResults(newAnswers);
     } else {
-        addMessage('model', 
-            <div>
-              <p className="whitespace-pre-wrap">{nextQuestion}</p>
-              {createOptionButtons(nextOptions, (value, label) => handleAnswer(value, label))}
-            </div>
-        );
-        setQuizState(nextState);
+      setQuizState(nextState);
     }
-
+    
     setIsLoading(false);
   };
+
 
   const findResults = async (finalAnswers: QuizAnswers) => {
       setQuizState('results');
