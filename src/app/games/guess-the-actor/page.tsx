@@ -263,11 +263,8 @@ function ActorCombobox({
                   {searchResults.map((actor) => (
                     <CommandItem
                       key={actor.id}
-                      value={actor.name} // Use name for value to allow CMDK filtering
-                      onMouseDown={(e) => {
-                          e.preventDefault(); // Prevent focus issues
-                          handleSelect(actor)
-                      }}
+                      value={actor.name}
+                      onSelect={() => handleSelect(actor)}
                       className="flex items-center gap-2 cursor-pointer"
                     >
                       <Image 
