@@ -265,6 +265,7 @@ function ActorCombobox({
                       key={actor.id}
                       value={actor.name}
                       onSelect={() => handleSelect(actor)}
+                      onClick={() => handleSelect(actor)}
                       className="flex items-center gap-2 cursor-pointer"
                     >
                       <Image 
