@@ -11,9 +11,6 @@ interface MediaCarouselProps {
   title: string;
   media: Media[];
   icon: ReactNode;
-  onAddToList: (media: Media, list: ListType) => Promise<void>;
-  onRemoveFromList: (mediaId: string, list: ListType) => void;
-  isInList: (mediaId: string, list: ListType) => boolean;
   isLoading?: boolean;
 }
 
@@ -21,9 +18,6 @@ export default function MediaCarousel({
   title,
   media,
   icon,
-  onAddToList,
-  onRemoveFromList,
-  isInList,
   isLoading = false
 }: MediaCarouselProps) {
   return (
@@ -43,9 +37,6 @@ export default function MediaCarousel({
                 <div key={item.id} className="w-[180px] sm:w-[220px]">
                   <MediaCard
                     media={item}
-                    onAddToList={onAddToList}
-                    onRemoveFromList={onRemoveFromList}
-                    isInList={isInList}
                     imageLoading={index < 4 ? 'eager' : 'lazy'} // Prioritize loading for first few items
                   />
                 </div>

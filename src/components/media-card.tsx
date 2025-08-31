@@ -8,7 +8,6 @@ import type { ListType } from '@/hooks/use-media-lists';
 import { Badge } from './ui/badge';
 import { useState, useCallback } from 'react';
 import { Skeleton } from './ui/skeleton';
-import { useMediaLists } from '@/hooks/use-media-lists';
 
 
 interface MediaCardProps {

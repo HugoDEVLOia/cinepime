@@ -15,7 +15,7 @@ export default function MyListsPage() {
   const renderList = (list: Media[], listType: 'toWatch' | 'watched') => {
     if (!isLoaded) {
       return (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
           {Array.from({ length: 10 }).map((_, index) => (
             <div key={index} className="flex flex-col space-y-3">
               <Skeleton className="h-[270px] sm:h-[330px] w-full rounded-xl" />
@@ -42,14 +42,11 @@ export default function MyListsPage() {
     }
 
     return (
-       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
+       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
         {list.map((media) => (
           <MediaCard
             key={`${media.id}-${media.mediaType}`}
             media={media}
-            onAddToList={addToList}
-            onRemoveFromList={removeFromList}
-            isInList={isInList}
             imageLoading="lazy"
           />
         ))}
