@@ -91,34 +91,6 @@ export default function MediaCard({ media, onAddToList, onRemoveFromList, isInLi
           </div>
         </div>
       </CardContent>
-      <CardFooter className="p-3 pt-0 flex flex-col items-center sm:flex-row sm:justify-center gap-2 border-t border-border/50 mt-auto">
-        <div className="flex gap-2 w-full">
-          <Button
-            variant={isToWatch ? "default" : "outline"}
-            size="sm"
-            onClick={() => handleToggleList('toWatch')}
-            aria-pressed={isToWatch}
-            title={isToWatch ? "Retirer de 'À Regarder'" : "Ajouter à 'À Regarder'"}
-            className="flex-1 text-xs py-2.5"
-            disabled={!!isProcessing}
-          >
-            {isProcessing === 'toWatch' ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <Eye className="mr-1.5 h-4 w-4" />}
-            À Regarder
-          </Button>
-          <Button
-            variant={isWatched ? "default" : "outline"}
-            size="sm"
-            onClick={() => handleToggleList('watched')}
-            aria-pressed={isWatched}
-            title={isWatched ? "Retirer de 'Vus'" : "Marquer comme Vu"}
-            className="flex-1 text-xs py-2.5"
-            disabled={!!isProcessing}
-          >
-            {isProcessing === 'watched' ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <CheckCircle className="mr-1.5 h-4 w-4" />}
-            Vu
-          </Button>
-        </div>
-      </CardFooter>
     </Card>
   );
 }
@@ -134,5 +106,3 @@ export function MediaCardSkeleton() {
     </div>
   )
 }
-
-    
