@@ -13,13 +13,10 @@ import { useMediaLists } from '@/hooks/use-media-lists';
 
 interface MediaCardProps {
   media: Media;
-  onAddToList: (media: Media, list: ListType) => Promise<void>;
-  onRemoveFromList: (mediaId: string, list: ListType) => void;
-  isInList: (mediaId: string, list: ListType) => boolean;
   imageLoading?: 'eager' | 'lazy';
 }
 
-export default function MediaCard({ media, onAddToList, onRemoveFromList, isInList, imageLoading = 'lazy' }: MediaCardProps) {
+export default function MediaCard({ media, imageLoading = 'lazy' }: MediaCardProps) {
 
   const getBadge = () => {
     switch (media.mediaType) {
@@ -58,7 +55,7 @@ export default function MediaCard({ media, onAddToList, onRemoveFromList, isInLi
               alt={`Affiche de ${media.title}`}
               width={500}
               height={750}
-              className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
+              className="object-cover w-full min-h-full transition-transform duration-300 group-hover:scale-105"
               data-ai-hint={`${media.mediaType === 'person' ? 'profil personne' : 'affiche'}`}
               loading={imageLoading}
               onError={(e) => {
