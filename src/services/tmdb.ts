@@ -234,7 +234,7 @@ const mapApiDirectorToDirector = (crewMember: any): Director => ({
 });
 
 export async function getPopularMedia(
-    mediaType: 'movie' | 'tv', 
+    mediaType: 'movie' | 'tv' | 'person', 
     page: number = 1,
     timeWindow?: Exclude<TimeWindow, 'all'>,
     genreId?: number,
@@ -245,7 +245,7 @@ export async function getPopularMedia(
     let endpoint;
     let params = `api_key=${API_KEY}&language=${LANGUAGE}&page=${page}`;
 
-    if (genreId || decade || popularity || rating) {
+    if (mediaType !== 'person' && (genreId || decade || popularity || rating)) {
         endpoint = `/discover/${mediaType}`;
         const sortBy = popularity === 'niche' ? 'popularity.asc' : 'popularity.desc';
         params += `&sort_by=${sortBy}`;
@@ -276,7 +276,7 @@ export async function getPopularMedia(
         }
         const data = await response.json();
         const media = data.results
-            .filter((item: any) => item.poster_path) // Filter out items with no poster
+            .filter((item: any) => item.poster_path || item.profile_path) // Filter out items with no poster/profile
             .map((item: any) => mapApiMediaToMedia(item, mediaType));
         return { media, totalPages: data.total_pages };
     } catch (error) {
