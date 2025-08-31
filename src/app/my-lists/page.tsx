@@ -1,17 +1,16 @@
 
 'use client';
 
-import type { ChangeEvent } from 'react';
 import { useState } from 'react';
 import { useMediaLists, type Media } from '@/hooks/use-media-lists';
 import MediaCard from '@/components/media-card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Eye, CheckCircle, ListX } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Eye, CheckCircle, ListX } from 'lucide-react';
 
 export default function MyListsPage() {
   const { toWatchList, watchedList, addToList, removeFromList, isInList, isLoaded } = useMediaLists();
+  const [activeList, setActiveList] = useState<'toWatch' | 'watched'>('toWatch');
 
   const renderList = (list: Media[], listType: 'toWatch' | 'watched') => {
     if (!isLoaded) {
@@ -57,29 +56,35 @@ export default function MyListsPage() {
       </div>
     );
   };
+  
+  const listToRender = activeList === 'toWatch' ? toWatchList : watchedList;
 
   return (
     <div className="space-y-10">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h1 className="text-3xl md:text-4xl font-extrabold text-foreground tracking-tight">Mes Listes</h1>
+        <Select value={activeList} onValueChange={(value) => setActiveList(value as 'toWatch' | 'watched')}>
+            <SelectTrigger className="w-full sm:w-[280px] h-11 text-base">
+                <SelectValue placeholder="Sélectionnez une liste" />
+            </SelectTrigger>
+            <SelectContent>
+                <SelectItem value="toWatch">
+                    <div className="flex items-center gap-2">
+                        <Eye className="h-4 w-4 text-muted-foreground" />
+                        <span>À Regarder ({isLoaded ? toWatchList.length : '...'})</span>
+                    </div>
+                </SelectItem>
+                <SelectItem value="watched">
+                    <div className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-muted-foreground" />
+                        <span>Vus ({isLoaded ? watchedList.length : '...'})</span>
+                    </div>
+                </SelectItem>
+            </SelectContent>
+        </Select>
       </div>
       
-      <Tabs defaultValue="toWatch" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 md:w-auto md:inline-flex mb-8 bg-muted p-1.5 rounded-lg">
-          <TabsTrigger value="toWatch" className="gap-2 px-4 py-2.5 text-sm data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md">
-            <Eye className="h-4 w-4" /> À Regarder ({isLoaded ? toWatchList.length : '...'})
-          </TabsTrigger>
-          <TabsTrigger value="watched" className="gap-2 px-4 py-2.5 text-sm data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-md">
-            <CheckCircle className="h-4 w-4" /> Vus ({isLoaded ? watchedList.length : '...'})
-          </TabsTrigger>
-        </TabsList>
-        <TabsContent value="toWatch">
-          {renderList(toWatchList, 'toWatch')}
-        </TabsContent>
-        <TabsContent value="watched">
-          {renderList(watchedList, 'watched')}
-        </TabsContent>
-      </Tabs>
+      {renderList(listToRender, activeList)}
     </div>
   );
 }
