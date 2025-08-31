@@ -1,2 +1,2 @@
 // Flows will be imported for their side effects in this file.
-import '@/ai/flows/movie-recommendation-flow';
+// import '@/ai/flows/movie-recommendation-flow';

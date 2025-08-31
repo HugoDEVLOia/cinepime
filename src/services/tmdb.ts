@@ -233,22 +233,50 @@ const mapApiDirectorToDirector = (crewMember: any): Director => ({
   profileUrl: getSafeProfileImageUrl(crewMember.profile_path),
 });
 
-export async function getPopularMedia(mediaType: 'movie' | 'tv', page: number = 1): Promise<{ media: Media[], totalPages: number }> {
-  try {
-    const response = await fetch(`${BASE_URL}/${mediaType}/popular?api_key=${API_KEY}&language=${LANGUAGE}&page=${page}`);
-    if (!response.ok) {
-      console.error(`Failed to fetch popular ${mediaType}:`, response.status, await response.text());
-      return { media: [], totalPages: 1 };
+export async function getPopularMedia(
+    mediaType: 'movie' | 'tv', 
+    page: number = 1,
+    timeWindow?: Exclude<TimeWindow, 'all'>,
+    genreId?: number,
+    decade?: number
+): Promise<{ media: Media[], totalPages: number }> {
+    let endpoint;
+    let params = `api_key=${API_KEY}&language=${LANGUAGE}&page=${page}`;
+
+    if (genreId || decade) {
+        endpoint = `/discover/${mediaType}`;
+        params += '&sort_by=popularity.desc';
+        if (genreId) {
+            params += `&with_genres=${genreId}`;
+        }
+        if (decade) {
+            const startDate = `${decade}-01-01`;
+            const endDate = `${decade + 9}-12-31`;
+            if (mediaType === 'movie') {
+                params += `&primary_release_date.gte=${startDate}&primary_release_date.lte=${endDate}`;
+            } else { // tv
+                params += `&first_air_date.gte=${startDate}&first_air_date.lte=${endDate}`;
+            }
+        }
+    } else {
+        endpoint = `/${mediaType}/popular`;
     }
-    const data = await response.json();
-    const media = data.results
-      .filter((item: any) => item.poster_path)
-      .map((item: any) => mapApiMediaToMedia(item, mediaType));
-    return { media, totalPages: data.total_pages };
-  } catch (error) {
-    console.error(`Error fetching popular ${mediaType}:`, error);
-    return { media: [], totalPages: 1 };
-  }
+
+    try {
+        const response = await fetch(`${BASE_URL}${endpoint}?${params}`);
+        if (!response.ok) {
+            console.error(`Failed to fetch popular ${mediaType} with filters:`, response.status, await response.text());
+            return { media: [], totalPages: 1 };
+        }
+        const data = await response.json();
+        const media = data.results
+            .filter((item: any) => item.poster_path && item.vote_count > 50) // Filter out items with no poster or low vote count
+            .map((item: any) => mapApiMediaToMedia(item, mediaType));
+        return { media, totalPages: data.total_pages };
+    } catch (error) {
+        console.error(`Error fetching popular ${mediaType} with filters:`, error);
+        return { media: [], totalPages: 1 };
+    }
 }
 
 
