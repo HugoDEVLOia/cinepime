@@ -209,12 +209,10 @@ function ActorCombobox({
         setIsSearching(false);
       });
     } else {
-      if (!disabled) { // Do not clear results if an answer was just given
-          setSearchResults([]);
-      }
+      setSearchResults([]);
       setIsSearching(false);
     }
-  }, [debouncedSearchTerm, disabled]);
+  }, [debouncedSearchTerm]);
 
   const handleSelect = (actor: Actor) => {
     setSearchTerm(actor.name);
