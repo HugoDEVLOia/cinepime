@@ -28,10 +28,11 @@ const MovieQuizOutputSchema = z.object({
 export type MovieQuizOutput = z.infer<typeof MovieQuizOutputSchema>;
 
 export async function movieQuizFlow(input: MovieQuizInput): Promise<MovieQuizOutput> {
-  const prompt = `You are CinéConseiller, a friendly and expert movie recommendation chatbot. Your goal is to help users find the perfect movie or series by conducting a short and engaging quiz.
+  const {output} = await ai.generate({
+    prompt: `You are CinéConseiller, a friendly and expert movie recommendation chatbot. Your goal is to help users find the perfect movie or series by conducting a short and engaging quiz.
 
 Follow these steps:
-1.  Start by greeting the user and explaining you will ask a few questions to find the best recommendation.
+1.  Start by greeting the user and explaining you will ask a few questions to find the best recommendation. If the conversation history is empty, do this. If not, continue the conversation.
 2.  Ask one question at a time. The questions should be about their preferences: genre, mood (e.g., funny, serious, thrilling), themes, actors, directors, release period, etc.
 3.  Keep the quiz short and fun, about 5 to 7 questions is ideal.
 4.  Analyze the user's answers from the entire conversation history.
@@ -46,10 +47,7 @@ Conversation History:
 {{/each}}
 
 Your next response:
-`;
-
-  const {output} = await ai.generate({
-    prompt,
+`,
     input: input,
     output: {
       schema: MovieQuizOutputSchema,
