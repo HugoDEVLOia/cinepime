@@ -44,24 +44,6 @@ export default function MediaCard({ media, imageLoading = 'lazy' }: MediaCardPro
 
   const linkUrl = media.mediaType === 'person' ? `/person/${media.id}` : `/media/${media.mediaType}/${media.id}`;
 
-  const { addToList, removeFromList, isInList } = useMediaLists();
-  const [isTogglingList, setIsTogglingList] = useState(false);
-
-  const handleToggleList = async (listType: 'toWatch' | 'watched') => {
-    if (!media) return;
-    setIsTogglingList(true);
-    try {
-        if (isInList(media.id, listType)) {
-            removeFromList(media.id, listType);
-        } else {
-            await addToList(media, listType);
-        }
-    } finally {
-        setIsTogglingList(false);
-    }
-  };
-
-
   return (
     <Card className="overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out flex flex-col h-full group border border-border/60 hover:border-primary/50 bg-card rounded-xl">
       <CardHeader className="p-0 relative">
@@ -114,32 +96,6 @@ export default function MediaCard({ media, imageLoading = 'lazy' }: MediaCardPro
           )}
         </div>
       </CardContent>
-       {media.mediaType !== 'person' && (
-        <CardFooter className="p-3 pt-0">
-            <div className="w-full flex gap-2">
-                <Button 
-                    variant={isInList(media.id, 'toWatch') ? "default" : "outline"} 
-                    size="sm" 
-                    className="w-full text-xs" 
-                    onClick={() => handleToggleList('toWatch')}
-                    disabled={isTogglingList}
-                    aria-label={isInList(media.id, 'toWatch') ? "Retirer de la liste 'À Regarder'" : "Ajouter à la liste 'À Regarder'"}
-                >
-                    <Eye className="h-4 w-4" />
-                </Button>
-                 <Button 
-                    variant={isInList(media.id, 'watched') ? "default" : "outline"} 
-                    size="sm" 
-                    className="w-full text-xs"
-                    onClick={() => handleToggleList('watched')}
-                    disabled={isTogglingList}
-                    aria-label={isInList(media.id, 'watched') ? "Retirer des Vus" : "Marquer comme Vu"}
-                >
-                    <CheckCircle className="h-4 w-4" />
-                </Button>
-            </div>
-        </CardFooter>
-      )}
     </Card>
   );
 }

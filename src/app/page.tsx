@@ -15,7 +15,7 @@ import {
 import { useMediaLists } from '@/hooks/use-media-lists';
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ServerCrash, Star, CalendarDays, Clapperboard, Flame, Tv, Film, Eye, Ghost, Laugh } from 'lucide-react';
+import { ServerCrash, Star, CalendarDays, Clapperboard, Flame, Tv, Film, Eye, Ghost, Laugh, Rocket, PencilRuler } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import MediaCarousel from '@/components/media-carousel';
@@ -28,6 +28,8 @@ export default function HomePage() {
   const [popularTv, setPopularTv] = useState<Media[]>([]);
   const [horrorMovies, setHorrorMovies] = useState<Media[]>([]);
   const [comedyMovies, setComedyMovies] = useState<Media[]>([]);
+  const [scifiMovies, setScifiMovies] = useState<Media[]>([]);
+  const [animationMovies, setAnimationMovies] = useState<Media[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -44,12 +46,16 @@ export default function HomePage() {
           popularTvData,
           horrorMoviesData,
           comedyMoviesData,
+          scifiMoviesData,
+          animationMoviesData,
         ] = await Promise.all([
           getTrendingMedia(1, 'week'),
           getPopularMedia('movie'),
           getPopularMedia('tv'),
           getPopularMedia('movie', 1, undefined, 27), // Genre ID for Horror
           getPopularMedia('movie', 1, undefined, 35), // Genre ID for Comedy
+          getPopularMedia('movie', 1, undefined, 878), // Genre ID for Science Fiction
+          getPopularMedia('movie', 1, undefined, 16), // Genre ID for Animation
         ]);
         
         if (trendingData.media.length > 0) {
@@ -63,6 +69,8 @@ export default function HomePage() {
         setPopularTv(popularTvData.media);
         setHorrorMovies(horrorMoviesData.media);
         setComedyMovies(comedyMoviesData.media);
+        setScifiMovies(scifiMoviesData.media);
+        setAnimationMovies(animationMoviesData.media);
 
       } catch (err) {
         console.error("Erreur lors de la récupération des médias pour la page d'accueil:", err);
@@ -170,6 +178,22 @@ export default function HomePage() {
         />
       )}
 
+      {scifiMovies.length > 0 && (
+        <MediaCarousel 
+          title="Voyage vers l'inconnu"
+          media={scifiMovies}
+          icon={<Rocket className="h-7 w-7 text-primary" />}
+        />
+      )}
+
+      {animationMovies.length > 0 && (
+        <MediaCarousel 
+          title="Pour petits et grands"
+          media={animationMovies}
+          icon={<PencilRuler className="h-7 w-7 text-primary" />}
+        />
+      )}
+
       {horrorMovies.length > 0 && (
         <MediaCarousel 
           title="Vous ne dormirez pas cette nuit"
@@ -206,7 +230,7 @@ const HomePageSkeleton = () => (
     </div>
     
     {/* Carousel Skeleton */}
-    {[1, 2, 3, 4, 5].map((n) => (
+    {[1, 2, 3, 4, 5, 6, 7].map((n) => (
       <div key={n}>
         <Skeleton className="h-10 w-64 mb-6 rounded-lg" />
         <div className="flex space-x-6 md:space-x-8 overflow-hidden">
