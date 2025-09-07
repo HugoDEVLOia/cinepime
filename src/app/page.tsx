@@ -15,11 +15,12 @@ import {
 import { useMediaLists } from '@/hooks/use-media-lists';
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ServerCrash, Star, CalendarDays, Clapperboard, Flame, Tv, Film, Eye, Ghost, Laugh, Rocket, PencilRuler, HeartPulse, Bomb, ShieldQuestion, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ServerCrash, Star, CalendarDays, Clapperboard, Flame, Tv, Film, Eye, Ghost, Laugh, Rocket, PencilRuler, HeartPulse, Bomb, ShieldQuestion, ChevronLeft, ChevronRight, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import MediaCarousel from '@/components/media-carousel';
 import { cn } from '@/lib/utils';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 
 export default function HomePage() {
@@ -285,6 +286,26 @@ export default function HomePage() {
         />
       )}
 
+      <Card className="bg-primary/5 border-primary/20 shadow-lg rounded-xl">
+        <CardHeader className="text-center">
+            <div className="mx-auto bg-primary/10 p-3 rounded-full mb-3">
+                <Heart className="h-8 w-8 text-primary"/>
+            </div>
+            <CardTitle className="text-2xl font-bold text-foreground">Soutenez CinéCollection !</CardTitle>
+            <CardDescription className="text-muted-foreground max-w-xl mx-auto">
+             C'est grâce à vos dons que nous pouvons garder ce site gratuit et sans aucune publicité. Chaque contribution, même la plus petite, fait une grande différence. Merci !
+            </CardDescription>
+        </CardHeader>
+        <CardContent className="flex justify-center">
+            <Button asChild size="lg" className="bg-pink-600 hover:bg-pink-700 text-white shadow-md">
+                <a href="https://paypal.me/hugodevlo" target="_blank" rel="noopener noreferrer">
+                    <Heart className="mr-2 h-5 w-5" /> Faire un don
+                </a>
+            </Button>
+        </CardContent>
+      </Card>
+
+
       {actionMovies.length > 0 && (
         <MediaCarousel 
           title="De l'action à l'état pur"
@@ -362,7 +383,7 @@ const HomePageSkeleton = () => (
     
     {/* Carousel Skeleton */}
     {Array.from({ length: 10 }).map((_, i) => (
-      <div key={`carousel-skeleton-${i}`}>
+      <div key={i}>
         <Skeleton className="h-10 w-64 mb-6 rounded-lg" />
         <div className="flex space-x-6 md:space-x-8 overflow-hidden">
           {Array.from({ length: 5 }).map((_, index) => (
