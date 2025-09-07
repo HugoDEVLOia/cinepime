@@ -15,7 +15,7 @@ import {
 import { useMediaLists } from '@/hooks/use-media-lists';
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ServerCrash, Star, CalendarDays, Clapperboard, Flame, Tv, Film, Eye, Ghost, Laugh, Rocket, PencilRuler } from 'lucide-react';
+import { ServerCrash, Star, CalendarDays, Clapperboard, Flame, Tv, Film, Eye, Ghost, Laugh, Rocket, PencilRuler, HeartPulse, Bomb, ShieldQuestion } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import MediaCarousel from '@/components/media-carousel';
@@ -30,10 +30,13 @@ export default function HomePage() {
   const [comedyMovies, setComedyMovies] = useState<Media[]>([]);
   const [scifiMovies, setScifiMovies] = useState<Media[]>([]);
   const [animationMovies, setAnimationMovies] = useState<Media[]>([]);
+  const [actionMovies, setActionMovies] = useState<Media[]>([]);
+  const [thrillerMovies, setThrillerMovies] = useState<Media[]>([]);
+  const [romanceMovies, setRomanceMovies] = useState<Media[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const { addToList, removeFromList, isInList, toWatchList, isLoaded } = useMediaLists();
+  const { toWatchList, isLoaded } = useMediaLists();
 
   useEffect(() => {
     async function fetchAllMedia() {
@@ -48,6 +51,9 @@ export default function HomePage() {
           comedyMoviesData,
           scifiMoviesData,
           animationMoviesData,
+          actionMoviesData,
+          thrillerMoviesData,
+          romanceMoviesData,
         ] = await Promise.all([
           getTrendingMedia(1, 'week'),
           getPopularMedia('movie'),
@@ -56,6 +62,9 @@ export default function HomePage() {
           getPopularMedia('movie', 1, undefined, 35), // Genre ID for Comedy
           getPopularMedia('movie', 1, undefined, 878), // Genre ID for Science Fiction
           getPopularMedia('movie', 1, undefined, 16), // Genre ID for Animation
+          getPopularMedia('movie', 1, undefined, 28), // Genre ID for Action
+          getPopularMedia('movie', 1, undefined, 53), // Genre ID for Thriller
+          getPopularMedia('movie', 1, undefined, 10749), // Genre ID for Romance
         ]);
         
         if (trendingData.media.length > 0) {
@@ -71,6 +80,9 @@ export default function HomePage() {
         setComedyMovies(comedyMoviesData.media);
         setScifiMovies(scifiMoviesData.media);
         setAnimationMovies(animationMoviesData.media);
+        setActionMovies(actionMoviesData.media);
+        setThrillerMovies(thrillerMoviesData.media);
+        setRomanceMovies(romanceMoviesData.media);
 
       } catch (err) {
         console.error("Erreur lors de la récupération des médias pour la page d'accueil:", err);
@@ -178,11 +190,27 @@ export default function HomePage() {
         />
       )}
 
+      {actionMovies.length > 0 && (
+        <MediaCarousel 
+          title="De l'action à l'état pur"
+          media={actionMovies}
+          icon={<Bomb className="h-7 w-7 text-primary" />}
+        />
+      )}
+
       {scifiMovies.length > 0 && (
         <MediaCarousel 
           title="Voyage vers l'inconnu"
           media={scifiMovies}
           icon={<Rocket className="h-7 w-7 text-primary" />}
+        />
+      )}
+
+      {thrillerMovies.length > 0 && (
+        <MediaCarousel 
+          title="Suspense et sueurs froides"
+          media={thrillerMovies}
+          icon={<ShieldQuestion className="h-7 w-7 text-primary" />}
         />
       )}
 
@@ -209,6 +237,14 @@ export default function HomePage() {
           icon={<Laugh className="h-7 w-7 text-primary" />}
         />
       )}
+
+      {romanceMovies.length > 0 && (
+        <MediaCarousel 
+          title="Amour et passion"
+          media={romanceMovies}
+          icon={<HeartPulse className="h-7 w-7 text-primary" />}
+        />
+      )}
     </div>
   );
 }
@@ -230,7 +266,7 @@ const HomePageSkeleton = () => (
     </div>
     
     {/* Carousel Skeleton */}
-    {[1, 2, 3, 4, 5, 6, 7].map((n) => (
+    {Array.from({ length: 10 }).map((n) => (
       <div key={n}>
         <Skeleton className="h-10 w-64 mb-6 rounded-lg" />
         <div className="flex space-x-6 md:space-x-8 overflow-hidden">
@@ -248,3 +284,5 @@ const HomePageSkeleton = () => (
     ))}
   </div>
 );
+
+    
