@@ -3,7 +3,6 @@
 
 import type { ReactNode } from 'react';
 import type { Media, MediaType } from '@/services/tmdb';
-import type { ListType } from '@/hooks/use-media-lists';
 import MediaCard, { MediaCardSkeleton } from '@/components/media-card';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 

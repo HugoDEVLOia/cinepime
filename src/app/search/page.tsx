@@ -5,7 +5,6 @@ import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { searchMedia, type Media } from '@/services/tmdb';
 import MediaCard from '@/components/media-card';
-import { useMediaLists } from '@/hooks/use-media-lists';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { SearchX, ServerCrash } from 'lucide-react';
@@ -17,7 +16,6 @@ function SearchResults() {
   const [searchResults, setSearchResults] = useState<Media[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { addToList, removeFromList, isInList, isLoaded } = useMediaLists();
 
   useEffect(() => {
     if (!query) {

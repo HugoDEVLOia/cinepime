@@ -2,14 +2,15 @@
 'use client';
 
 import { useState } from 'react';
-import { useMediaLists, type Media } from '@/hooks/use-media-lists';
+import { useMediaLists } from '@/hooks/use-media-lists';
 import MediaCard from '@/components/media-card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Eye, CheckCircle, ListX } from 'lucide-react';
+import type { Media } from '@/services/tmdb';
 
 export default function MyListsPage() {
-  const { toWatchList, watchedList, addToList, removeFromList, isInList, isLoaded } = useMediaLists();
+  const { toWatchList, watchedList, isLoaded } = useMediaLists();
   const [activeList, setActiveList] = useState<'toWatch' | 'watched'>('toWatch');
 
   const renderList = (list: Media[], listType: 'toWatch' | 'watched') => {

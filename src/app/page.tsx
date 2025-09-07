@@ -15,7 +15,7 @@ import {
 import { useMediaLists } from '@/hooks/use-media-lists';
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ServerCrash, Star, CalendarDays, Clapperboard, Flame, Tv, Film, Eye } from 'lucide-react';
+import { ServerCrash, Star, CalendarDays, Clapperboard, Flame, Tv, Film, Eye, Ghost, Laugh } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import MediaCarousel from '@/components/media-carousel';
@@ -26,6 +26,8 @@ export default function HomePage() {
   const [trending, setTrending] = useState<Media[]>([]);
   const [popularMovies, setPopularMovies] = useState<Media[]>([]);
   const [popularTv, setPopularTv] = useState<Media[]>([]);
+  const [horrorMovies, setHorrorMovies] = useState<Media[]>([]);
+  const [comedyMovies, setComedyMovies] = useState<Media[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -39,11 +41,15 @@ export default function HomePage() {
         const [
           trendingData,
           popularMoviesData,
-          popularTvData
+          popularTvData,
+          horrorMoviesData,
+          comedyMoviesData,
         ] = await Promise.all([
           getTrendingMedia(1, 'week'),
           getPopularMedia('movie'),
-          getPopularMedia('tv')
+          getPopularMedia('tv'),
+          getPopularMedia('movie', 1, undefined, 27), // Genre ID for Horror
+          getPopularMedia('movie', 1, undefined, 35), // Genre ID for Comedy
         ]);
         
         if (trendingData.media.length > 0) {
@@ -55,6 +61,8 @@ export default function HomePage() {
         
         setPopularMovies(popularMoviesData.media);
         setPopularTv(popularTvData.media);
+        setHorrorMovies(horrorMoviesData.media);
+        setComedyMovies(comedyMoviesData.media);
 
       } catch (err) {
         console.error("Erreur lors de la récupération des médias pour la page d'accueil:", err);
@@ -135,9 +143,6 @@ export default function HomePage() {
           title="Ma Liste (À Regarder)"
           media={toWatchList}
           icon={<Eye className="h-7 w-7 text-primary" />}
-          onAddToList={addToList}
-          onRemoveFromList={removeFromList}
-          isInList={isInList}
         />
       )}
       
@@ -146,9 +151,6 @@ export default function HomePage() {
           title="Tendances Actuelles"
           media={trending}
           icon={<Flame className="h-7 w-7 text-primary" />}
-          onAddToList={addToList}
-          onRemoveFromList={removeFromList}
-          isInList={isInList}
         />
       )}
 
@@ -157,9 +159,6 @@ export default function HomePage() {
           title="Films Populaires"
           media={popularMovies}
           icon={<Film className="h-7 w-7 text-primary" />}
-          onAddToList={addToList}
-          onRemoveFromList={removeFromList}
-          isInList={isInList}
         />
       )}
 
@@ -168,9 +167,22 @@ export default function HomePage() {
           title="Séries Populaires"
           media={popularTv}
           icon={<Tv className="h-7 w-7 text-primary" />}
-          onAddToList={addToList}
-          onRemoveFromList={removeFromList}
-          isInList={isInList}
+        />
+      )}
+
+      {horrorMovies.length > 0 && (
+        <MediaCarousel 
+          title="Vous ne dormirez pas cette nuit"
+          media={horrorMovies}
+          icon={<Ghost className="h-7 w-7 text-primary" />}
+        />
+      )}
+
+      {comedyMovies.length > 0 && (
+        <MediaCarousel 
+          title="Vous allez vous plier de rire"
+          media={comedyMovies}
+          icon={<Laugh className="h-7 w-7 text-primary" />}
         />
       )}
     </div>
@@ -194,7 +206,7 @@ const HomePageSkeleton = () => (
     </div>
     
     {/* Carousel Skeleton */}
-    {[1, 2, 3].map((n) => (
+    {[1, 2, 3, 4, 5].map((n) => (
       <div key={n}>
         <Skeleton className="h-10 w-64 mb-6 rounded-lg" />
         <div className="flex space-x-6 md:space-x-8 overflow-hidden">
@@ -212,5 +224,3 @@ const HomePageSkeleton = () => (
     ))}
   </div>
 );
-
-    
