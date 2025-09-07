@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { useMediaLists, type Media } from '@/hooks/use-media-lists';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Copy, ClipboardPaste, Code2, AlertTriangle, Loader2, SettingsIcon, SunMoon } from 'lucide-react';
+import { Copy, ClipboardPaste, Code2, AlertTriangle, Loader2, SettingsIcon, SunMoon, Heart } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Textarea } from '@/components/ui/textarea';
@@ -153,16 +153,25 @@ export default function SettingsPage() {
             <SettingsIcon className="h-8 w-8 text-primary"/> Paramètres
         </h1>
       </div>
-      
-      <Alert variant="default" className="bg-accent/20 border-accent/50 text-accent-foreground [&>svg]:text-accent">
-        <AlertTriangle className="h-5 w-5" />
-        <AlertTitle className="font-semibold">Gestion des données par code</AlertTitle>
-        <AlertDescription>
-          Vous pouvez générer un code unique (format Base64) pour sauvegarder vos listes "À Regarder" et "Vus".
-          Collez ce code ultérieurement pour restaurer vos listes. L'importation remplacera les listes existantes.
-        </AlertDescription>
-      </Alert>
 
+      <Card className="shadow-md rounded-xl">
+        <CardHeader>
+          <CardTitle className="text-xl font-semibold flex items-center gap-2 text-foreground">
+            <Heart className="h-6 w-6 text-primary"/>Soutenir le projet
+          </CardTitle>
+          <CardDescription>
+            CinéCollection est un projet personnel développé avec passion. Si vous appréciez l'application, vous pouvez soutenir son développement et aider à couvrir les frais avec un don. Chaque contribution, même la plus modeste, est grandement appréciée !
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button asChild size="lg" className="bg-pink-600 hover:bg-pink-700 text-white w-full sm:w-auto">
+            <a href="https://paypal.me/hugodevlo" target="_blank" rel="noopener noreferrer">
+              <Heart className="mr-2 h-5 w-5" /> Faire un don avec PayPal
+            </a>
+          </Button>
+        </CardContent>
+      </Card>
+      
       <Card className="shadow-md rounded-xl">
         <CardHeader>
           <CardTitle className="text-xl font-semibold flex items-center gap-2 text-foreground">
@@ -187,6 +196,15 @@ export default function SettingsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
+          <Alert variant="default" className="bg-accent/20 border-accent/50 text-accent-foreground [&>svg]:text-accent">
+            <AlertTriangle className="h-5 w-5" />
+            <AlertTitle className="font-semibold">Gestion des données par code</AlertTitle>
+            <AlertDescription>
+              Vous pouvez générer un code unique (format Base64) pour sauvegarder vos listes.
+              Collez ce code ultérieurement pour restaurer vos listes. L'importation remplacera les listes existantes.
+            </AlertDescription>
+          </Alert>
+
           <div>
             <Button onClick={handleGenerateExportCode} variant="default" className="w-full sm:w-auto" disabled={!isLoaded || isExporting}>
               {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Copy className="mr-2 h-4 w-4" />}
