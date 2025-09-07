@@ -15,7 +15,7 @@ import {
 import { useMediaLists } from '@/hooks/use-media-lists';
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ServerCrash, Star, CalendarDays, Clapperboard, Flame, Tv, Film, Eye, Ghost, Laugh, Rocket, PencilRuler, HeartPulse, Bomb, ShieldQuestion, ChevronLeft, ChevronRight, Heart } from 'lucide-react';
+import { ServerCrash, Star, CalendarDays, Clapperboard, Flame, Tv, Film, Eye, Ghost, Laugh, Rocket, PencilRuler, HeartPulse, Bomb, ShieldQuestion, ChevronLeft, ChevronRight, Heart, Coffee } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import MediaCarousel from '@/components/media-carousel';
@@ -296,10 +296,15 @@ export default function HomePage() {
              C'est grâce à vos dons que nous pouvons garder ce site gratuit et sans aucune publicité. Chaque contribution, même la plus petite, fait une grande différence. Merci !
             </CardDescription>
         </CardHeader>
-        <CardContent className="flex justify-center">
+        <CardContent className="flex flex-col sm:flex-row justify-center items-center gap-3">
             <Button asChild size="lg" className="bg-pink-600 hover:bg-pink-700 text-white shadow-md">
                 <a href="https://paypal.me/hugodevlo" target="_blank" rel="noopener noreferrer">
-                    <Heart className="mr-2 h-5 w-5" /> Faire un don
+                    <Heart className="mr-2 h-5 w-5" /> Faire un don PayPal
+                </a>
+            </Button>
+            <Button asChild size="lg" className="bg-yellow-400 hover:bg-yellow-500 text-black shadow-md">
+                <a href="https://buymeacoffee.com/hugodevlo" target="_blank" rel="noopener noreferrer">
+                    <Coffee className="mr-2 h-5 w-5" /> Offrir un café
                 </a>
             </Button>
         </CardContent>
@@ -400,3 +405,5 @@ const HomePageSkeleton = () => (
     ))}
   </div>
 );
+
+    

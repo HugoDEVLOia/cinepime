@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { useMediaLists, type Media } from '@/hooks/use-media-lists';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Copy, ClipboardPaste, Code2, AlertTriangle, Loader2, SettingsIcon, SunMoon, Heart } from 'lucide-react';
+import { Copy, ClipboardPaste, Code2, AlertTriangle, Loader2, SettingsIcon, SunMoon, Heart, Coffee } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Textarea } from '@/components/ui/textarea';
@@ -164,11 +164,18 @@ export default function SettingsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Button asChild size="lg" className="bg-pink-600 hover:bg-pink-700 text-white w-full sm:w-auto">
-            <a href="https://paypal.me/hugodevlo" target="_blank" rel="noopener noreferrer">
-              <Heart className="mr-2 h-5 w-5" /> Faire un don avec PayPal
-            </a>
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Button asChild size="lg" className="bg-pink-600 hover:bg-pink-700 text-white w-full sm:w-auto">
+              <a href="https://paypal.me/hugodevlo" target="_blank" rel="noopener noreferrer">
+                <Heart className="mr-2 h-5 w-5" /> Faire un don PayPal
+              </a>
+            </Button>
+             <Button asChild size="lg" className="bg-yellow-400 hover:bg-yellow-500 text-black w-full sm:w-auto">
+                <a href="https://buymeacoffee.com/hugodevlo" target="_blank" rel="noopener noreferrer">
+                    <Coffee className="mr-2 h-5 w-5" /> Offrir un café
+                </a>
+            </Button>
+          </div>
         </CardContent>
       </Card>
       
@@ -247,3 +254,5 @@ export default function SettingsPage() {
     </div>
   );
 }
+
+    
