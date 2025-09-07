@@ -266,8 +266,8 @@ const HomePageSkeleton = () => (
     </div>
     
     {/* Carousel Skeleton */}
-    {Array.from({ length: 10 }).map((n) => (
-      <div key={n}>
+    {Array.from({ length: 10 }).map((_, i) => (
+      <div key={`carousel-skeleton-${i}`}>
         <Skeleton className="h-10 w-64 mb-6 rounded-lg" />
         <div className="flex space-x-6 md:space-x-8 overflow-hidden">
           {Array.from({ length: 5 }).map((_, index) => (
@@ -284,5 +284,3 @@ const HomePageSkeleton = () => (
     ))}
   </div>
 );
-
-    
