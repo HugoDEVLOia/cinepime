@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -15,14 +15,17 @@ import {
 import { useMediaLists } from '@/hooks/use-media-lists';
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ServerCrash, Star, CalendarDays, Clapperboard, Flame, Tv, Film, Eye, Ghost, Laugh, Rocket, PencilRuler, HeartPulse, Bomb, ShieldQuestion } from 'lucide-react';
+import { ServerCrash, Star, CalendarDays, Clapperboard, Flame, Tv, Film, Eye, Ghost, Laugh, Rocket, PencilRuler, HeartPulse, Bomb, ShieldQuestion, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import MediaCarousel from '@/components/media-carousel';
+import { cn } from '@/lib/utils';
 
 
 export default function HomePage() {
-  const [heroMedia, setHeroMedia] = useState<Media | null>(null);
+  const [heroCarouselItems, setHeroCarouselItems] = useState<Media[]>([]);
+  const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
+
   const [trending, setTrending] = useState<Media[]>([]);
   const [popularMovies, setPopularMovies] = useState<Media[]>([]);
   const [popularTv, setPopularTv] = useState<Media[]>([]);
@@ -67,13 +70,33 @@ export default function HomePage() {
           getPopularMedia('movie', 1, undefined, 10749), // Genre ID for Romance
         ]);
         
-        if (trendingData.media.length > 0) {
-          // Select a random media for the hero section from trending, preferring one with a backdrop
-          const heroCandidates = trendingData.media.filter(m => m.backdropUrl && m.backdropUrl.includes('image.tmdb.org'));
-          setHeroMedia(heroCandidates.length > 0 ? heroCandidates[0] : trendingData.media[0]);
-          setTrending(trendingData.media);
-        }
+        const allCategories = {
+            trending: trendingData.media,
+            popularMovies: popularMoviesData.media,
+            popularTv: popularTvData.media,
+            action: actionMoviesData.media,
+            scifi: scifiMoviesData.media,
+            thriller: thrillerMoviesData.media,
+            animation: animationMoviesData.media,
+            horror: horrorMoviesData.media,
+            comedy: comedyMoviesData.media,
+            romance: romanceMoviesData.media,
+        };
+
+        const heroItems: Media[] = [];
+        const seenIds = new Set<string>();
+
+        Object.values(allCategories).forEach(category => {
+            const firstValidItem = category.find(m => m.backdropUrl && m.backdropUrl.includes('image.tmdb.org') && !seenIds.has(m.id));
+            if (firstValidItem) {
+                heroItems.push(firstValidItem);
+                seenIds.add(firstValidItem.id);
+            }
+        });
+
+        setHeroCarouselItems(heroItems);
         
+        setTrending(trendingData.media);
         setPopularMovies(popularMoviesData.media);
         setPopularTv(popularTvData.media);
         setHorrorMovies(horrorMoviesData.media);
@@ -94,6 +117,28 @@ export default function HomePage() {
     fetchAllMedia();
   }, []);
 
+  useEffect(() => {
+    if (heroCarouselItems.length > 1) {
+      const timer = setInterval(() => {
+        setCurrentHeroIndex((prevIndex) => (prevIndex + 1) % heroCarouselItems.length);
+      }, 7000); // Change slide every 7 seconds
+      return () => clearInterval(timer);
+    }
+  }, [heroCarouselItems.length]);
+
+  const goToPreviousHero = () => {
+    setCurrentHeroIndex((prevIndex) => (prevIndex - 1 + heroCarouselItems.length) % heroCarouselItems.length);
+  };
+
+  const goToNextHero = useCallback(() => {
+    setCurrentHeroIndex((prevIndex) => (prevIndex + 1) % heroCarouselItems.length);
+  }, [heroCarouselItems.length]);
+  
+  const goToHeroSlide = (index: number) => {
+    setCurrentHeroIndex(index);
+  };
+
+
   if (isLoading) {
     return <HomePageSkeleton />;
   }
@@ -112,49 +157,99 @@ export default function HomePage() {
 
   return (
     <div className="space-y-12 md:space-y-16">
-      {heroMedia && (
-        <section className="relative -mx-4 sm:-mx-6 lg:-mx-8 -mt-8 md:-mt-12 h-[60vh] md:h-[75vh] flex items-center justify-center text-white overflow-hidden rounded-b-2xl shadow-2xl">
-          <div className="absolute inset-0 z-0">
-            <Image
-              src={heroMedia.backdropUrl || heroMedia.posterUrl}
-              alt={`Image de fond pour ${heroMedia.title}`}
-              fill
-              className="object-cover object-center"
-              priority
-              data-ai-hint="hero background"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent z-10"></div>
-            <div className="absolute inset-0 bg-black/40 z-0"></div>
-          </div>
-          <div className="relative z-20 flex flex-col items-start max-w-2xl w-full text-left px-4 sm:px-6 lg:px-8">
-            <Badge variant={heroMedia.mediaType === 'movie' ? 'default' : 'secondary'} className="text-sm capitalize !px-3 !py-1.5 shadow-lg mb-4">
-                {heroMedia.mediaType === 'movie' ? <Film className="h-4 w-4 mr-1.5"/> : <Tv className="h-4 w-4 mr-1.5" />}
-                {heroMedia.mediaType === 'movie' ? 'Film' : 'Série'}
-            </Badge>
-            <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-white shadow-2xl">
-              {heroMedia.title}
-            </h1>
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-white/90 text-sm md:text-base mt-3 mb-5">
-              <div className="flex items-center">
-                <Star className="w-5 h-5 mr-1.5 text-yellow-400 fill-yellow-400" />
-                <span className="font-medium">{heroMedia.averageRating.toFixed(1)}</span>
-              </div>
-              {heroMedia.releaseDate && (
-                <div className="flex items-center">
-                  <CalendarDays className="w-5 h-5 mr-1.5" />
-                  <span>{new Date(heroMedia.releaseDate).getFullYear()}</span>
-                </div>
+      {heroCarouselItems.length > 0 && (
+        <section className="relative -mx-4 sm:-mx-6 lg:-mx-8 -mt-8 md:-mt-12 h-[60vh] md:h-[75vh] flex items-center justify-center text-white overflow-hidden rounded-b-2xl shadow-2xl bg-muted">
+          {heroCarouselItems.map((media, index) => (
+            <div
+              key={media.id}
+              className={cn(
+                "absolute inset-0 z-0 transition-opacity duration-1000 ease-in-out",
+                index === currentHeroIndex ? "opacity-100" : "opacity-0"
               )}
+            >
+              <Image
+                src={media.backdropUrl || media.posterUrl}
+                alt={`Image de fond pour ${media.title}`}
+                fill
+                className="object-cover object-center"
+                priority={index === 0}
+                data-ai-hint="hero background"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent z-10"></div>
+              <div className="absolute inset-0 bg-black/40 z-0"></div>
             </div>
-            <p className="text-md md:text-lg text-white/80 leading-relaxed line-clamp-3 mb-6">
-              {heroMedia.description}
-            </p>
-            <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg">
-              <Link href={`/media/${heroMedia.mediaType}/${heroMedia.id}`}>
-                Voir les détails
-              </Link>
-            </Button>
+          ))}
+
+          <div className="relative z-20 flex flex-col items-start max-w-2xl w-full text-left px-4 sm:px-6 lg:px-8">
+            {heroCarouselItems[currentHeroIndex] && (
+              <>
+                <Badge variant={heroCarouselItems[currentHeroIndex].mediaType === 'movie' ? 'default' : 'secondary'} className="text-sm capitalize !px-3 !py-1.5 shadow-lg mb-4">
+                    {heroCarouselItems[currentHeroIndex].mediaType === 'movie' ? <Film className="h-4 w-4 mr-1.5"/> : <Tv className="h-4 w-4 mr-1.5" />}
+                    {heroCarouselItems[currentHeroIndex].mediaType === 'movie' ? 'Film' : 'Série'}
+                </Badge>
+                <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-white shadow-2xl">
+                  {heroCarouselItems[currentHeroIndex].title}
+                </h1>
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-white/90 text-sm md:text-base mt-3 mb-5">
+                  <div className="flex items-center">
+                    <Star className="w-5 h-5 mr-1.5 text-yellow-400 fill-yellow-400" />
+                    <span className="font-medium">{heroCarouselItems[currentHeroIndex].averageRating.toFixed(1)}</span>
+                  </div>
+                  {heroCarouselItems[currentHeroIndex].releaseDate && (
+                    <div className="flex items-center">
+                      <CalendarDays className="w-5 h-5 mr-1.5" />
+                      <span>{new Date(heroCarouselItems[currentHeroIndex].releaseDate!).getFullYear()}</span>
+                    </div>
+                  )}
+                </div>
+                <p className="text-md md:text-lg text-white/80 leading-relaxed line-clamp-3 mb-6">
+                  {heroCarouselItems[currentHeroIndex].description}
+                </p>
+                <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg">
+                  <Link href={`/media/${heroCarouselItems[currentHeroIndex].mediaType}/${heroCarouselItems[currentHeroIndex].id}`}>
+                    Voir les détails
+                  </Link>
+                </Button>
+              </>
+            )}
           </div>
+          
+           {heroCarouselItems.length > 1 && (
+            <>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={goToPreviousHero}
+                className="absolute left-4 top-1/2 -translate-y-1/2 z-30 h-12 w-12 rounded-full bg-black/30 hover:bg-black/50 text-white hover:text-white"
+                aria-label="Diapositive précédente"
+              >
+                <ChevronLeft className="h-6 w-6" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={goToNextHero}
+                className="absolute right-4 top-1/2 -translate-y-1/2 z-30 h-12 w-12 rounded-full bg-black/30 hover:bg-black/50 text-white hover:text-white"
+                aria-label="Diapositive suivante"
+              >
+                <ChevronRight className="h-6 w-6" />
+              </Button>
+              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 flex space-x-2">
+                {heroCarouselItems.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => goToHeroSlide(index)}
+                    className={cn(
+                      "h-2 w-2 rounded-full transition-all duration-300",
+                      currentHeroIndex === index ? "w-6 bg-primary" : "bg-white/50 hover:bg-white/80"
+                    )}
+                    aria-label={`Aller à la diapositive ${index + 1}`}
+                  />
+                ))}
+              </div>
+            </>
+           )}
+
         </section>
       )}
 
