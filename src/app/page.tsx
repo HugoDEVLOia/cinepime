@@ -27,6 +27,12 @@ export default function HomePage() {
   const [heroCarouselItems, setHeroCarouselItems] = useState<Media[]>([]);
   const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
 
+  // State for swipe gesture
+  const [touchStart, setTouchStart] = useState(0);
+  const [touchEnd, setTouchEnd] = useState(0);
+  const minSwipeDistance = 50;
+
+
   const [trending, setTrending] = useState<Media[]>([]);
   const [popularMovies, setPopularMovies] = useState<Media[]>([]);
   const [popularTv, setPopularTv] = useState<Media[]>([]);
@@ -118,25 +124,48 @@ export default function HomePage() {
     fetchAllMedia();
   }, []);
 
-  useEffect(() => {
-    if (heroCarouselItems.length > 1) {
-      const timer = setInterval(() => {
-        setCurrentHeroIndex((prevIndex) => (prevIndex + 1) % heroCarouselItems.length);
-      }, 7000); // Change slide every 7 seconds
-      return () => clearInterval(timer);
-    }
-  }, [heroCarouselItems.length]);
-
-  const goToPreviousHero = () => {
+  const goToPreviousHero = useCallback(() => {
     setCurrentHeroIndex((prevIndex) => (prevIndex - 1 + heroCarouselItems.length) % heroCarouselItems.length);
-  };
+  }, [heroCarouselItems.length]);
 
   const goToNextHero = useCallback(() => {
     setCurrentHeroIndex((prevIndex) => (prevIndex + 1) % heroCarouselItems.length);
   }, [heroCarouselItems.length]);
-  
+
+  useEffect(() => {
+    if (heroCarouselItems.length > 1) {
+      const timer = setInterval(goToNextHero, 7000); // Change slide every 7 seconds
+      return () => clearInterval(timer);
+    }
+  }, [heroCarouselItems.length, goToNextHero]);
+
   const goToHeroSlide = (index: number) => {
     setCurrentHeroIndex(index);
+  };
+  
+  // Swipe handlers
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(0); // Reset touch end on new touch start
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+    if (isLeftSwipe) {
+      goToNextHero();
+    } else if (isRightSwipe) {
+      goToPreviousHero();
+    }
+    // Reset touch coordinates
+    setTouchStart(0);
+    setTouchEnd(0);
   };
 
 
@@ -161,7 +190,12 @@ export default function HomePage() {
   return (
     <div className="space-y-12 md:space-y-16">
       {heroCarouselItems.length > 0 && currentHeroItem && (
-        <section className="relative -mx-4 sm:-mx-6 lg:-mx-8 -mt-8 md:-mt-12 h-[65vh] md:h-[80vh] flex items-center justify-center text-white overflow-hidden rounded-b-2xl shadow-lg bg-background">
+        <section 
+          className="relative -mx-4 sm:-mx-6 lg:-mx-8 -mt-8 md:-mt-12 h-[65vh] md:h-[80vh] flex items-center justify-center text-white overflow-hidden rounded-b-2xl shadow-lg bg-background"
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
+        >
           {heroCarouselItems.map((media, index) => (
             <div
               key={media.id}
@@ -178,29 +212,29 @@ export default function HomePage() {
                 priority={index === 0}
                 data-ai-hint="hero background"
               />
-              <div className="absolute inset-0 bg-background/30 from-background/80 via-transparent to-transparent bg-gradient-to-t"></div>
-              <div className="absolute inset-0 bg-gradient-to-r from-background via-background/50 to-transparent"></div>
+              <div className="absolute inset-0 bg-black/40 from-background/90 via-background/30 to-transparent bg-gradient-to-t"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/40 to-transparent"></div>
             </div>
           ))}
 
           <div className="relative z-20 container mx-auto px-4 sm:px-6 lg:px-8 w-full">
             <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
-              <div className="md:col-span-3 lg:col-span-2 hidden md:block">
+              <div className="md:col-span-4 lg:col-span-3 hidden md:block">
                  <Link href={`/media/${currentHeroItem.mediaType}/${currentHeroItem.id}`}>
-                    <Card className="overflow-hidden rounded-lg shadow-2xl bg-transparent border-none">
+                    <Card className="overflow-hidden rounded-xl shadow-2xl bg-transparent border-2 border-white/10 transition-all duration-300 hover:border-white/30 hover:scale-105">
                       <Image
                         src={currentHeroItem.posterUrl}
                         alt={`Affiche de ${currentHeroItem.title}`}
-                        width={250}
-                        height={375}
-                        className="object-cover w-full h-auto transition-transform duration-300 hover:scale-105"
+                        width={300}
+                        height={450}
+                        className="object-cover w-full h-auto"
                         priority
                       />
                     </Card>
                  </Link>
               </div>
-              <div className="md:col-span-9 lg:col-span-7">
-                <div className="flex flex-col items-start max-w-2xl text-left">
+              <div className="md:col-span-8 lg:col-span-7">
+                <div className="flex flex-col items-center md:items-start max-w-2xl text-center md:text-left">
                   <Badge variant={currentHeroItem.mediaType === 'movie' ? 'default' : 'secondary'} className="text-sm capitalize !px-3 !py-1.5 shadow mb-4">
                       {currentHeroItem.mediaType === 'movie' ? <Film className="h-4 w-4 mr-1.5"/> : <Tv className="h-4 w-4 mr-1.5" />}
                       {currentHeroItem.mediaType === 'movie' ? 'Film' : 'Série'}
@@ -208,7 +242,7 @@ export default function HomePage() {
                   <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-white drop-shadow-xl">
                     {currentHeroItem.title}
                   </h1>
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-white/90 text-sm md:text-base mt-3 mb-5">
+                  <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-2 text-white/90 text-sm md:text-base mt-3 mb-5">
                     <div className="flex items-center">
                       <Star className="w-5 h-5 mr-1.5 text-yellow-400 fill-yellow-400" />
                       <span className="font-medium">{currentHeroItem.averageRating.toFixed(1)}</span>
@@ -239,7 +273,7 @@ export default function HomePage() {
                 variant="ghost"
                 size="icon"
                 onClick={goToPreviousHero}
-                className="absolute left-4 top-1/2 -translate-y-1/2 z-30 h-12 w-12 rounded-full bg-black/20 hover:bg-black/40 text-white backdrop-blur-sm"
+                className="absolute left-4 top-1/2 -translate-y-1/2 z-30 h-12 w-12 rounded-full bg-black/20 hover:bg-black/40 text-white backdrop-blur-sm hidden md:inline-flex"
                 aria-label="Diapositive précédente"
               >
                 <ChevronLeft className="h-6 w-6" />
@@ -248,7 +282,7 @@ export default function HomePage() {
                 variant="ghost"
                 size="icon"
                 onClick={goToNextHero}
-                className="absolute right-4 top-1/2 -translate-y-1/2 z-30 h-12 w-12 rounded-full bg-black/20 hover:bg-black/40 text-white backdrop-blur-sm"
+                className="absolute right-4 top-1/2 -translate-y-1/2 z-30 h-12 w-12 rounded-full bg-black/20 hover:bg-black/40 text-white backdrop-blur-sm hidden md:inline-flex"
                 aria-label="Diapositive suivante"
               >
                 <ChevronRight className="h-6 w-6" />
@@ -304,7 +338,7 @@ export default function HomePage() {
         />
       )}
 
-      <Card className="bg-primary/5 border-primary/20 shadow-lg rounded-xl">
+      <Card className="bg-card border-border shadow-lg rounded-xl">
         <CardHeader className="text-center">
             <div className="mx-auto bg-primary/10 p-3 rounded-full mb-3">
                 <Heart className="h-8 w-8 text-primary"/>
@@ -397,7 +431,7 @@ const HomePageSkeleton = () => (
            <div className="md:col-span-3 lg:col-span-2 hidden md:block">
               <Skeleton className="w-full aspect-[2/3] rounded-lg" />
             </div>
-            <div className="md:col-span-9 lg:col-span-7 flex flex-col justify-center">
+            <div className="md:col-span-9 lg:col-span-7 flex flex-col justify-center items-center md:items-start text-center md:text-left">
               <Skeleton className="h-8 w-24 mb-4 rounded-full" />
               <Skeleton className="h-14 md:h-20 w-3/4 mb-4 rounded-lg" />
               <div className="flex gap-4 mb-5">
@@ -430,3 +464,5 @@ const HomePageSkeleton = () => (
     ))}
   </div>
 );
+
+
