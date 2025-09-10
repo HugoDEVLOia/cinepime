@@ -95,7 +95,7 @@ export default function HomePage() {
             }
         });
 
-        setHeroCarouselItems(heroItems);
+        setHeroCarouselItems(heroItems.slice(0, 10)); // Limit to 10 for performance
         
         setTrending(trendingData.media);
         setPopularMovies(popularMoviesData.media);
@@ -155,11 +155,13 @@ export default function HomePage() {
       </div>
     );
   }
+  
+  const currentHeroItem = heroCarouselItems[currentHeroIndex];
 
   return (
     <div className="space-y-12 md:space-y-16">
-      {heroCarouselItems.length > 0 && (
-        <section className="relative -mx-4 sm:-mx-6 lg:-mx-8 -mt-8 md:-mt-12 h-[60vh] md:h-[75vh] flex items-center justify-center text-white overflow-hidden rounded-b-2xl shadow-2xl bg-muted">
+      {heroCarouselItems.length > 0 && currentHeroItem && (
+        <section className="relative -mx-4 sm:-mx-6 lg:-mx-8 -mt-8 md:-mt-12 h-[65vh] md:h-[80vh] flex items-center justify-center text-white overflow-hidden rounded-b-2xl shadow-lg bg-background">
           {heroCarouselItems.map((media, index) => (
             <div
               key={media.id}
@@ -176,43 +178,59 @@ export default function HomePage() {
                 priority={index === 0}
                 data-ai-hint="hero background"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent z-10"></div>
-              <div className="absolute inset-0 bg-black/40 z-0"></div>
+              <div className="absolute inset-0 bg-background/30 from-background/80 via-transparent to-transparent bg-gradient-to-t"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-background via-background/50 to-transparent"></div>
             </div>
           ))}
 
-          <div className="relative z-20 flex flex-col items-start max-w-2xl w-full text-left px-4 sm:px-6 lg:px-8">
-            {heroCarouselItems[currentHeroIndex] && (
-              <>
-                <Badge variant={heroCarouselItems[currentHeroIndex].mediaType === 'movie' ? 'default' : 'secondary'} className="text-sm capitalize !px-3 !py-1.5 shadow-lg mb-4">
-                    {heroCarouselItems[currentHeroIndex].mediaType === 'movie' ? <Film className="h-4 w-4 mr-1.5"/> : <Tv className="h-4 w-4 mr-1.5" />}
-                    {heroCarouselItems[currentHeroIndex].mediaType === 'movie' ? 'Film' : 'Série'}
-                </Badge>
-                <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-white shadow-2xl">
-                  {heroCarouselItems[currentHeroIndex].title}
-                </h1>
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-white/90 text-sm md:text-base mt-3 mb-5">
-                  <div className="flex items-center">
-                    <Star className="w-5 h-5 mr-1.5 text-yellow-400 fill-yellow-400" />
-                    <span className="font-medium">{heroCarouselItems[currentHeroIndex].averageRating.toFixed(1)}</span>
-                  </div>
-                  {heroCarouselItems[currentHeroIndex].releaseDate && (
+          <div className="relative z-20 container mx-auto px-4 sm:px-6 lg:px-8 w-full">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+              <div className="md:col-span-3 lg:col-span-2 hidden md:block">
+                 <Link href={`/media/${currentHeroItem.mediaType}/${currentHeroItem.id}`}>
+                    <Card className="overflow-hidden rounded-lg shadow-2xl bg-transparent border-none">
+                      <Image
+                        src={currentHeroItem.posterUrl}
+                        alt={`Affiche de ${currentHeroItem.title}`}
+                        width={250}
+                        height={375}
+                        className="object-cover w-full h-auto transition-transform duration-300 hover:scale-105"
+                        priority
+                      />
+                    </Card>
+                 </Link>
+              </div>
+              <div className="md:col-span-9 lg:col-span-7">
+                <div className="flex flex-col items-start max-w-2xl text-left">
+                  <Badge variant={currentHeroItem.mediaType === 'movie' ? 'default' : 'secondary'} className="text-sm capitalize !px-3 !py-1.5 shadow mb-4">
+                      {currentHeroItem.mediaType === 'movie' ? <Film className="h-4 w-4 mr-1.5"/> : <Tv className="h-4 w-4 mr-1.5" />}
+                      {currentHeroItem.mediaType === 'movie' ? 'Film' : 'Série'}
+                  </Badge>
+                  <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-white drop-shadow-xl">
+                    {currentHeroItem.title}
+                  </h1>
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-white/90 text-sm md:text-base mt-3 mb-5">
                     <div className="flex items-center">
-                      <CalendarDays className="w-5 h-5 mr-1.5" />
-                      <span>{new Date(heroCarouselItems[currentHeroIndex].releaseDate!).getFullYear()}</span>
+                      <Star className="w-5 h-5 mr-1.5 text-yellow-400 fill-yellow-400" />
+                      <span className="font-medium">{currentHeroItem.averageRating.toFixed(1)}</span>
                     </div>
-                  )}
+                    {currentHeroItem.releaseDate && (
+                      <div className="flex items-center">
+                        <CalendarDays className="w-5 h-5 mr-1.5" />
+                        <span>{new Date(currentHeroItem.releaseDate!).getFullYear()}</span>
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-md md:text-lg text-white/80 leading-relaxed line-clamp-3 mb-6 drop-shadow-md">
+                    {currentHeroItem.description}
+                  </p>
+                  <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg">
+                    <Link href={`/media/${currentHeroItem.mediaType}/${currentHeroItem.id}`}>
+                      Voir les détails
+                    </Link>
+                  </Button>
                 </div>
-                <p className="text-md md:text-lg text-white/80 leading-relaxed line-clamp-3 mb-6">
-                  {heroCarouselItems[currentHeroIndex].description}
-                </p>
-                <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg">
-                  <Link href={`/media/${heroCarouselItems[currentHeroIndex].mediaType}/${heroCarouselItems[currentHeroIndex].id}`}>
-                    Voir les détails
-                  </Link>
-                </Button>
-              </>
-            )}
+              </div>
+            </div>
           </div>
           
            {heroCarouselItems.length > 1 && (
@@ -221,7 +239,7 @@ export default function HomePage() {
                 variant="ghost"
                 size="icon"
                 onClick={goToPreviousHero}
-                className="absolute left-4 top-1/2 -translate-y-1/2 z-30 h-12 w-12 rounded-full bg-black/30 hover:bg-black/50 text-white hover:text-white"
+                className="absolute left-4 top-1/2 -translate-y-1/2 z-30 h-12 w-12 rounded-full bg-black/20 hover:bg-black/40 text-white backdrop-blur-sm"
                 aria-label="Diapositive précédente"
               >
                 <ChevronLeft className="h-6 w-6" />
@@ -230,7 +248,7 @@ export default function HomePage() {
                 variant="ghost"
                 size="icon"
                 onClick={goToNextHero}
-                className="absolute right-4 top-1/2 -translate-y-1/2 z-30 h-12 w-12 rounded-full bg-black/30 hover:bg-black/50 text-white hover:text-white"
+                className="absolute right-4 top-1/2 -translate-y-1/2 z-30 h-12 w-12 rounded-full bg-black/20 hover:bg-black/40 text-white backdrop-blur-sm"
                 aria-label="Diapositive suivante"
               >
                 <ChevronRight className="h-6 w-6" />
@@ -241,8 +259,8 @@ export default function HomePage() {
                     key={index}
                     onClick={() => goToHeroSlide(index)}
                     className={cn(
-                      "h-2 w-2 rounded-full transition-all duration-300",
-                      currentHeroIndex === index ? "w-6 bg-primary" : "bg-white/50 hover:bg-white/80"
+                      "h-2 w-2 rounded-full transition-all duration-300 backdrop-blur-sm",
+                      currentHeroIndex === index ? "w-6 bg-primary" : "bg-white/40 hover:bg-white/70"
                     )}
                     aria-label={`Aller à la diapositive ${index + 1}`}
                   />
@@ -373,16 +391,23 @@ export default function HomePage() {
 const HomePageSkeleton = () => (
   <div className="space-y-12 md:space-y-16 animate-pulse">
     {/* Hero Skeleton */}
-    <div className="relative -mx-4 sm:-mx-6 lg:-mx-8 -mt-8 md:-mt-12 h-[60vh] md:h-[75vh] bg-muted rounded-b-2xl">
-      <div className="relative z-20 flex flex-col items-start max-w-2xl w-full text-left p-8 md:p-12 self-end">
-        <Skeleton className="h-8 w-24 mb-4 rounded-full" />
-        <Skeleton className="h-14 md:h-20 w-3/4 mb-4 rounded-lg" />
-        <div className="flex gap-4 mb-5">
-            <Skeleton className="h-6 w-20 rounded-md" />
-            <Skeleton className="h-6 w-20 rounded-md" />
+    <div className="relative -mx-4 sm:-mx-6 lg:-mx-8 -mt-8 md:-mt-12 h-[65vh] md:h-[80vh] bg-muted rounded-b-2xl">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 h-full">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center h-full">
+           <div className="md:col-span-3 lg:col-span-2 hidden md:block">
+              <Skeleton className="w-full aspect-[2/3] rounded-lg" />
+            </div>
+            <div className="md:col-span-9 lg:col-span-7 flex flex-col justify-center">
+              <Skeleton className="h-8 w-24 mb-4 rounded-full" />
+              <Skeleton className="h-14 md:h-20 w-3/4 mb-4 rounded-lg" />
+              <div className="flex gap-4 mb-5">
+                  <Skeleton className="h-6 w-20 rounded-md" />
+                  <Skeleton className="h-6 w-20 rounded-md" />
+              </div>
+              <Skeleton className="h-20 w-full mb-6 rounded-lg" />
+              <Skeleton className="h-12 w-40 rounded-lg" />
+            </div>
         </div>
-        <Skeleton className="h-20 w-full mb-6 rounded-lg" />
-        <Skeleton className="h-12 w-40 rounded-lg" />
       </div>
     </div>
     
