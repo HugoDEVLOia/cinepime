@@ -48,7 +48,7 @@ const MagaliEasterEgg = () => (
         </Card>
         <Card className="p-6 text-center shadow-lg rounded-xl bg-card">
           <blockquote className="text-xl md:text-2xl font-medium italic text-foreground">
-            "Psartek la babouche"
+            "Tabernacle la babouche"
           </blockquote>
           <footer className="mt-4 text-md text-muted-foreground">- Magali Giorgis, 2025</footer>
         </Card>
