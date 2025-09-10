@@ -7,10 +7,11 @@ import { searchMedia, type Media } from '@/services/tmdb';
 import MediaCard from '@/components/media-card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { SearchX, ServerCrash } from 'lucide-react';
+import { SearchX, ServerCrash, MessageSquareQuote } from 'lucide-react';
 import Image from 'next/image';
+import { Card } from '@/components/ui/card';
 
-const EasterEgg = () => (
+const ArthurEasterEgg = () => (
   <div className="flex flex-col items-center justify-center text-center space-y-4 py-10">
     <h1 className="text-8xl md:text-9xl font-extrabold text-primary tracking-tighter animate-pulse">
       SIGMA
@@ -30,6 +31,31 @@ const EasterEgg = () => (
   </div>
 );
 
+const MagaliEasterEgg = () => (
+    <div className="flex flex-col items-center justify-center text-center space-y-8 py-10">
+      <div className="mb-4">
+        <MessageSquareQuote className="h-24 w-24 text-primary" />
+      </div>
+      <h1 className="text-4xl md:text-5xl font-extrabold text-foreground tracking-tight">
+        Le Grand Livre des Citations de Magali
+      </h1>
+      <div className="space-y-6 max-w-2xl w-full">
+        <Card className="p-6 text-center shadow-lg rounded-xl bg-card">
+          <blockquote className="text-xl md:text-2xl font-medium italic text-foreground">
+            "C'est bien mais est ce que on peut parler avec Brad Pitt ?"
+          </blockquote>
+          <footer className="mt-4 text-md text-muted-foreground">- Magali Giorgis, 2025</footer>
+        </Card>
+        <Card className="p-6 text-center shadow-lg rounded-xl bg-card">
+          <blockquote className="text-xl md:text-2xl font-medium italic text-foreground">
+            "Psartek la babouche"
+          </blockquote>
+          <footer className="mt-4 text-md text-muted-foreground">- Magali Giorgis, 2025</footer>
+        </Card>
+      </div>
+    </div>
+);
+
 
 function SearchResults() {
   const searchParams = useSearchParams();
@@ -46,8 +72,8 @@ function SearchResults() {
       return;
     }
 
-    // Don't fetch results if it's the easter egg
-    if (query.toLowerCase() === 'arthur launois') {
+    // Don't fetch results if it's an easter egg
+    if (query.toLowerCase() === 'arthur launois' || query.toLowerCase() === 'magali giorgis') {
         setIsLoading(false);
         return;
     }
@@ -70,7 +96,11 @@ function SearchResults() {
   }, [query]);
 
   if (query.toLowerCase() === 'arthur launois') {
-    return <EasterEgg />;
+    return <ArthurEasterEgg />;
+  }
+
+  if (query.toLowerCase() === 'magali giorgis') {
+    return <MagaliEasterEgg />;
   }
   
   if (error) {
