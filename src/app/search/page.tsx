@@ -20,7 +20,7 @@ const EasterEgg = () => (
     </div>
     <div className="relative w-48 h-48 md:w-64 md:h-64 rounded-full overflow-hidden shadow-2xl border-4 border-primary mt-4">
       <Image
-        src="/easter-eggs/arthur.png"
+        src="/easter-egg/arthur.jpeg"
         alt="Arthur Launois"
         layout="fill"
         objectFit="cover"
