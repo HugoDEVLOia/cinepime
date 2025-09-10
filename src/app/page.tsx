@@ -302,9 +302,9 @@ export default function HomePage() {
                     <Heart className="mr-2 h-5 w-5" /> Faire un don PayPal
                 </a>
             </Button>
-            <Button asChild size="lg" className="bg-yellow-400 hover:bg-yellow-500 text-black shadow-md">
-                <a href="https://buymeacoffee.com/hugodevlo" target="_blank" rel="noopener noreferrer">
-                    <Coffee className="mr-2 h-5 w-5" /> Offrir un café
+            <Button asChild size="lg" variant="secondary" className="shadow-md">
+                <a href="https://ko-fi.com/hugodevlo" target="_blank" rel="noopener noreferrer">
+                    <Coffee className="mr-2 h-5 w-5" /> Soutenir sur Ko-fi
                 </a>
             </Button>
         </CardContent>
