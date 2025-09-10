@@ -9,7 +9,7 @@ const Card = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "rounded-lg border bg-card text-card-foreground shadow-sm", // Default rounded-lg, can be overridden
+      "rounded-lg border bg-card text-card-foreground shadow-sm transition-all duration-300 hover:shadow-xl hover:border-primary/50 hover:scale-[1.02]",
       className
     )}
     {...props}
@@ -23,22 +23,20 @@ const CardHeader = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("flex flex-col space-y-1.5 p-4 md:p-6", className)} // Adjusted padding
+    className={cn("flex flex-col space-y-1.5 p-4 md:p-6", className)}
     {...props}
   />
 ))
 CardHeader.displayName = "CardHeader"
 
 const CardTitle = React.forwardRef<
-  HTMLDivElement, // Changed to HTMLHeadingElement for semantic correctness, assuming it's used with h1-h6
+  HTMLDivElement,
   React.HTMLAttributes<HTMLHeadingElement> 
 >(({ className, ...props }, ref) => (
-  // Assuming CardTitle will wrap a heading tag like <h3> or <h4>
-  // The actual heading level should be set in the component using CardTitle
-  <div // This div is kept for styling consistency from original shadcn structure
+  <div
     ref={ref}
     className={cn(
-      "text-xl font-semibold leading-none tracking-tight", // Slightly reduced default size
+      "text-xl font-semibold leading-none tracking-tight",
       className
     )}
     {...props} 
@@ -50,7 +48,7 @@ const CardDescription = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, ...props }, ref) => (
-  <p // Changed to p for semantic correctness
+  <p
     ref={ref}
     className={cn("text-sm text-muted-foreground", className)}
     {...props}
@@ -62,7 +60,7 @@ const CardContent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
-  <div ref={ref} className={cn("p-4 md:p-6 pt-0", className)} {...props} /> // Adjusted padding
+  <div ref={ref} className={cn("p-4 md:p-6 pt-0", className)} {...props} />
 ))
 CardContent.displayName = "CardContent"
 
@@ -72,7 +70,7 @@ const CardFooter = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("flex items-center p-4 md:p-6 pt-0", className)} // Adjusted padding
+    className={cn("flex items-center p-4 md:p-6 pt-0", className)}
     {...props}
   />
 ))

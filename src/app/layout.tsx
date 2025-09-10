@@ -1,30 +1,18 @@
 
-'use client'; // Add 'use client' for useState and event handlers
+'use client'; 
 
-// import type { Metadata } from 'next'; // Metadata type is no longer used here
 import { GeistSans } from 'geist/font/sans';
 import { GeistMono } from 'geist/font/mono';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import Link from 'next/link';
-import { Film, Clapperboard, Search, Tv, BarChart3, Menu, SettingsIcon, X, Gamepad2 } from 'lucide-react'; // Added X icon
+import { Film, Clapperboard, Search, Tv, BarChart3, Menu, SettingsIcon, X, Gamepad2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import SearchBar from '@/components/search-bar';
 import Chatbot from '@/components/chatbot';
 import { Sheet, SheetContent, SheetClose, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { ThemeProvider } from '@/contexts/theme-provider';
-import { useState } from 'react'; // Import useState
-
-// Metadata cannot be exported from a Client Component.
-// If global metadata is needed, it should be defined in a Server Component,
-// or this layout should be refactored to be a Server Component with client parts extracted.
-// export const metadata: Metadata = {
-//   title: 'CinéCollection',
-//   description: 'Suivez les films et séries que vous regardez, voulez regarder, et obtenez des statistiques personnalisées.',
-//   icons: {
-//     icon: '/icone.png',
-//   },
-// };
+import { useState } from 'react';
 
 export default function RootLayout({
   children,
@@ -43,9 +31,9 @@ export default function RootLayout({
         <meta name="format-detection" content="telephone=no" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="msapplication-config" content="/icons/browserconfig.xml" />
-        <meta name="msapplication-TileColor" content="#1A237E" />
+        <meta name="msapplication-TileColor" content="#000000" />
         <meta name="msapplication-tap-highlight" content="no" />
-        <meta name="theme-color" content="#1A237E" />
+        <meta name="theme-color" content="#000000" />
         
         <link rel="apple-touch-icon" href="/iconapp.png" />
         <link rel="manifest" href="/manifest.json" />
@@ -56,13 +44,12 @@ export default function RootLayout({
       </head>
       <body className={`${GeistSans.variable} ${GeistMono.variable} antialiased flex flex-col min-h-screen`}>
         <ThemeProvider
-          defaultTheme="system"
+          defaultTheme="dark"
           storageKey="cinecollection-ui-theme"
         >
-          <header className="sticky top-0 z-50 w-full border-b border-border bg-card/80 backdrop-blur-md shadow-sm">
+          <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/80 backdrop-blur-lg">
             <div className="container flex h-20 items-center justify-between px-4 sm:px-6 lg:px-8">
               {isSearchActive ? (
-                // SEARCH ACTIVE MODE
                 <div className="flex items-center w-full gap-2">
                   <div className="flex-grow">
                     <SearchBar />
@@ -72,15 +59,12 @@ export default function RootLayout({
                   </Button>
                 </div>
               ) : (
-                // NORMAL MODE
                 <>
-                  {/* Logo and Title - Pushed to the left */}
                   <Link href="/" className="flex items-center gap-2 group mr-auto">
                     <Clapperboard className="h-8 w-8 text-primary transition-transform group-hover:rotate-[-10deg]" />
                     <span className="text-2xl font-bold text-primary tracking-tight">CinéCollection</span>
                   </Link>
 
-                  {/* Desktop Navigation & Search Icon */}
                   <div className="hidden md:flex items-center gap-1">
                     <nav className="flex items-center gap-1">
                       <Link href="/" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
@@ -109,13 +93,11 @@ export default function RootLayout({
                         </Button>
                       </Link>
                     </nav>
-                    {/* Search icon that activates search mode for desktop */}
                     <Button variant="ghost" size="icon" onClick={() => setIsSearchActive(true)} className="ml-3" aria-label="Ouvrir la recherche">
                       <Search className="h-5 w-5" />
                     </Button>
                   </div>
 
-                  {/* Mobile: Search Icon + Menu Icon */}
                   <div className="md:hidden flex items-center gap-2">
                     <Button variant="ghost" size="icon" onClick={() => setIsSearchActive(true)} aria-label="Ouvrir la recherche">
                       <Search className="h-6 w-6" />
@@ -132,7 +114,6 @@ export default function RootLayout({
                           <SheetTitle className="text-lg font-semibold text-primary">Menu</SheetTitle>
                         </SheetHeader>
                         <div className="p-4 space-y-4">
-                          {/* SearchBar in Sheet - this is separate from the header search mode */}
                           <div className="mb-4">
                             <SearchBar />
                           </div>
@@ -184,7 +165,7 @@ export default function RootLayout({
           <main className="flex-grow container mx-auto px-4 py-8 sm:px-6 lg:px-8 md:py-12">
             {children}
           </main>
-          <footer className="border-t border-border bg-card/50 py-8">
+          <footer className="border-t border-border/60 bg-transparent py-8">
             <div className="container px-4 text-center text-sm text-muted-foreground md:px-6">
               CinéCollection - HugoDEVLO - 2025
             </div>

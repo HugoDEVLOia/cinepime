@@ -15,8 +15,6 @@ interface ThemeProviderProps {
 interface ThemeProviderState {
   theme: Theme;
   setTheme: (theme: Theme) => void;
-  // effectiveTheme might not be needed if consumers always check theme and system preference themselves
-  // For simplicity, components can derive this or the provider can just set the class
 }
 
 const initialState: Omit<ThemeProviderState, 'setTheme'> & { setTheme: Dispatch<SetStateAction<Theme>> | (() => void) } = {
@@ -29,8 +27,8 @@ const ThemeProviderContext = createContext<ThemeProviderState>(initialState as T
 
 export function ThemeProvider({
   children,
-  defaultTheme = 'system',
-  storageKey = 'cinecollection-ui-theme', // Changed key to be more specific
+  defaultTheme = 'dark',
+  storageKey = 'cinecollection-ui-theme',
 }: ThemeProviderProps) {
   const [theme, setThemeState] = useState<Theme>(() => {
     if (typeof window === 'undefined') {
@@ -40,7 +38,6 @@ export function ThemeProvider({
       const storedTheme = window.localStorage.getItem(storageKey) as Theme | null;
       return storedTheme || defaultTheme;
     } catch (e) {
-      // console.error('Error reading theme from localStorage', e);
       return defaultTheme;
     }
   });
@@ -64,13 +61,12 @@ export function ThemeProvider({
     }
   }, [theme, storageKey]);
 
-  // Listener for system theme changes
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const handleChange = () => {
-      if (theme === 'system') { // Only update if current theme is 'system'
+      if (theme === 'system') { 
         const newSystemTheme = mediaQuery.matches ? 'dark' : 'light';
         const root = window.document.documentElement;
         root.classList.remove('light', 'dark');
@@ -80,7 +76,7 @@ export function ThemeProvider({
 
     mediaQuery.addEventListener('change', handleChange);
     return () => mediaQuery.removeEventListener('change', handleChange);
-  }, [theme]); // Rerun if theme changes to/from 'system'
+  }, [theme]);
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);

@@ -4,103 +4,77 @@
 
 @layer base {
   :root {
-    --background: 220 20% 98%; /* Slightly off-white, very light cool gray */
-    --foreground: 220 15% 30%; /* Darker desaturated blue-gray for better contrast */
-    --card: 0 0% 100%; /* White */
-    --card-foreground: 220 15% 30%; /* Darker desaturated blue-gray */
-    --popover: 0 0% 100%; /* White */
-    --popover-foreground: 220 15% 30%; /* Darker desaturated blue-gray */
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
     
-    /* Updated Primary Color: Dark Blue (#1A237E) -> HSL(234, 65%, 30%) */
-    --primary: 234 65% 30%;
-    --primary-foreground: 210 40% 98%; /* Light color for dark blue background */
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
     
-    --secondary: 220 18% 93%; /* Lighter cool gray */
-    --secondary-foreground: 220 15% 35%; /* Darker desaturated blue-gray */
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
     
-    --muted: 220 18% 95%; /* Even lighter cool gray */
-    --muted-foreground: 220 10% 55%; /* Medium cool gray for muted text */
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 210 40% 98%;
     
-    /* Updated Accent Color: Teal (#00BCD4) -> HSL(188, 100%, 42%) */
-    --accent: 188 100% 42%;
-    --accent-foreground: 0 0% 100%; /* White text on vibrant teal */
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
     
-    --destructive: 0 75% 55%; /* Slightly softer, more modern red */
-    --destructive-foreground: 0 0% 100%; /* White */
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
     
-    --border: 220 15% 90%; /* Light cool gray border, slightly softer */
-    --input: 220 15% 94%; /* Slightly lighter input background for subtlety */
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
     
-    /* Updated Ring color based on new primary */
-    --ring: 234 65% 40%; 
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
     
-    /* Updated Chart colors to match new primary and accent */
-    --chart-1: 234 65% 30%; /* Films - Primary Dark Blue */
-    --chart-2: 188 100% 42%; /* Series - Accent Teal */
-    --chart-3: 220 65% 70%; /* Kept for potential future use */
-    --chart-4: 30 85% 65%;  /* Kept for potential future use */
-    --chart-5: 280 65% 70%; /* Kept for potential future use */
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 240 10% 3.9%;
+    
+    --radius: 0.5rem;
 
-    --radius: 0.75rem; /* Increased border radius for a more modern feel */
-
-    /* Sidebar specific colors, can be adjusted for more cohesion */
-    --sidebar-background: 220 20% 99%; /* Very light, almost white */
-    --sidebar-foreground: 220 15% 35%; 
-    --sidebar-primary: 234 65% 35%; /* Sidebar primary based on new primary */
-    --sidebar-primary-foreground: 210 40% 98%;
-    --sidebar-accent: 220 18% 94%; 
-    --sidebar-accent-foreground: 220 15% 25%;
-    --sidebar-border: 220 15% 88%; 
-    --sidebar-ring: 234 65% 45%; /* Sidebar ring based on new primary */
+    --chart-1: 217.2 91.2% 59.8%;
+    --chart-2: 180 80% 40%;
+    --chart-3: 30 85% 65%;
+    --chart-4: 280 85% 65%;
+    --chart-5: 0 85% 65%;
   }
 
   .dark {
-    --background: 220 15% 12%; /* Darker blue-gray */
-    --foreground: 220 10% 90%; /* Lighter gray for text */
-    --card: 220 15% 18%; /* Darker gray-blue card */
-    --card-foreground: 220 10% 90%; 
-    --popover: 220 15% 15%; /* Dark popover */
-    --popover-foreground: 220 10% 90%;
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
     
-    /* Updated Primary Color for Dark Mode (lighter version of HSL 234 65% 30%) */
-    --primary: 234 65% 55%; 
-    --primary-foreground: 0 0% 10%; /* Dark text for lighter blue background */
+    --card: 240 10% 6%; /* Slightly lighter than background */
+    --card-foreground: 0 0% 98%;
     
-    --secondary: 220 15% 22%; /* Darker gray secondary */
-    --secondary-foreground: 220 10% 90%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
     
-    --muted: 220 15% 25%; /* Darker gray muted */
-    --muted-foreground: 220 10% 70%; /* Lighter muted text */
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 0 0% 98%;
     
-    /* Updated Accent Color for Dark Mode (lighter/adapted version of HSL 188 100% 42%) */
-    --accent: 188 90% 60%; 
-    --accent-foreground: 0 0% 10%; /* Dark text for lighter teal background */
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
     
-    --destructive: 0 75% 60%; /* Slightly brighter red for dark */
-    --destructive-foreground: 0 0% 100%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
     
-    --border: 220 15% 30%; /* Dark gray border */
-    --input: 220 15% 25%; /* Darker input background */
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
     
-    /* Updated Ring color for Dark Mode */
-    --ring: 234 65% 65%; 
-
-    /* Updated Chart colors for Dark Mode */
-    --chart-1: 234 65% 55%; /* Films - Primary Dark Blue (Dark Mode Version) */
-    --chart-2: 188 90% 60%; /* Series - Accent Teal (Dark Mode Version) */
-    --chart-3: 220 70% 80%; /* Kept for potential future use */
-    --chart-4: 35 85% 75%;  /* Kept for potential future use */
-    --chart-5: 280 70% 80%; /* Kept for potential future use */
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
     
-    /* Sidebar specific colors for dark mode */
-    --sidebar-background: 220 15% 15%; 
-    --sidebar-foreground: 220 10% 85%; 
-    --sidebar-primary: 234 65% 60%; /* Sidebar primary based on new dark primary */
-    --sidebar-primary-foreground: 0 0% 5%; 
-    --sidebar-accent: 220 15% 22%; 
-    --sidebar-accent-foreground: 220 10% 95%;
-    --sidebar-border: 220 15% 28%; 
-    --sidebar-ring: 234 65% 70%; /* Sidebar ring based on new dark primary */
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 217.2 91.2% 59.8%;
+    
+    --chart-1: 217.2 91.2% 59.8%;
+    --chart-2: 180 80% 40%;
+    --chart-3: 30 85% 65%;
+    --chart-4: 280 85% 65%;
+    --chart-5: 0 85% 65%;
   }
 }
 
@@ -110,6 +84,7 @@
   }
   body {
     @apply bg-background text-foreground;
+    background-image: linear-gradient(to bottom right, hsl(var(--background)), hsl(240 10% 2%));
     font-family: var(--font-geist-sans), sans-serif;
   }
   h1, h2, h3, h4, h5, h6 {
@@ -120,13 +95,11 @@
   h2 { @apply text-3xl font-semibold; }
   h3 { @apply text-2xl font-semibold; }
 
-  /* More subtle focus ring for accessibility, using the ring color */
   *:focus-visible {
     @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
   }
 }
 
-/* Custom scrollbar for a more modern feel */
 @layer utilities {
   .scrollbar-thin {
     scrollbar-width: thin;
