@@ -170,7 +170,7 @@ export default function SettingsPage() {
                 <Heart className="mr-2 h-5 w-5" /> Faire un don PayPal
               </a>
             </Button>
-             <Button asChild size="lg" variant="secondary" className="w-full sm:w-auto">
+             <Button asChild size="lg" variant="secondary" className="w-full sm:w-auto bg-yellow-400 hover:bg-yellow-500 text-black">
                 <a href="https://ko-fi.com/hugodevlo" target="_blank" rel="noopener noreferrer">
                     <Coffee className="mr-2 h-5 w-5" /> Soutenir sur Ko-fi
                 </a>
@@ -254,5 +254,3 @@ export default function SettingsPage() {
     </div>
   );
 }
-
-    
