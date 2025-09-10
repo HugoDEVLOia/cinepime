@@ -8,6 +8,28 @@ import MediaCard from '@/components/media-card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { SearchX, ServerCrash } from 'lucide-react';
+import Image from 'next/image';
+
+const EasterEgg = () => (
+  <div className="flex flex-col items-center justify-center text-center space-y-4 py-10">
+    <h1 className="text-8xl md:text-9xl font-extrabold text-primary tracking-tighter animate-pulse">
+      SIGMA
+    </h1>
+    <div className="text-9xl md:text-[150px]">
+      🗿
+    </div>
+    <div className="relative w-48 h-48 md:w-64 md:h-64 rounded-full overflow-hidden shadow-2xl border-4 border-primary mt-4">
+      <Image
+        src="/easter-eggs/arthur.png"
+        alt="Arthur Launois"
+        layout="fill"
+        objectFit="cover"
+        data-ai-hint="easter egg"
+      />
+    </div>
+  </div>
+);
+
 
 function SearchResults() {
   const searchParams = useSearchParams();
@@ -22,6 +44,12 @@ function SearchResults() {
       setSearchResults([]);
       setIsLoading(false);
       return;
+    }
+
+    // Don't fetch results if it's the easter egg
+    if (query.toLowerCase() === 'arthur launois') {
+        setIsLoading(false);
+        return;
     }
 
     async function fetchSearchResults() {
@@ -41,6 +69,10 @@ function SearchResults() {
     fetchSearchResults();
   }, [query]);
 
+  if (query.toLowerCase() === 'arthur launois') {
+    return <EasterEgg />;
+  }
+  
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center h-[calc(100vh-200px)]">
