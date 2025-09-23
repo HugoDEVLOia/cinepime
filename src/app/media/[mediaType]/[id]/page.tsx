@@ -453,7 +453,7 @@ export default function MediaDetailsPage() {
             <div className="flex flex-wrap gap-3">
               <Button asChild>
                 <a 
-                  href={`https://cinepulse.to/catalog?query=${encodeURIComponent(media.title)}&sort-by=pertinence`}
+                  href={`https://cinepulse.cc/catalog?query=${encodeURIComponent(media.title)}&sort-by=pertinence`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center"
@@ -694,5 +694,7 @@ function getSafeProfileImageUrl(path: string | null | undefined): string {
   }
   return 'https://picsum.photos/500/750?grayscale'; 
 }
+
+    
 
     
