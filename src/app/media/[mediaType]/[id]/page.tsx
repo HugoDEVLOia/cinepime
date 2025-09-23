@@ -562,9 +562,6 @@ export default function MediaDetailsPage() {
               <MediaCard
                 key={rec.id}
                 media={rec}
-                onAddToList={addToList}
-                onRemoveFromList={removeFromList}
-                isInList={isInList}
               />
             ))}
           </div>
@@ -694,6 +691,8 @@ function getSafeProfileImageUrl(path: string | null | undefined): string {
   }
   return 'https://picsum.photos/500/750?grayscale'; 
 }
+
+    
 
     
 
