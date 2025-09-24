@@ -1,3 +1,4 @@
+
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
@@ -23,7 +24,6 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       }
     ],
-    unoptimized: true, // Required for static export if not using a custom loader
   },
 };
 
