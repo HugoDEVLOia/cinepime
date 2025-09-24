@@ -1,0 +1,6 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+
+# Indiquez l'emplacement de votre sitemap une fois le site déployé
+# Sitemap: https://www.votredomaine.com/sitemap.xml
