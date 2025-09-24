@@ -13,6 +13,7 @@ import Chatbot from '@/components/chatbot';
 import { Sheet, SheetContent, SheetClose, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { ThemeProvider } from '@/contexts/theme-provider';
 import { useState } from 'react';
+import Head from 'next/head';
 
 export default function RootLayout({
   children,
@@ -36,7 +37,7 @@ export default function RootLayout({
         <meta name="theme-color" content="#000000" />
         
         {/* === GOOGLE SITE VERIFICATION (REMPLACEZ PAR VOTRE CODE) === */}
-        <meta name="google-site-verification" content="VOTRE_CODE_DE_VERIFICATION_GOOGLE" />
+        <meta name="google-site-verification" content="hpSnb8QC163Oqt1-hTO2vUz9fqTOdFDlyH5C3JtKleI" />
 
         <link rel="apple-touch-icon" href="/favicon.ico" />
         <link rel="manifest" href="/manifest.json" />
