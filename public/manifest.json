@@ -1,17 +1,16 @@
-
 {
-  "name": "CinéCollection",
-  "short_name": "CinéCollection",
-  "description": "Suivez les films et séries que vous regardez, voulez regarder, et obtenez des statistiques personnalisées.",
-  "start_url": "/",
-  "display": "standalone",
-  "background_color": "#000000",
-  "theme_color": "#000000",
-  "icons": [
-    {
-      "src": "/iconapp.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ]
+    "name": "CinéCollection",
+    "short_name": "CinéCollection",
+    "description": "Explorez, collectionnez et analysez vos films et séries préférés.",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#000000",
+    "theme_color": "#000000",
+    "icons": [
+        {
+            "src": "/icon/iconapp.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
 }

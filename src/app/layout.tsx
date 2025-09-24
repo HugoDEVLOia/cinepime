@@ -38,13 +38,12 @@ export default function RootLayout({
         <meta name="msapplication-tap-highlight" content="no" />
         <meta name="theme-color" content="#000000" />
         
-        {/* === GOOGLE SITE VERIFICATION (REMPLACEZ PAR VOTRE CODE) === */}
         <meta name="google-site-verification" content="hpSnb8QC163Oqt1-hTO2vUz9fqTOdFDlyH5C3JtKleI" />
 
-        <link rel="apple-touch-icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" href="/icon/iconapp.png" />
         <link rel="manifest" href="/manifest.json" />
-        <link rel="shortcut icon" href="/favicon.ico" />
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="shortcut icon" href="/icon/iconapp.png" />
+        <link rel="icon" href="/icon/iconapp.png" />
       </head>
       <body className={`${GeistSans.variable} ${GeistMono.variable} antialiased flex flex-col min-h-screen`}>
         <ThemeProvider
