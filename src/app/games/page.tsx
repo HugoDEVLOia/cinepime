@@ -1,10 +1,16 @@
 
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Gamepad2, ImageIcon, ArrowRight, UserSearch, FilmIcon } from 'lucide-react';
 import Image from 'next/image';
 import { getPopularMedia } from '@/services/tmdb';
+
+export const metadata: Metadata = {
+    title: 'Espace Jeux Cinéma | CinéCollection',
+    description: 'Testez vos connaissances sur le cinéma avec nos jeux ! Jouez à "Devine l\'Affiche", "Devine l\'Acteur", et "Devine le Film".',
+};
 
 export default async function GamesPage() {
   let guessThePosterImageUrl = "https://picsum.photos/600/400?blur=2";

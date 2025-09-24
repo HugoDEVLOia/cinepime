@@ -34,7 +34,7 @@ export default function MyListsPage() {
       return (
         <div className="flex flex-col items-center justify-center py-20 text-center bg-card rounded-xl shadow-sm border border-border">
           <ListX className="w-20 h-20 text-muted-foreground mb-6" />
-          <p className="text-2xl font-semibold text-foreground mb-2">Votre liste est vide.</p>
+          <h2 className="text-2xl font-semibold text-foreground mb-2">Votre liste est vide.</h2>
           <p className="text-md text-muted-foreground">
             {listType === 'toWatch' ? "Ajoutez des films ou séries que vous voulez regarder !" : "Marquez des éléments comme vus pour les voir ici."}
           </p>
@@ -86,3 +86,5 @@ export default function MyListsPage() {
     </div>
   );
 }
+
+    

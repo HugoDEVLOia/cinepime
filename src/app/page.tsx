@@ -22,7 +22,6 @@ import MediaCarousel from '@/components/media-carousel';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
-
 export default function HomePage() {
   const [heroCarouselItems, setHeroCarouselItems] = useState<Media[]>([]);
   const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
@@ -466,3 +465,6 @@ const HomePageSkeleton = () => (
 );
 
 
+
+
+    

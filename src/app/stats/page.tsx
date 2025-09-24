@@ -177,6 +177,18 @@ export default function StatsPage() {
       );
     }
     
+    if (watchedList.length === 0) {
+      return (
+          <Card className="shadow-lg rounded-xl p-10 bg-card">
+              <div className="flex flex-col items-center text-center text-muted-foreground">
+                  <Info className="w-12 h-12 mb-4" />
+                  <h2 className="text-xl font-semibold text-foreground mb-2">Aucune Statistique à Afficher</h2>
+                  <p className="text-md">Vos statistiques apparaîtront ici une fois que vous aurez marqué des films ou séries comme "Vus".</p>
+              </div>
+          </Card>
+      );
+    }
+
     switch (activeTab) {
       case 'stats':
         return (

@@ -25,6 +25,8 @@ export default function RootLayout({
   return (
     <html lang="fr" className="scrollbar-thin" suppressHydrationWarning>
       <head>
+        <title>CinéCollection</title>
+        <meta name="description" content="Explorez, collectionnez et analysez vos films et séries préférés. Suivez ce que vous avez vu et ce que vous voulez voir, le tout en un seul endroit." />
         <meta name="application-name" content="CinéCollection" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -43,10 +45,6 @@ export default function RootLayout({
         <link rel="manifest" href="/manifest.json" />
         <link rel="shortcut icon" href="/favicon.ico" />
         <link rel="icon" href="/favicon.ico" />
-
-
-        <title>CinéCollection</title>
-        <meta name="description" content="Suivez les films et séries que vous regardez, voulez regarder, et obtenez des statistiques personnalisées." />
       </head>
       <body className={`${GeistSans.variable} ${GeistMono.variable} antialiased flex flex-col min-h-screen`}>
         <ThemeProvider
@@ -78,7 +76,7 @@ export default function RootLayout({
                           <Film className="h-4 w-4" /> Tendances
                         </Button>
                       </Link>
-                      <Link href="/my-lists" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+                      <Link href="/my-lists" className="text_sm font-medium text-foreground hover:text-primary transition-colors">
                         <Button variant="ghost" className="gap-2 px-4 py-2">
                           <Tv className="h-4 w-4" /> Mes Listes
                         </Button>
@@ -183,3 +181,5 @@ export default function RootLayout({
     </html>
   );
 }
+
+    
