@@ -35,9 +35,11 @@ export default function RootLayout({
         <meta name="msapplication-tap-highlight" content="no" />
         <meta name="theme-color" content="#000000" />
         
-        <link rel="apple-touch-icon" href="/iconapp.png" />
+        <link rel="apple-touch-icon" href="/favicon.ico" />
         <link rel="manifest" href="/manifest.json" />
         <link rel="shortcut icon" href="/favicon.ico" />
+        <link rel="icon" href="/favicon.ico" />
+
 
         <title>CinéCollection</title>
         <meta name="description" content="Suivez les films et séries que vous regardez, voulez regarder, et obtenez des statistiques personnalisées." />
