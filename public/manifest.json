@@ -1,16 +1,16 @@
 {
     "name": "CinéCollection",
     "short_name": "CinéCollection",
-    "description": "Explorez, collectionnez et analysez vos films et séries préférés.",
+    "description": "Explorez, collectionnez et analysez vos films et séries préférés. Suivez ce que vous avez vu et ce que vous voulez voir, le tout en un seul endroit.",
     "start_url": "/",
     "display": "standalone",
-    "background_color": "#000000",
-    "theme_color": "#000000",
+    "background_color": "#0a0a0a",
+    "theme_color": "#2563eb",
     "icons": [
         {
-            "src": "/icon/iconapp.png",
-            "sizes": "512x512",
-            "type": "image/png"
+            "src": "/icon/favicon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml"
         }
     ]
 }
