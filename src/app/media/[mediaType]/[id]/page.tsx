@@ -22,11 +22,11 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Star, Users, User, Clapperboard, Tv, CalendarDays, Clock, Eye, CheckCircle, FilmIcon, ServerCrash, Info, ChevronRight, Loader2, PlaySquare, Radio, ExternalLink, Shield, Link2 } from 'lucide-react';
+import { Star, Users, User, Clapperboard, Tv, CalendarDays, Clock, Eye, CheckCircle, FilmIcon, ServerCrash, Info, ChevronRight, Loader2, PlaySquare, Radio, ExternalLink, Shield, Link2, XCircle } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import MediaCard from '@/components/media-card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useToast } from '@/hooks/use-toast';
 
 interface ProviderCategoryProps {
   title: string;
@@ -150,6 +150,7 @@ export default function MediaDetailsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isTogglingList, setIsTogglingList] = useState(false);
+  const { toast } = useToast();
 
 
   const { addToList, removeFromList, isInList } = useMediaLists();
@@ -234,6 +235,15 @@ export default function MediaDetailsPage() {
     if (trailer) return trailer;
   
     return youtubeVideos[0] || null;
+  };
+
+  const handleCinepulseClick = () => {
+    toast({
+        title: "Cinepulse est actuellement fermé",
+        description: "Le service est en cours de refonte. Réouverture prévue pour 2026. Merci de votre patience !",
+        variant: "default",
+        duration: 6000,
+    });
   };
 
   if (isLoading) {
@@ -451,18 +461,10 @@ export default function MediaDetailsPage() {
         </h2>
         <Card className="shadow-lg rounded-xl p-4 md:p-6 bg-card">
           <CardContent className="p-0">
-            <TooltipProvider>
               <div className="flex flex-wrap gap-3">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button disabled>
-                      Cinepulse <ExternalLink className="ml-2 h-4 w-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Fermé. Réouverture prévue pour 2026.</p>
-                  </TooltipContent>
-                </Tooltip>
+                <Button onClick={handleCinepulseClick} variant="outline" className="text-muted-foreground">
+                  Cinepulse <XCircle className="ml-2 h-4 w-4" />
+                </Button>
 
                 <Button asChild>
                     <a
@@ -488,7 +490,6 @@ export default function MediaDetailsPage() {
                   </Button>
                 )}
               </div>
-            </TooltipProvider>
           </CardContent>
         </Card>
       </section>
@@ -706,5 +707,7 @@ function getSafeProfileImageUrl(path: string | null | undefined): string {
   }
   return 'https://picsum.photos/500/750?grayscale'; 
 }
+
+    
 
     
