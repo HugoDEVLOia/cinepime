@@ -26,6 +26,7 @@ import { Star, Users, User, Clapperboard, Tv, CalendarDays, Clock, Eye, CheckCir
 import { Skeleton } from '@/components/ui/skeleton';
 import MediaCard from '@/components/media-card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface ProviderCategoryProps {
   title: string;
@@ -450,30 +451,44 @@ export default function MediaDetailsPage() {
         </h2>
         <Card className="shadow-lg rounded-xl p-4 md:p-6 bg-card">
           <CardContent className="p-0">
-            <div className="flex flex-wrap gap-3">
-              <Button asChild>
-                <a 
-                  href={`https://cinepulse.cc/catalog?query=${encodeURIComponent(media.title)}&sort-by=pertinence`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center"
-                >
-                  Cinepulse <ExternalLink className="ml-2 h-4 w-4" />
-                </a>
-              </Button>
-              {isAnimation && (
-                 <Button asChild>
-                  <a 
-                    href={`https://anime-sama.fr/catalogue/${media.title.toLowerCase().replace(/[\s:]/g, '-')}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center"
-                  >
-                    Anime-Sama <ExternalLink className="ml-2 h-4 w-4" />
-                  </a>
+            <TooltipProvider>
+              <div className="flex flex-wrap gap-3">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button disabled>
+                      Cinepulse <ExternalLink className="ml-2 h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Fermé. Réouverture prévue pour 2026.</p>
+                  </TooltipContent>
+                </Tooltip>
+
+                <Button asChild>
+                    <a
+                        href={`https://xalaflix.eu.com/`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center"
+                    >
+                        Xalaflix <ExternalLink className="ml-2 h-4 w-4" />
+                    </a>
                 </Button>
-              )}
-            </div>
+
+                {isAnimation && (
+                  <Button asChild>
+                    <a 
+                      href={`https://anime-sama.fr/catalogue/${media.title.toLowerCase().replace(/[\s:]/g, '-')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center"
+                    >
+                      Anime-Sama <ExternalLink className="ml-2 h-4 w-4" />
+                    </a>
+                  </Button>
+                )}
+              </div>
+            </TooltipProvider>
           </CardContent>
         </Card>
       </section>
@@ -691,9 +706,5 @@ function getSafeProfileImageUrl(path: string | null | undefined): string {
   }
   return 'https://picsum.photos/500/750?grayscale'; 
 }
-
-    
-
-    
 
     
