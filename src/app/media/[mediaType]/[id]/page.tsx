@@ -487,6 +487,17 @@ export default function MediaDetailsPage() {
                         PurStream <ExternalLink className="ml-2 h-4 w-4" />
                     </a>
                 </Button>
+                
+                <Button asChild>
+                    <a
+                        href={`https://movix.website/${media.mediaType}/${media.id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center"
+                    >
+                        Movix <ExternalLink className="ml-2 h-4 w-4" />
+                    </a>
+                </Button>
 
                 {isAnimation && (
                   <Button asChild>
@@ -718,6 +729,8 @@ function getSafeProfileImageUrl(path: string | null | undefined): string {
   }
   return 'https://picsum.photos/500/750?grayscale'; 
 }
+
+    
 
     
 
