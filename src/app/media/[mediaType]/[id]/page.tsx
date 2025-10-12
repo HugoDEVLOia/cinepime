@@ -476,6 +476,17 @@ export default function MediaDetailsPage() {
                         Xalaflix <ExternalLink className="ml-2 h-4 w-4" />
                     </a>
                 </Button>
+                
+                <Button asChild>
+                    <a
+                        href={`https://purstream.to/`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center"
+                    >
+                        PurStream <ExternalLink className="ml-2 h-4 w-4" />
+                    </a>
+                </Button>
 
                 {isAnimation && (
                   <Button asChild>
@@ -707,6 +718,8 @@ function getSafeProfileImageUrl(path: string | null | undefined): string {
   }
   return 'https://picsum.photos/500/750?grayscale'; 
 }
+
+    
 
     
 
