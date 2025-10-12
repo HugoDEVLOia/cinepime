@@ -462,32 +462,6 @@ export default function MediaDetailsPage() {
         <Card className="shadow-lg rounded-xl p-4 md:p-6 bg-card">
           <CardContent className="p-0">
               <div className="flex flex-wrap gap-3">
-                <Button onClick={handleCinepulseClick} variant="outline" className="text-muted-foreground">
-                  Cinepulse <XCircle className="ml-2 h-4 w-4" />
-                </Button>
-
-                <Button asChild>
-                    <a
-                        href={`https://xalaflix.eu.com/`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center"
-                    >
-                        Xalaflix <ExternalLink className="ml-2 h-4 w-4" />
-                    </a>
-                </Button>
-                
-                <Button asChild>
-                    <a
-                        href={`https://purstream.to/`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center"
-                    >
-                        PurStream <ExternalLink className="ml-2 h-4 w-4" />
-                    </a>
-                </Button>
-                
                 <Button asChild>
                     <a
                         href={`https://movix.website/${media.mediaType}/${media.id}`}
@@ -498,9 +472,31 @@ export default function MediaDetailsPage() {
                         Movix <ExternalLink className="ml-2 h-4 w-4" />
                     </a>
                 </Button>
+                
+                <Button asChild variant="secondary">
+                    <a
+                        href={`https://xalaflix.eu.com/`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center"
+                    >
+                        Xalaflix <ExternalLink className="ml-2 h-4 w-4" />
+                    </a>
+                </Button>
+                
+                <Button asChild variant="secondary">
+                    <a
+                        href={`https://purstream.to/`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center"
+                    >
+                        PurStream <ExternalLink className="ml-2 h-4 w-4" />
+                    </a>
+                </Button>
 
                 {isAnimation && (
-                  <Button asChild>
+                  <Button asChild variant="secondary">
                     <a 
                       href={`https://anime-sama.fr/catalogue/${media.title.toLowerCase().replace(/[\s:]/g, '-')}`}
                       target="_blank"
@@ -511,6 +507,10 @@ export default function MediaDetailsPage() {
                     </a>
                   </Button>
                 )}
+
+                <Button onClick={handleCinepulseClick} variant="outline" className="text-muted-foreground">
+                  Cinepulse <XCircle className="ml-2 h-4 w-4" />
+                </Button>
               </div>
           </CardContent>
         </Card>
