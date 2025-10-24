@@ -464,7 +464,7 @@ export default function MediaDetailsPage() {
               <div className="flex flex-wrap gap-3">
                 <Button asChild>
                     <a
-                        href={`https://movix.website/${media.mediaType}/${media.id}`}
+                        href={`https://movix.club/${media.mediaType}/${media.id}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center"
