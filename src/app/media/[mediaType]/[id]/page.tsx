@@ -475,7 +475,7 @@ export default function MediaDetailsPage() {
                 
                 <Button asChild variant="secondary">
                     <a
-                        href={`https://xalaflix.eu.com/`}
+                        href={`https://xalaflix.zip/`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center"
