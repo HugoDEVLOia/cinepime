@@ -56,6 +56,17 @@ const MagaliEasterEgg = () => (
     </div>
 );
 
+const LeGEasterEgg = () => (
+  <div className="flex flex-col items-center justify-center text-center space-y-4 py-10">
+    <h1 className="text-8xl md:text-9xl font-extrabold text-primary tracking-tighter animate-pulse">
+      G.O.A.T
+    </h1>
+    <div className="text-9xl md:text-[150px]">
+      🐐
+    </div>
+  </div>
+);
+
 
 function SearchResults() {
   const searchParams = useSearchParams();
@@ -73,7 +84,7 @@ function SearchResults() {
     }
 
     // Don't fetch results if it's an easter egg
-    if (query.toLowerCase() === 'arthur launois' || query.toLowerCase() === 'magali giorgis') {
+    if (query.toLowerCase() === 'arthur launois' || query.toLowerCase() === 'magali giorgis' || query.toLowerCase() === 'le g') {
         setIsLoading(false);
         return;
     }
@@ -103,6 +114,10 @@ function SearchResults() {
     return <MagaliEasterEgg />;
   }
   
+  if (query.toLowerCase() === 'le g') {
+    return <LeGEasterEgg />;
+  }
+
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center h-[calc(100vh-200px)]">
