@@ -11,7 +11,6 @@ import { useMemo, useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 
@@ -45,7 +44,6 @@ function formatTotalWatchTime(totalMinutes: number): { display: string; subtitle
 
 export default function StatsPage() {
   const { watchedList, isLoaded } = useMediaLists();
-  const [activeTab, setActiveTab] = useState<'stats' | 'genres' | 'actors'>('stats');
   const [isLoadingClient, setIsLoadingClient] = useState(true);
 
   useEffect(() => {
@@ -195,7 +193,7 @@ export default function StatsPage() {
     }
 
     return (
-        <Tabs defaultValue="stats" className="w-full">
+        <Tabs defaultValue="stats" className="w-full mt-8">
             <TabsList className="grid w-full grid-cols-3 h-auto">
                 <TabsTrigger value="stats" className="py-2.5 text-sm">
                     <BarChartBig className="h-4 w-4 mr-2" />
@@ -362,7 +360,9 @@ export default function StatsPage() {
   return (
     <div className="space-y-10">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h1 className="text-3xl md:text-4xl font-extrabold text-foreground tracking-tight">Mes Statistiques</h1>
+        <h1 className="text-3xl md:text-4xl font-extrabold text-foreground tracking-tight flex items-center gap-2">
+            <BarChartBig className="h-8 w-8 text-primary"/> Mes Statistiques
+        </h1>
       </div>
 
       <div>
@@ -371,7 +371,3 @@ export default function StatsPage() {
     </div>
   );
 }
-
-    
-
-    
