@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -122,7 +123,7 @@ export default function ExplorerPage() {
                  );
             })}
 
-            {isLoaded && movies.length > 0 && currentIndex >= movies.length && (
+            {swipeState === 'ready' && movies.length > 0 && currentIndex >= movies.length && (
                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-card rounded-2xl text-center p-6">
                     <h2 className="text-2xl font-bold text-foreground mb-2">C'est tout pour le moment !</h2>
                     <p className="text-muted-foreground mb-4">Vous avez vu toutes les suggestions. Revenez plus tard pour de nouvelles découvertes.</p>
