@@ -23,7 +23,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Star, Users, User, Clapperboard, Tv, CalendarDays, Clock, Eye, CheckCircle, FilmIcon, ServerCrash, Info, ChevronRight, Loader2, PlaySquare, Radio, ExternalLink, Shield, Link2, XCircle, Compare, Search } from 'lucide-react';
+import { Star, Users, User, Clapperboard, Tv, CalendarDays, Clock, Eye, CheckCircle, FilmIcon, ServerCrash, Info, ChevronRight, Loader2, PlaySquare, Radio, ExternalLink, Shield, Link2, XCircle, GitCompare, Search } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import MediaCard from '@/components/media-card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -169,7 +169,7 @@ function CompareDialog({ mediaToCompare, onCompare }: { mediaToCompare: Media, o
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button size="lg" variant="outline" className="gap-2 w-full sm:w-auto py-3 px-6 text-base">
-          <Compare className="h-5 w-5" /> Comparer
+          <GitCompare className="h-5 w-5" /> Comparer
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-xl">
@@ -826,4 +826,5 @@ function getSafeProfileImageUrl(path: string | null | undefined): string {
   return 'https://picsum.photos/500/750?grayscale'; 
 }
 
+    
     
