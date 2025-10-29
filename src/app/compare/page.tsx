@@ -164,6 +164,18 @@ function ComparePageComponent() {
                             <TableCell className={`text-center ${getWinnerClass(movieA.runtime, movieB.runtime, true)}`}>{movieB.runtime ? `${movieB.runtime} min` : 'N/A'}</TableCell>
                         </TableRow>
 
+                        <TableRow className={getRowClass(movieA.budget, movieB.budget)}>
+                            <TableCell className="font-medium flex items-center gap-2"><DollarSign className="text-green-600 h-4 w-4"/>Budget</TableCell>
+                            <TableCell className={`text-center ${getWinnerClass(movieA.budget, movieB.budget)}`}>{formatCurrency(movieA.budget)}</TableCell>
+                            <TableCell className={`text-center ${getWinnerClass(movieB.budget, movieA.budget)}`}>{formatCurrency(movieB.budget)}</TableCell>
+                        </TableRow>
+                        
+                        <TableRow className={getRowClass(movieA.revenue, movieB.revenue)}>
+                            <TableCell className="font-medium flex items-center gap-2"><DollarSign className="text-green-600 h-4 w-4"/>Recettes (Box Office)</TableCell>
+                            <TableCell className={`text-center ${getWinnerClass(movieA.revenue, movieB.revenue)}`}>{formatCurrency(movieA.revenue)}</TableCell>
+                            <TableCell className={`text-center ${getWinnerClass(movieB.revenue, movieA.revenue)}`}>{formatCurrency(movieB.revenue)}</TableCell>
+                        </TableRow>
+
                         <TableRow>
                             <TableCell className="font-medium flex items-center gap-2"><FilmIcon className="text-muted-foreground h-4 w-4"/>Genres</TableCell>
                             <TableCell className="text-center">
@@ -222,7 +234,7 @@ function ComparePageSkeleton() {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {Array.from({length: 5}).map((_, i) => (
+                        {Array.from({length: 7}).map((_, i) => (
                              <TableRow key={i}>
                                 <TableCell><Skeleton className="h-5 w-24"/></TableCell>
                                 <TableCell className="text-center"><Skeleton className="h-5 w-28 mx-auto"/></TableCell>

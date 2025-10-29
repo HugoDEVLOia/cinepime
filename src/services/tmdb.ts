@@ -61,6 +61,8 @@ export interface Media {
   watchProviders?: WatchProvidersResults;
   popularity?: number;
   contentRating?: string; // PEGI/Certification rating
+  budget?: number;
+  revenue?: number;
   knownForDepartment?: string;
 }
 
@@ -223,6 +225,8 @@ const mapApiMediaToMedia = (item: any, mediaType: MediaType): Media => {
     watchProviders: item['watch/providers']?.results,
     popularity: item.popularity,
     contentRating: contentRating,
+    budget: item.budget,
+    revenue: item.revenue,
   };
 };
 
@@ -412,7 +416,7 @@ export async function getMediaDirector(mediaId: string, mediaType: 'movie' | 'tv
     return director ? mapApiDirectorToDirector(director) : null;
   } catch (error) {
     console.error(`Erreur lors de la récupération du réalisateur ${mediaType}:`, error);
-    return null;
+    return [];
   }
 }
 
