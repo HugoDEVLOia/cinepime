@@ -24,12 +24,12 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Star, Users, User, Clapperboard, Tv, CalendarDays, Clock, Eye, CheckCircle, FilmIcon, ServerCrash, Info, ChevronRight, Loader2, PlaySquare, Radio, ExternalLink, Shield, Link2, XCircle, GitCompare, Search, SearchX } from 'lucide-react';
+import { Star, Users, User, Clapperboard, Tv, CalendarDays, Clock, Eye, CheckCircle, FilmIcon, ServerCrash, Info, ChevronRight, Loader2, PlaySquare, Radio, ExternalLink, Shield, Link2, XCircle, GitCompare, Search, SearchX, DollarSign } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import MediaCard from '@/components/media-card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Command, CommandInput, CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command"
 import { useDebounce } from '@/hooks/use-debounce';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -346,6 +346,11 @@ export default function MediaDetailsPage() {
     });
   };
 
+  const formatCurrency = (amount: number | undefined) => {
+    if(amount === undefined || amount === 0) return 'N/A';
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', notation: 'compact' }).format(amount);
+  }
+
   if (isLoading) {
     return <MediaDetailsSkeleton mediaType={mediaType} />;
   }
@@ -460,6 +465,29 @@ export default function MediaDetailsPage() {
               )}
             </div>
           </div>
+          
+          {(media.budget || media.revenue) && media.mediaType === 'movie' && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Card className="p-4 bg-card/50">
+                    <div className="flex items-center gap-3">
+                        <DollarSign className="h-7 w-7 text-green-600"/>
+                        <div>
+                            <p className="text-sm text-muted-foreground">Budget</p>
+                            <p className="text-lg font-bold text-foreground">{formatCurrency(media.budget)}</p>
+                        </div>
+                    </div>
+                </Card>
+                <Card className="p-4 bg-card/50">
+                    <div className="flex items-center gap-3">
+                        <DollarSign className="h-7 w-7 text-green-600"/>
+                        <div>
+                            <p className="text-sm text-muted-foreground">Recettes (Box Office)</p>
+                            <p className="text-lg font-bold text-foreground">{formatCurrency(media.revenue)}</p>
+                        </div>
+                    </div>
+                </Card>
+            </div>
+          )}
 
           <p className="text-foreground/80 leading-relaxed text-base md:text-lg">{media.description}</p>
 
@@ -846,3 +874,4 @@ function getSafeProfileImageUrl(path: string | null | undefined): string {
     
 
     
+
