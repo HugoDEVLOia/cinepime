@@ -2,13 +2,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams, notFound } from 'next/navigation';
+import { useParams, notFound, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
   getMediaDetails,
   getSeriesSeasons,
   getMediaRecommendations,
+  searchMedia,
   type Media,
   type Actor,
   type Director,
@@ -22,11 +23,14 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Star, Users, User, Clapperboard, Tv, CalendarDays, Clock, Eye, CheckCircle, FilmIcon, ServerCrash, Info, ChevronRight, Loader2, PlaySquare, Radio, ExternalLink, Shield, Link2, XCircle } from 'lucide-react';
+import { Star, Users, User, Clapperboard, Tv, CalendarDays, Clock, Eye, CheckCircle, FilmIcon, ServerCrash, Info, ChevronRight, Loader2, PlaySquare, Radio, ExternalLink, Shield, Link2, XCircle, Compare, Search } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import MediaCard from '@/components/media-card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
+import { Command, CommandInput, CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command"
+import { useDebounce } from '@/hooks/use-debounce';
 
 interface ProviderCategoryProps {
   title: string;
@@ -136,9 +140,93 @@ const WatchProviderDisplay: React.FC<WatchProviderSectionProps> = ({ providers, 
   );
 };
 
+function CompareDialog({ mediaToCompare, onCompare }: { mediaToCompare: Media, onCompare: (media: Media) => void }) {
+  const [open, setOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
+  const [searchResults, setSearchResults] = useState<Media[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+
+  useEffect(() => {
+    if (debouncedSearchTerm.trim()) {
+      setIsSearching(true);
+      searchMedia(debouncedSearchTerm).then(results => {
+        // Filter out the movie we are comparing from and only show movies
+        setSearchResults(results.filter(r => r.mediaType === 'movie' && r.id !== mediaToCompare.id));
+        setIsSearching(false);
+      });
+    } else {
+      setSearchResults([]);
+    }
+  }, [debouncedSearchTerm, mediaToCompare.id]);
+
+  const handleSelect = (movie: Media) => {
+    onCompare(movie);
+    setOpen(false);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button size="lg" variant="outline" className="gap-2 w-full sm:w-auto py-3 px-6 text-base">
+          <Compare className="h-5 w-5" /> Comparer
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-xl">
+        <DialogHeader>
+          <DialogTitle>Comparer "{mediaToCompare.title}" avec un autre film</DialogTitle>
+          <DialogDescription>
+            Recherchez et sélectionnez un film pour le comparer côte à côte.
+          </DialogDescription>
+        </DialogHeader>
+        <Command shouldFilter={false} className="mt-4">
+          <CommandInput
+            placeholder="Rechercher un film..."
+            value={searchTerm}
+            onValueChange={setSearchTerm}
+          />
+          <CommandList>
+            {isSearching && (
+              <div className="p-4 flex justify-center items-center">
+                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              </div>
+            )}
+            {!isSearching && searchResults.length === 0 && debouncedSearchTerm && (
+              <CommandEmpty>Aucun film trouvé pour "{debouncedSearchTerm}".</CommandEmpty>
+            )}
+            <CommandGroup>
+              {searchResults.map((movie) => (
+                <CommandItem
+                  key={movie.id}
+                  value={movie.title}
+                  onSelect={() => handleSelect(movie)}
+                  className="flex items-center gap-3 cursor-pointer p-2"
+                >
+                  <Image
+                    src={movie.posterUrl}
+                    alt={`Affiche de ${movie.title}`}
+                    width={40}
+                    height={60}
+                    className="rounded-sm aspect-[2/3]"
+                  />
+                  <div className="flex-grow truncate">
+                    <p className="truncate font-semibold">{movie.title}</p>
+                    <p className="text-xs text-muted-foreground">{movie.releaseDate ? new Date(movie.releaseDate).getFullYear() : ''}</p>
+                  </div>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 
 export default function MediaDetailsPage() {
   const params = useParams();
+  const router = useRouter();
   const mediaId = params.id as string;
   const mediaType = params.mediaType as 'movie' | 'tv';
 
@@ -287,6 +375,11 @@ export default function MediaDetailsPage() {
     }
     setIsTogglingList(false);
   };
+  
+  const handleStartCompare = (otherMedia: Media) => {
+    if (!media) return;
+    router.push(`/compare?a=${media.id}&b=${otherMedia.id}`);
+  };
 
   return (
     <div className="space-y-12 md:space-y-16">
@@ -358,7 +451,7 @@ export default function MediaDetailsPage() {
 
           <p className="text-foreground/80 leading-relaxed text-base md:text-lg">{media.description}</p>
 
-          <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex flex-col sm:flex-row flex-wrap gap-3">
             <Button 
               size="lg"
               variant={isToWatch ? "default" : "outline"}
@@ -381,6 +474,9 @@ export default function MediaDetailsPage() {
               {isTogglingList && isInList(media.id, 'watched') === false ? <Loader2 className="h-5 w-5 animate-spin" /> : <CheckCircle className="h-5 w-5" />}
               {isWatched ? 'Déjà Vu' : 'Marquer comme Vu'}
             </Button>
+            {mediaType === 'movie' && (
+              <CompareDialog mediaToCompare={media} onCompare={handleStartCompare} />
+            )}
           </div>
 
           {actors.length > 0 && (
@@ -462,7 +558,7 @@ export default function MediaDetailsPage() {
         <Card className="shadow-lg rounded-xl p-4 md:p-6 bg-card">
           <CardContent className="p-0">
               <div className="flex flex-wrap gap-3">
-                <Button asChild>
+                <Button asChild variant="secondary">
                     <a
                         href={`https://movix.club/${media.mediaType}/${media.id}`}
                         target="_blank"
@@ -729,13 +825,5 @@ function getSafeProfileImageUrl(path: string | null | undefined): string {
   }
   return 'https://picsum.photos/500/750?grayscale'; 
 }
-
-    
-
-    
-
-    
-
-    
 
     
