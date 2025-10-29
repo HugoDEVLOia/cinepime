@@ -15,10 +15,11 @@ import {
 import { useMediaLists } from '@/hooks/use-media-lists';
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ServerCrash, Star, CalendarDays, Clapperboard, Flame, Tv, Film, Eye, Ghost, Laugh, Rocket, PencilRuler, HeartPulse, Bomb, ShieldQuestion, ChevronLeft, ChevronRight, Heart, Coffee } from 'lucide-react';
+import { ServerCrash, Star, CalendarDays, Clapperboard, Flame, Tv, Film, Eye, Ghost, Laugh, Rocket, PencilRuler, HeartPulse, Bomb, ShieldQuestion, ChevronLeft, ChevronRight, Heart, Coffee, Compass } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import MediaCarousel from '@/components/media-carousel';
+import DiscoveryDeck from '@/components/discovery-deck';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -305,6 +306,13 @@ export default function HomePage() {
         </section>
       )}
 
+      <section>
+          <h2 className="text-2xl md:text-3xl font-bold mb-4 md:mb-6 text-foreground flex items-center gap-3">
+            <Compass className="h-7 w-7 text-primary" /> Mode Découverte
+          </h2>
+          <DiscoveryDeck />
+      </section>
+
       {isLoaded && toWatchList.length > 0 && (
          <MediaCarousel 
           title="Ma Liste (À Regarder)"
@@ -443,6 +451,16 @@ const HomePageSkeleton = () => (
         </div>
       </div>
     </div>
+
+    {/* Discovery Deck Skeleton */}
+    <section>
+        <Skeleton className="h-10 w-64 mb-6 rounded-lg" />
+        <div className="relative w-full max-w-xl h-full max-h-[600px] mx-auto">
+            <div className="absolute inset-0 flex items-center justify-center bg-card rounded-2xl">
+                <Skeleton className="h-full w-full rounded-2xl" />
+            </div>
+        </div>
+    </section>
     
     {/* Carousel Skeleton */}
     {Array.from({ length: 10 }).map((_, i) => (
@@ -463,8 +481,3 @@ const HomePageSkeleton = () => (
     ))}
   </div>
 );
-
-
-
-
-    
