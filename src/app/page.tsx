@@ -306,13 +306,6 @@ export default function HomePage() {
         </section>
       )}
 
-      <section>
-          <h2 className="text-2xl md:text-3xl font-bold mb-4 md:mb-6 text-foreground flex items-center gap-3">
-            <Compass className="h-7 w-7 text-primary" /> Mode Découverte
-          </h2>
-          <DiscoveryDeck />
-      </section>
-
       {isLoaded && toWatchList.length > 0 && (
          <MediaCarousel 
           title="Ma Liste (À Regarder)"
@@ -320,6 +313,13 @@ export default function HomePage() {
           icon={<Eye className="h-7 w-7 text-primary" />}
         />
       )}
+
+      <section>
+          <h2 className="text-2xl md:text-3xl font-bold mb-4 md:mb-6 text-foreground flex items-center gap-3">
+            <Compass className="h-7 w-7 text-primary" /> Mode Découverte
+          </h2>
+          <DiscoveryDeck />
+      </section>
       
       {trending.length > 0 && (
          <MediaCarousel 
