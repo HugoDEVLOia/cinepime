@@ -29,9 +29,10 @@ import { Skeleton } from '@/components/ui/skeleton';
 import MediaCard from '@/components/media-card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from '@/components/ui/dialog';
 import { Command, CommandInput, CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command"
 import { useDebounce } from '@/hooks/use-debounce';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface ProviderCategoryProps {
   title: string;
@@ -152,7 +153,6 @@ function CompareDialog({ mediaToCompare, onCompare }: { mediaToCompare: Media, o
     if (debouncedSearchTerm.trim()) {
       setIsSearching(true);
       searchMedia(debouncedSearchTerm).then(results => {
-        // Filter out the movie we are comparing from and only show movies
         setSearchResults(results.filter(r => r.mediaType === 'movie' && r.id !== mediaToCompare.id));
         setIsSearching(false);
       });
@@ -173,52 +173,63 @@ function CompareDialog({ mediaToCompare, onCompare }: { mediaToCompare: Media, o
           <GitCompare className="h-5 w-5" /> Comparer
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-xl">
-        <DialogHeader>
-          <DialogTitle>Comparer "{mediaToCompare.title}" avec un autre film</DialogTitle>
+      <DialogContent className="max-w-4xl h-[90vh] flex flex-col p-0">
+        <DialogHeader className="p-6 pb-4 border-b">
+          <DialogTitle>Comparer "{mediaToCompare.title}" avec...</DialogTitle>
           <DialogDescription>
-            Recherchez et sélectionnez un film pour le comparer côte à côte.
+            Recherchez et sélectionnez un film pour lancer la comparaison.
           </DialogDescription>
         </DialogHeader>
-        <Command shouldFilter={false} className="mt-4">
-          <CommandInput
-            placeholder="Rechercher un film..."
-            value={searchTerm}
-            onValueChange={setSearchTerm}
-          />
-          <CommandList>
+        <div className="p-6 pt-0">
+          <Command shouldFilter={false} className="mt-4 bg-transparent">
+            <CommandInput
+              placeholder="Rechercher un film..."
+              value={searchTerm}
+              onValueChange={setSearchTerm}
+              className="h-12 text-base"
+            />
+          </Command>
+        </div>
+        <ScrollArea className="flex-grow px-6">
+           <div className="pb-6">
             {isSearching && (
-              <div className="p-4 flex justify-center items-center">
-                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              <div className="flex justify-center items-center h-64">
+                <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
               </div>
             )}
             {!isSearching && searchResults.length === 0 && debouncedSearchTerm && (
-              <CommandEmpty>Aucun film trouvé pour "{debouncedSearchTerm}".</CommandEmpty>
+              <div className="flex flex-col items-center justify-center text-center text-muted-foreground h-64">
+                <SearchX className="w-16 h-16 mb-4" />
+                <p className="text-lg font-semibold">Aucun film trouvé pour "{debouncedSearchTerm}".</p>
+              </div>
             )}
-            <CommandGroup>
-              {searchResults.map((movie) => (
-                <CommandItem
-                  key={movie.id}
-                  value={movie.title}
-                  onSelect={() => handleSelect(movie)}
-                  className="flex items-center gap-3 cursor-pointer p-2"
-                >
-                  <Image
-                    src={movie.posterUrl}
-                    alt={`Affiche de ${movie.title}`}
-                    width={40}
-                    height={60}
-                    className="rounded-sm aspect-[2/3]"
-                  />
-                  <div className="flex-grow truncate">
-                    <p className="truncate font-semibold">{movie.title}</p>
-                    <p className="text-xs text-muted-foreground">{movie.releaseDate ? new Date(movie.releaseDate).getFullYear() : ''}</p>
+             {!isSearching && !debouncedSearchTerm && (
+                <div className="flex flex-col items-center justify-center text-center text-muted-foreground h-64">
+                    <Search className="w-16 h-16 mb-4" />
+                    <p className="text-lg font-semibold">Commencez votre recherche</p>
+                    <p>Tapez le nom d'un film pour le trouver.</p>
+                </div>
+            )}
+            {!isSearching && searchResults.length > 0 && (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                {searchResults.map((movie) => (
+                  <div key={movie.id} className="relative group">
+                    <MediaCard media={movie} />
+                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-xl">
+                      <Button
+                        size="sm"
+                        onClick={() => handleSelect(movie)}
+                        className="w-4/5"
+                      >
+                        <GitCompare className="mr-2 h-4 w-4" /> Comparer
+                      </Button>
+                    </div>
                   </div>
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </CommandList>
-        </Command>
+                ))}
+              </div>
+            )}
+           </div>
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );
@@ -831,5 +842,7 @@ function getSafeProfileImageUrl(path: string | null | undefined): string {
     
 
 
+
+    
 
     

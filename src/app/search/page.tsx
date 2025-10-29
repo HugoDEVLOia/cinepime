@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState, Suspense } from 'react';
@@ -7,7 +8,7 @@ import { searchMedia, type Media } from '@/services/tmdb';
 import MediaCard from '@/components/media-card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { SearchX, ServerCrash, MessageSquareQuote } from 'lucide-react';
+import { SearchX, ServerCrash, MessageSquareQuote, GitCompare } from 'lucide-react';
 import Image from 'next/image';
 import { Card } from '@/components/ui/card';
 
@@ -197,3 +198,5 @@ function SearchPageSkeleton() {
     </div>
   )
 }
+
+    
