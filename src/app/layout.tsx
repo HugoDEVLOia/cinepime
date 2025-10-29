@@ -6,7 +6,7 @@ import { GeistMono } from 'geist/font/mono';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import Link from 'next/link';
-import { Film, Clapperboard, Search, Tv, BarChart3, Menu, SettingsIcon, X, Gamepad2 } from 'lucide-react';
+import { Film, Clapperboard, Search, Tv, BarChart3, Menu, SettingsIcon, X, Gamepad2, Compass } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import SearchBar from '@/components/search-bar';
 import Chatbot from '@/components/chatbot';
@@ -75,6 +75,11 @@ export default function RootLayout({
                           <Film className="h-4 w-4" /> Tendances
                         </Button>
                       </Link>
+                       <Link href="/explorer" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+                        <Button variant="ghost" className="gap-2 px-4 py-2">
+                            <Compass className="h-4 w-4" /> Explorer
+                        </Button>
+                      </Link>
                       <Link href="/my-lists" className="text_sm font-medium text-foreground hover:text-primary transition-colors">
                         <Button variant="ghost" className="gap-2 px-4 py-2">
                           <Tv className="h-4 w-4" /> Mes Listes
@@ -125,6 +130,13 @@ export default function RootLayout({
                               <Link href="/">
                                 <Button variant="ghost" className="w-full justify-start gap-3 px-3 py-2.5 text-base">
                                   <Film className="h-5 w-5 text-muted-foreground" /> Tendances
+                                </Button>
+                              </Link>
+                            </SheetClose>
+                             <SheetClose asChild>
+                              <Link href="/explorer">
+                                <Button variant="ghost" className="w-full justify-start gap-3 px-3 py-2.5 text-base">
+                                  <Compass className="h-5 w-5 text-muted-foreground" /> Explorer
                                 </Button>
                               </Link>
                             </SheetClose>
