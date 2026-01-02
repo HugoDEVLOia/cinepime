@@ -198,5 +198,3 @@ function SearchPageSkeleton() {
     </div>
   )
 }
-
-    

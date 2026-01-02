@@ -86,5 +86,3 @@ export default function MyListsPage() {
     </div>
   );
 }
-
-    
