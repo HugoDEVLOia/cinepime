@@ -611,7 +611,7 @@ export default function MediaDetailsPage() {
                 
                 <Button asChild variant="secondary">
                     <a
-                        href={`https://xalaflix.zip/`}
+                        href={`https://xalaflix.men/`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center"
@@ -874,4 +874,5 @@ function getSafeProfileImageUrl(path: string | null | undefined): string {
     
 
     
+
 
