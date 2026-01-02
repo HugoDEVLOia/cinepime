@@ -24,7 +24,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Star, Users, User, Clapperboard, Tv, CalendarDays, Clock, Eye, CheckCircle, FilmIcon, ServerCrash, Info, ChevronRight, Loader2, PlaySquare, Radio, ExternalLink, Shield, Link2, XCircle, GitCompare, Search, SearchX, DollarSign } from 'lucide-react';
+import { Star, Users, User, Clapperboard, Tv, CalendarDays, Clock, Eye, CheckCircle, FilmIcon, ServerCrash, Info, ChevronRight, Loader2, PlaySquare, Radio, ExternalLink, Shield, Link2, XCircle, GitCompare, Search, SearchX, DollarSign, Sparkles } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import MediaCard from '@/components/media-card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -587,64 +587,64 @@ export default function MediaDetailsPage() {
           <Link2 className="text-primary h-7 w-7"/> Liens Directs
         </h2>
         <Card className="shadow-lg rounded-xl p-4 md:p-6 bg-card">
-          <CardContent className="p-0">
-              <div className="flex flex-wrap gap-3">
-                <Button asChild variant="secondary">
-                    <a
-                        href={`https://movix.club/${media.mediaType}/${media.id}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center"
-                    >
-                        Movix <ExternalLink className="ml-2 h-4 w-4" />
-                    </a>
-                </Button>
-                
-                <Button asChild variant="secondary">
-                    <a
-                        href={`https://xalaflix.men/`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center"
-                    >
-                        Xalaflix <ExternalLink className="ml-2 h-4 w-4" />
-                    </a>
-                </Button>
-                
-                <Button asChild variant="secondary">
-                    <a
-                        href={`https://purstream.to/`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center"
-                    >
-                        PurStream <ExternalLink className="ml-2 h-4 w-4" />
-                    </a>
-                </Button>
-
-                {isAnimation && (
+          <CardContent className="p-0 space-y-4">
+              <Button asChild variant="default" size="lg" className="w-full sm:w-auto">
+                <a
+                  href={`https://cinepulse.lol/sheet/${media.mediaType}-${media.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center"
+                >
+                  <Sparkles className="mr-2 h-5 w-5" /> Cinepulse (Recommandé)
+                </a>
+              </Button>
+              
+              <div className="flex flex-wrap gap-3 pt-4 border-t border-border">
                   <Button asChild variant="secondary">
-                    <a 
-                      href={`https://anime-sama.fr/catalogue/${media.title.toLowerCase().replace(/[\s:]/g, '-')}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center"
-                    >
-                      Anime-Sama <ExternalLink className="ml-2 h-4 w-4" />
-                    </a>
+                      <a
+                          href={`https://movix.club/${media.mediaType}/${media.id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center"
+                      >
+                          Movix <ExternalLink className="ml-2 h-4 w-4" />
+                      </a>
                   </Button>
-                )}
+                  
+                  <Button asChild variant="secondary">
+                      <a
+                          href={`https://xalaflix.men/`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center"
+                      >
+                          Xalaflix <ExternalLink className="ml-2 h-4 w-4" />
+                      </a>
+                  </Button>
+                  
+                  <Button asChild variant="secondary">
+                      <a
+                          href={`https://purstream.to/`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center"
+                      >
+                          PurStream <ExternalLink className="ml-2 h-4 w-4" />
+                      </a>
+                  </Button>
 
-                <Button asChild variant="secondary">
-                    <a
-                        href={`https://cinepulse.lol/sheet/${media.mediaType}-${media.id}`}
+                  {isAnimation && (
+                    <Button asChild variant="secondary">
+                      <a 
+                        href={`https://anime-sama.fr/catalogue/${media.title.toLowerCase().replace(/[\s:]/g, '-')}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center"
-                    >
-                        Cinepulse <ExternalLink className="ml-2 h-4 w-4" />
-                    </a>
-                </Button>
+                      >
+                        Anime-Sama <ExternalLink className="ml-2 h-4 w-4" />
+                      </a>
+                    </Button>
+                  )}
               </div>
           </CardContent>
         </Card>
