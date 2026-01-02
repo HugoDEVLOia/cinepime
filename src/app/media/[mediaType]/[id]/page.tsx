@@ -337,15 +337,6 @@ export default function MediaDetailsPage() {
     return youtubeVideos[0] || null;
   };
 
-  const handleCinepulseClick = () => {
-    toast({
-        title: "Cinepulse est actuellement fermé",
-        description: "Le service est en cours de refonte. Réouverture prévue pour 2026. Merci de votre patience !",
-        variant: "default",
-        duration: 6000,
-    });
-  };
-
   const formatCurrency = (amount: number | undefined) => {
     if(amount === undefined || amount === 0) return 'N/A';
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', notation: 'compact' }).format(amount);
@@ -644,8 +635,15 @@ export default function MediaDetailsPage() {
                   </Button>
                 )}
 
-                <Button onClick={handleCinepulseClick} variant="outline" className="text-muted-foreground">
-                  Cinepulse <XCircle className="ml-2 h-4 w-4" />
+                <Button asChild variant="secondary">
+                    <a
+                        href={`https://cinepulse.lol/sheet/${media.mediaType}-${media.id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center"
+                    >
+                        Cinepulse <ExternalLink className="ml-2 h-4 w-4" />
+                    </a>
                 </Button>
               </div>
           </CardContent>
@@ -876,3 +874,6 @@ function getSafeProfileImageUrl(path: string | null | undefined): string {
     
 
 
+
+
+    
