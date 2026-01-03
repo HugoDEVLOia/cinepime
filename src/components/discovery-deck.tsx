@@ -30,7 +30,8 @@ export default function DiscoveryDeck() {
     if (swipeState === 'loading' && pageNum > 1) return;
     setSwipeState('loading');
     try {
-      const { media } = await getPopularMedia('movie', pageNum);
+      const randomPage = Math.floor(Math.random() * 50) + 1;
+      const { media } = await getPopularMedia('movie', pageNum === 1 ? randomPage : pageNum);
       const newMovies = media.filter(m => m.posterUrl && !m.posterUrl.includes('picsum.photos') && m.backdropUrl && !m.backdropUrl.includes('picsum.photos'));
       
       setMovies(prev => {
@@ -148,12 +149,14 @@ export default function DiscoveryDeck() {
             exit={{ y: -50, opacity: 0 }}
             transition={{ duration: 0.4, ease: "easeOut" }}
         >
-            <Image
-                src={currentMovie.backdropUrl || currentMovie.posterUrl}
+            {currentMovie.backdropUrl && (
+              <Image
+                src={currentMovie.backdropUrl}
                 alt={`Arrière plan pour ${currentMovie.title}`}
                 fill
                 className="object-cover object-center blur-2xl scale-110 opacity-40"
-            />
+              />
+            )}
              <div className="absolute inset-0 bg-background/60"></div>
         </motion.div>
        </AnimatePresence>
@@ -199,20 +202,20 @@ export default function DiscoveryDeck() {
                       priority
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent p-6 flex flex-col justify-end text-white">
-                        <div className="mb-20"> {/* Espace pour les icônes à droite */}
-                          <h2 className="text-3xl font-bold drop-shadow-lg leading-tight">{currentMovie.title}</h2>
-                          <div className="flex items-center text-sm gap-4 mt-2 text-white/90 drop-shadow-sm">
-                              {currentMovie.releaseDate && (
-                                  <div className="flex items-center gap-1.5">
-                                      <CalendarDays className="w-4 h-4" /> 
-                                      <span>{new Date(currentMovie.releaseDate).getFullYear()}</span>
-                                  </div>
-                              )}
-                               <div className="flex items-center gap-1.5">
-                                  <Star className="w-4 h-4" /> 
-                                  <span>{currentMovie.averageRating.toFixed(1)}</span>
-                              </div>
-                          </div>
+                        <div className="mb-20 space-y-2"> 
+                            <h2 className="text-3xl font-bold drop-shadow-lg leading-tight">{currentMovie.title}</h2>
+                            <div className="flex items-center text-sm gap-4 text-white/90 drop-shadow-sm">
+                                {currentMovie.releaseDate && (
+                                    <div className="flex items-center gap-1.5">
+                                        <CalendarDays className="w-4 h-4" /> 
+                                        <span>{new Date(currentMovie.releaseDate).getFullYear()}</span>
+                                    </div>
+                                )}
+                                <div className="flex items-center gap-1.5">
+                                    <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" /> 
+                                    <span>{currentMovie.averageRating.toFixed(1)}</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </motion.div>
@@ -238,26 +241,26 @@ export default function DiscoveryDeck() {
         <div className="absolute bottom-1/4 right-4 md:right-8 z-20 flex flex-col items-center gap-5">
             <button 
               onClick={handleLike}
-              className="flex flex-col items-center gap-1 text-white text-xs font-semibold"
+              className="flex flex-col items-center gap-1 text-white text-xs font-semibold group"
             >
-                <div className="w-14 h-14 rounded-full flex items-center justify-center bg-black/30 backdrop-blur-md shadow-lg">
-                    <Heart className="h-7 w-7 text-white"/>
+                <div className="w-14 h-14 rounded-full flex items-center justify-center bg-black/30 backdrop-blur-md shadow-lg transition-colors group-hover:bg-red-500/70">
+                    <Heart className="h-7 w-7 text-white transition-transform group-hover:scale-110"/>
                 </div>
             </button>
             <button 
                 onClick={() => setIsFlipped(f => !f)}
-                className="flex flex-col items-center gap-1 text-white text-xs font-semibold"
+                className="flex flex-col items-center gap-1 text-white text-xs font-semibold group"
             >
-                <div className="w-14 h-14 rounded-full flex items-center justify-center bg-black/30 backdrop-blur-md shadow-lg">
-                    <Info className="h-7 w-7 text-white"/>
+                <div className="w-14 h-14 rounded-full flex items-center justify-center bg-black/30 backdrop-blur-md shadow-lg transition-colors group-hover:bg-primary/70">
+                    <Info className="h-7 w-7 text-white transition-transform group-hover:scale-110"/>
                 </div>
             </button>
             <button 
               onClick={() => setShowLinks(true)}
-              className="flex flex-col items-center gap-1 text-white text-xs font-semibold"
+              className="flex flex-col items-center gap-1 text-white text-xs font-semibold group"
             >
-                <div className="w-14 h-14 rounded-full flex items-center justify-center bg-black/30 backdrop-blur-md shadow-lg">
-                    <LinkIcon className="h-7 w-7 text-white"/>
+                <div className="w-14 h-14 rounded-full flex items-center justify-center bg-black/30 backdrop-blur-md shadow-lg transition-colors group-hover:bg-green-500/70">
+                    <LinkIcon className="h-7 w-7 text-white transition-transform group-hover:scale-110"/>
                 </div>
             </button>
         </div>
