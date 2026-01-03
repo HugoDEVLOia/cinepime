@@ -304,29 +304,61 @@ export default function DiscoveryDeck() {
                          <Button
                             asChild
                             size="lg"
-                            className="w-full"
-                            style={{ backgroundColor: '#1E1E1E', color: '#FF4545' }}
+                            className="w-full flex items-center justify-center gap-2"
+                            style={{ backgroundColor: '#000000', color: '#E50000' }}
                             onClick={() => setShowLinks(false)}
                           >
-                            <a href={`https://cinepulse.lol/sheet/movie-${currentMovie.id}`} target="_blank" rel="noopener noreferrer" className="flex items-center">
-                                <Image src="https://cinepulse.lol/favicons/favicon.svg" alt="Cinepulse Logo" width={20} height={20} className="mr-2"/>
+                            <a href={`https://cinepulse.lol/sheet/movie-${currentMovie.id}`} target="_blank" rel="noopener noreferrer">
+                                <Image src="https://cinepulse.lol/favicons/favicon.svg" alt="Cinepulse Logo" width={20} height={20}/>
                                 Cinepulse
                             </a>
                         </Button>
                          <Button asChild size="lg" variant="secondary" onClick={() => setShowLinks(false)}>
                             <Link href={`/media/movie/${currentMovie.id}`}><Info className="mr-2 h-5 w-5" /> Voir la fiche détaillée</Link>
                         </Button>
-                          <Button
+                        <Button
                             asChild
                             size="lg"
                             variant="secondary"
                             style={{ backgroundColor: '#E50914', color: '#F5F5F1' }}
-                            className="hover:bg-red-800"
+                            className="hover:bg-red-800 flex items-center justify-center gap-2"
                             onClick={() => setShowLinks(false)}
                           >
-                            <a href="https://movix.blog/" target="_blank" rel="noopener noreferrer" className="flex items-center">
-                                <Image src="https://movix.blog/assets/movix-CzqwVOTS.png" alt="Movix Logo" width={20} height={20} className="mr-2 rounded-sm"/>
+                            <a href="https://movix.blog/" target="_blank" rel="noopener noreferrer">
+                                <Image src="https://movix.blog/assets/movix-CzqwVOTS.png" alt="Movix Logo" width={20} height={20} className="rounded-sm"/>
                                 Movix
+                            </a>
+                        </Button>
+                        <Button
+                          asChild
+                          size="lg"
+                          style={{ backgroundColor: '#4c1d95', color: '#fff' }}
+                          className="hover:bg-purple-900 flex items-center justify-center gap-2"
+                          onClick={() => setShowLinks(false)}
+                        >
+                          <a
+                              href={`https://xalaflix.men/`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                          >
+                              <Image src="https://xalaflix.men/upload/images/logo/4.0.png" alt="Xalaflix Logo" width={20} height={20} className="rounded-sm"/>
+                              Xalaflix
+                          </a>
+                        </Button>
+                        <Button
+                            asChild
+                            size="lg"
+                            style={{ backgroundColor: '#212121', color: '#fff' }}
+                            className="hover:bg-black/80 flex items-center justify-center gap-2"
+                            onClick={() => setShowLinks(false)}
+                        >
+                            <a
+                                href={`https://purstream.to/`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                <Image src="https://purstream.to/assets/favicon.BYaz4d7M.ico" alt="PurStream Logo" width={20} height={20} className="rounded-sm"/>
+                                PurStream
                             </a>
                         </Button>
                         {isAnimation && (
