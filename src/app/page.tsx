@@ -305,33 +305,34 @@ export default function HomePage() {
         </section>
       )}
 
-       <Card className="shadow-lg rounded-xl overflow-hidden group hover:shadow-2xl transition-shadow duration-300 border-2 border-primary/50">
-        <Link href="/discover">
-          <div className="flex flex-col md:flex-row items-center">
-            <div className="relative h-48 w-full md:w-1/2">
-                <Image
-                    src="https://picsum.photos/seed/discover/600/400"
-                    alt="Mode découverte"
-                    fill
-                    className="object-cover"
-                    data-ai-hint="découverte film"
-                />
-                 <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                    <Compass className="h-20 w-20 text-white/80" />
-                 </div>
-            </div>
-            <CardContent className="p-6 text-center md:text-left md:w-1/2">
-                <CardTitle className="text-2xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">Testez le nouveau Mode Découverte !</CardTitle>
-                <CardDescription className="mb-6 min-h-[40px]">
-                    Glissez à droite pour ajouter à votre liste, ou à gauche pour ignorer. Une nouvelle façon amusante et rapide de trouver votre prochain film préféré.
-                </CardDescription>
-                <Button size="lg">
-                    Lancer la découverte <ChevronRight className="ml-2 h-5 w-5" />
-                </Button>
-            </CardContent>
-          </div>
-        </Link>
+      <Card className="shadow-lg rounded-xl overflow-hidden group hover:shadow-2xl transition-shadow duration-300 border-2 border-primary/50 bg-card">
+          <Link href="/discover">
+            <div className="flex flex-col md:flex-row items-center">
+                <div className="relative h-48 w-full md:h-full md:w-1/2">
+                    <Image
+                        src="https://picsum.photos/seed/discover-promo/600/400"
+                        alt="Mode découverte"
+                        fill
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                        data-ai-hint="découverte film"
+                    />
+                     <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                        <Compass className="h-20 w-20 text-white/80" />
+                     </div>
+                </div>
+                <CardContent className="p-8 text-center md:text-left md:w-1/2">
+                    <CardTitle className="text-3xl font-bold text-foreground mb-3 group-hover:text-primary transition-colors">Testez le Mode Découverte !</CardTitle>
+                    <CardDescription className="text-lg mb-6">
+                        Glissez à droite pour ajouter à votre liste, à gauche pour ignorer. Trouvez votre prochain film préféré de manière ludique et rapide.
+                    </CardDescription>
+                    <Button size="lg">
+                        Lancer la découverte <ChevronRight className="ml-2 h-5 w-5" />
+                    </Button>
+                </CardContent>
+              </div>
+          </Link>
       </Card>
+
 
       {isLoaded && toWatchList.length > 0 && (
          <MediaCarousel 
