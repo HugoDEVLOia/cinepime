@@ -55,7 +55,7 @@ export default function DiscoveryDeck() {
 
   useEffect(() => {
     fetchMovies(Math.floor(Math.random() * 50) + 1);
-  }, [fetchMovies]);
+  }, []);
 
   const currentMovie = useMemo(() => (movies.length > currentIndex ? movies[currentIndex] : null), [movies, currentIndex]);
 
@@ -304,8 +304,8 @@ export default function DiscoveryDeck() {
                          <Button
                             asChild
                             size="lg"
-                            className="w-full flex items-center justify-center gap-2"
-                            style={{ backgroundColor: '#000000', color: '#E50000' }}
+                            className="w-full flex items-center justify-center gap-2 text-[#FF4545]"
+                            style={{ backgroundColor: '#1E1E1E' }}
                             onClick={() => setShowLinks(false)}
                           >
                             <a href={`https://cinepulse.lol/sheet/movie-${currentMovie.id}`} target="_blank" rel="noopener noreferrer">
@@ -313,13 +313,9 @@ export default function DiscoveryDeck() {
                                 Cinepulse
                             </a>
                         </Button>
-                         <Button asChild size="lg" variant="secondary" onClick={() => setShowLinks(false)}>
-                            <Link href={`/media/movie/${currentMovie.id}`}><Info className="mr-2 h-5 w-5" /> Voir la fiche détaillée</Link>
-                        </Button>
                         <Button
                             asChild
                             size="lg"
-                            variant="secondary"
                             style={{ backgroundColor: '#E50914', color: '#F5F5F1' }}
                             className="hover:bg-red-800 flex items-center justify-center gap-2"
                             onClick={() => setShowLinks(false)}
