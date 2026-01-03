@@ -587,15 +587,16 @@ export default function MediaDetailsPage() {
           <Link2 className="text-primary h-7 w-7"/> Liens Directs
         </h2>
         <Card className="shadow-lg rounded-xl p-4 md:p-6 bg-card">
-          <CardContent className="p-0 space-y-4">
-              <Button asChild variant="default" size="lg" className="w-full sm:w-auto">
+           <CardContent className="p-0 space-y-4">
+              <Button asChild size="lg" className="w-full sm:w-auto bg-[#5865F2] hover:bg-[#4752C4] text-white">
                 <a
                   href={`https://cinepulse.lol/sheet/${media.mediaType}-${media.id}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center"
                 >
-                  <Sparkles className="mr-2 h-5 w-5" /> Cinepulse (Recommandé)
+                  <Image src="https://www.cinepulse.org/fav/favicon-32x32.png" alt="Cinepulse Logo" width={20} height={20} className="mr-2"/>
+                  Cinepulse (Recommandé)
                 </a>
               </Button>
               
@@ -863,7 +864,6 @@ function getSafeProfileImageUrl(path: string | null | undefined): string {
   }
   return 'https://picsum.photos/500/750?grayscale'; 
 }
-
     
     
 
