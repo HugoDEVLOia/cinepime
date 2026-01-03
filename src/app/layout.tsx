@@ -12,7 +12,7 @@ import SearchBar from '@/components/search-bar';
 import Chatbot from '@/components/chatbot';
 import { Sheet, SheetContent, SheetClose, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { ThemeProvider } from '@/contexts/theme-provider';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Head from 'next/head';
 
 export default function RootLayout({
@@ -21,6 +21,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const [isSearchActive, setIsSearchActive] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   return (
     <html lang="fr" className="scrollbar-thin" suppressHydrationWarning>
@@ -110,6 +115,7 @@ export default function RootLayout({
                     <Button variant="ghost" size="icon" onClick={() => setIsSearchActive(true)} aria-label="Ouvrir la recherche">
                       <Search className="h-6 w-6" />
                     </Button>
+                    {isClient && (
                     <Sheet>
                       <SheetTrigger asChild>
                         <Button variant="ghost" size="icon">
@@ -172,6 +178,7 @@ export default function RootLayout({
                         </div>
                       </SheetContent>
                     </Sheet>
+                    )}
                   </div>
                 </>
               )}
