@@ -25,13 +25,13 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'www.cinepulse.org',
+        hostname: 'cinepulse.lol',
         port: '',
         pathname: '/**',
       },
       {
         protocol: 'https',
-        hostname: 'cinepulse.lol',
+        hostname: 'movix.blog',
         port: '',
         pathname: '/**',
       }

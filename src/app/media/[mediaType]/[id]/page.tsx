@@ -588,7 +588,12 @@ export default function MediaDetailsPage() {
         </h2>
         <Card className="shadow-lg rounded-xl p-4 md:p-6 bg-card">
            <CardContent className="p-0 space-y-4">
-              <Button asChild size="lg" className="w-full sm:w-auto bg-black hover:bg-gray-800 text-red-400">
+               <Button
+                  asChild
+                  size="lg"
+                  className="w-full sm:w-auto"
+                  style={{ backgroundColor: '#1E1E1E', color: '#FF4545' }}
+                >
                   <a
                     href={`https://cinepulse.lol/sheet/${media.mediaType}-${media.id}`}
                     target="_blank"
@@ -601,14 +606,20 @@ export default function MediaDetailsPage() {
               </Button>
               
               <div className="flex flex-wrap gap-3 pt-4 border-t border-border">
-                  <Button asChild variant="secondary">
+                  <Button
+                    asChild
+                    variant="secondary"
+                    style={{ backgroundColor: '#E50914', color: '#F5F5F1' }}
+                    className="hover:bg-red-800"
+                  >
                       <a
                           href={`https://movix.blog/`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex items-center"
                       >
-                          Movix <ExternalLink className="ml-2 h-4 w-4" />
+                          <Image src="https://movix.blog/assets/movix-CzqwVOTS.png" alt="Movix Logo" width={20} height={20} className="mr-2 rounded-sm"/>
+                          Movix
                       </a>
                   </Button>
                   
@@ -868,4 +879,5 @@ function getSafeProfileImageUrl(path: string | null | undefined): string {
     
 
     
+
 
