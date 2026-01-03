@@ -34,6 +34,12 @@ const nextConfig: NextConfig = {
         hostname: 'movix.blog',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'xalaflix.men',
+        port: '',
+        pathname: '/**',
       }
     ],
   },

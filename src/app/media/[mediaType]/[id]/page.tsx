@@ -588,49 +588,30 @@ export default function MediaDetailsPage() {
         </h2>
         <Card className="shadow-lg rounded-xl p-4 md:p-6 bg-card">
            <CardContent className="p-0 space-y-4">
-               <Button
-                  asChild
-                  size="lg"
-                  className="w-full sm:w-auto"
-                  style={{ backgroundColor: '#1E1E1E', color: '#FF4545' }}
-                >
-                  <a
-                    href={`https://cinepulse.lol/sheet/${media.mediaType}-${media.id}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center"
-                  >
-                    <Image src="https://cinepulse.lol/favicons/favicon.svg" alt="Cinepulse Logo" width={20} height={20} className="mr-2"/>
-                    Cinepulse (Recommandé)
-                  </a>
+              <Button asChild size="lg" className="w-full sm:w-auto" style={{ backgroundColor: '#1E1E1E' }}>
+                <a href={`https://cinepulse.lol/sheet/${media.mediaType}-${media.id}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 text-red-500">
+                  <Image src="https://cinepulse.lol/favicons/favicon.svg" alt="Cinepulse Logo" width={20} height={20}/>
+                  Cinepulse (Recommandé)
+                </a>
               </Button>
               
               <div className="flex flex-wrap gap-3 pt-4 border-t border-border">
-                  <Button
-                    asChild
-                    variant="secondary"
-                    style={{ backgroundColor: '#E50914', color: '#F5F5F1' }}
-                    className="hover:bg-red-800"
-                  >
-                      <a
-                          href={`https://movix.blog/`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center"
-                      >
+                  <Button asChild style={{ backgroundColor: '#E50914', color: '#F5F5F1' }} className="hover:bg-red-800">
+                      <a href={`https://movix.blog/`} target="_blank" rel="noopener noreferrer" className="flex items-center">
                           <Image src="https://movix.blog/assets/movix-CzqwVOTS.png" alt="Movix Logo" width={20} height={20} className="mr-2 rounded-sm"/>
                           Movix
                       </a>
                   </Button>
                   
-                  <Button asChild variant="secondary">
+                  <Button asChild style={{ backgroundColor: '#4c1d95', color: '#fff' }} className="hover:bg-purple-900">
                       <a
                           href={`https://xalaflix.men/`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex items-center"
                       >
-                          Xalaflix <ExternalLink className="ml-2 h-4 w-4" />
+                          <Image src="https://xalaflix.men/upload/images/logo/4.0.png" alt="Xalaflix Logo" width={20} height={20} className="mr-2 rounded-sm"/>
+                          Xalaflix
                       </a>
                   </Button>
                   
@@ -879,5 +860,6 @@ function getSafeProfileImageUrl(path: string | null | undefined): string {
     
 
     
+
 
 
