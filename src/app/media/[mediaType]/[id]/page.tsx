@@ -602,7 +602,7 @@ export default function MediaDetailsPage() {
               <div className="flex flex-wrap gap-3 pt-4 border-t border-border">
                   <Button asChild variant="secondary">
                       <a
-                          href={`https://movix.blog/${media.mediaType}/${media.id}`}
+                          href={`https://movix.blog/`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex items-center"
@@ -865,4 +865,6 @@ function getSafeProfileImageUrl(path: string | null | undefined): string {
 }
 
     
+    
+
     
