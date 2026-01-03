@@ -589,7 +589,12 @@ export default function MediaDetailsPage() {
         <Card className="shadow-lg rounded-xl p-4 md:p-6 bg-card">
            <CardContent className="p-0 space-y-4">
               <Button asChild size="lg" className="w-full sm:w-auto" style={{ backgroundColor: '#1E1E1E' }}>
-                <a href={`https://cinepulse.lol/sheet/${media.mediaType}-${media.id}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 text-red-500">
+                <a
+                  href={`https://cinepulse.lol/sheet/${media.mediaType}-${media.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 text-[#FF4545]"
+                >
                   <Image src="https://cinepulse.lol/favicons/favicon.svg" alt="Cinepulse Logo" width={20} height={20}/>
                   Cinepulse (Recommandé)
                 </a>
@@ -615,14 +620,15 @@ export default function MediaDetailsPage() {
                       </a>
                   </Button>
                   
-                  <Button asChild variant="secondary">
+                  <Button asChild style={{ backgroundColor: '#212121', color: '#fff' }} className="hover:bg-black/80">
                       <a
                           href={`https://purstream.to/`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex items-center"
                       >
-                          PurStream <ExternalLink className="ml-2 h-4 w-4" />
+                          <Image src="https://purstream.to/assets/favicon.BYaz4d7M.ico" alt="PurStream Logo" width={20} height={20} className="mr-2 rounded-sm"/>
+                          PurStream
                       </a>
                   </Button>
 
@@ -860,6 +866,7 @@ function getSafeProfileImageUrl(path: string | null | undefined): string {
     
 
     
+
 
 
 

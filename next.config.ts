@@ -40,6 +40,12 @@ const nextConfig: NextConfig = {
         hostname: 'xalaflix.men',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'purstream.to',
+        port: '',
+        pathname: '/**',
       }
     ],
   },
