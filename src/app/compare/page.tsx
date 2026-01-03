@@ -255,3 +255,5 @@ export default function ComparePage() {
         </Suspense>
     )
 }
+
+    
