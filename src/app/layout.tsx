@@ -25,6 +25,7 @@ export default function RootLayout({
 
   useEffect(() => {
     setIsClient(true);
+    document.documentElement.style.setProperty('--header-height', '80px');
   }, []);
 
   return (
@@ -55,8 +56,8 @@ export default function RootLayout({
           defaultTheme="dark"
           storageKey="cineprime-ui-theme"
         >
-          <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/80 backdrop-blur-lg">
-            <div className="container flex h-20 items-center justify-between px-4 sm:px-6 lg:px-8">
+          <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/80 backdrop-blur-lg" style={{ height: 'var(--header-height)' }}>
+            <div className="container flex h-full items-center justify-between px-4 sm:px-6 lg:px-8">
               {isSearchActive ? (
                 <div className="flex items-center w-full gap-2">
                   <div className="flex-grow">

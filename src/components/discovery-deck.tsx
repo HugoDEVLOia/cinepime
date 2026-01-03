@@ -9,7 +9,7 @@ import { Loader2, RotateCw, X, Heart, Info, Link as LinkIcon, ExternalLink, Spar
 import { useMediaLists } from '@/hooks/use-media-lists';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence, useDragControls } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 type SwipeState = 'loading' | 'ready' | 'empty';
 
@@ -81,13 +81,7 @@ export default function DiscoveryDeck() {
   
   const handleDoubleClick = () => {
     handleLike();
-    const card = document.getElementById(`discover-card-${currentIndex}`);
-    if (card) {
-        card.style.transform = 'scale(1.05)';
-        setTimeout(() => {
-            card.style.transform = 'scale(1)';
-        }, 200);
-    }
+    advanceToNextMovie();
   }
 
   const handleRestart = () => {
@@ -104,17 +98,16 @@ export default function DiscoveryDeck() {
     const xVelocity = info.velocity.x;
     const xOffset = info.offset.x;
 
-    // Swipe Up for next movie
     if (yOffset < -100 || yVelocity < -500) {
       advanceToNextMovie();
       return;
     }
-     // Swipe Right to Left for details page
+    
     if (xOffset < -100 || xVelocity < -500) {
       if(currentMovie) router.push(`/media/movie/${currentMovie.id}`);
       return;
     }
-    // Swipe Left to Right for links
+    
     if (xOffset > 100 || xVelocity > 500) {
       setShowLinks(true);
       return;
@@ -144,19 +137,21 @@ export default function DiscoveryDeck() {
   }
 
   return (
-    <div className="w-full h-full flex items-center justify-center overflow-hidden">
+    <motion.div
+        className="w-full h-full flex items-center justify-center overflow-hidden"
+        onDragEnd={handleDragEnd}
+        drag="y"
+        dragConstraints={{ top: 0, bottom: 0 }}
+        dragElastic={{ top: 0.2, bottom: 0.8 }}
+    >
        <AnimatePresence>
          <motion.div
             key={currentIndex}
             className="w-full h-full absolute flex items-center justify-center"
-            drag="y"
-            dragConstraints={{ top: 0, bottom: 0 }}
-            dragElastic={{ top: 0.2, bottom: 0.8 }}
-            onDragEnd={handleDragEnd}
         >
           <motion.div 
             id={`discover-card-${currentIndex}`}
-            className="relative w-full h-full max-w-md max-h-[85vh] sm:max-h-[80vh] active:cursor-grabbing transition-transform duration-200" 
+            className="relative w-full h-full max-w-md max-h-[85vh] sm:max-h-[80vh] active:cursor-grabbing" 
             drag="x"
             dragConstraints={{ left: 0, right: 0 }}
             dragElastic={{ left: 0.6, right: 0.6 }}
@@ -263,8 +258,6 @@ export default function DiscoveryDeck() {
             </motion.div>
         )}
        </AnimatePresence>
-    </div>
+    </motion.div>
   );
 }
-
-    
