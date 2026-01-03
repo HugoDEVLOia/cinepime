@@ -4,14 +4,12 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import Image from 'next/image';
 import { getPopularMedia, type Media } from '@/services/tmdb';
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, RotateCw, X, Heart, Link as LinkIcon, Info, ExternalLink, Sparkles, ChevronRight, ChevronLeft } from 'lucide-react';
+import { Loader2, RotateCw, X, Heart, Info, Link as LinkIcon, ExternalLink, Sparkles } from 'lucide-react';
 import { useMediaLists } from '@/hooks/use-media-lists';
 import { useToast } from '@/hooks/use-toast';
-import Link from 'next/link';
-import { motion, AnimatePresence, useDragControls } from 'framer-motion';
 import { useRouter } from 'next/navigation';
+import { motion, AnimatePresence, useDragControls } from 'framer-motion';
 
 type SwipeState = 'loading' | 'ready' | 'empty';
 
@@ -26,14 +24,13 @@ export default function DiscoveryDeck() {
   const { addToList, isInList } = useMediaLists();
   const { toast } = useToast();
   const router = useRouter();
-  const controls = useDragControls()
 
   const fetchMovies = useCallback(async (pageNum: number) => {
     if (swipeState === 'loading' && pageNum > 1) return;
     setSwipeState('loading');
     try {
       const { media } = await getPopularMedia('movie', pageNum);
-      const newMovies = media.filter(m => m.backdropUrl && !m.backdropUrl.includes('picsum.photos'));
+      const newMovies = media.filter(m => m.posterUrl && !m.posterUrl.includes('picsum.photos'));
       
       setMovies(prev => {
         const existingIds = new Set(prev.map(m => m.id));
@@ -81,6 +78,17 @@ export default function DiscoveryDeck() {
         });
       }
   }, [currentMovie, addToList, isInList, toast]);
+  
+  const handleDoubleClick = () => {
+    handleLike();
+    const card = document.getElementById(`discover-card-${currentIndex}`);
+    if (card) {
+        card.style.transform = 'scale(1.05)';
+        setTimeout(() => {
+            card.style.transform = 'scale(1)';
+        }, 200);
+    }
+  }
 
   const handleRestart = () => {
     setSwipeState('loading');
@@ -96,17 +104,17 @@ export default function DiscoveryDeck() {
     const xVelocity = info.velocity.x;
     const xOffset = info.offset.x;
 
-    // Swipe vertical pour le film suivant
+    // Swipe Up for next movie
     if (yOffset < -100 || yVelocity < -500) {
       advanceToNextMovie();
       return;
     }
-     // Swipe droite-gauche pour la page de détail
+     // Swipe Right to Left for details page
     if (xOffset < -100 || xVelocity < -500) {
       if(currentMovie) router.push(`/media/movie/${currentMovie.id}`);
       return;
     }
-    // Swipe gauche-droite pour les liens
+    // Swipe Left to Right for links
     if (xOffset > 100 || xVelocity > 500) {
       setShowLinks(true);
       return;
@@ -141,22 +149,19 @@ export default function DiscoveryDeck() {
          <motion.div
             key={currentIndex}
             className="w-full h-full absolute flex items-center justify-center"
-            initial={{ y: "100%", opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: "-100%", opacity: 0 }}
-            transition={{ duration: 0.5, ease: "easeInOut" }}
             drag="y"
             dragConstraints={{ top: 0, bottom: 0 }}
-            dragElastic={{ top: 0.8, bottom: 0.8 }}
+            dragElastic={{ top: 0.2, bottom: 0.8 }}
             onDragEnd={handleDragEnd}
         >
           <motion.div 
-            className="relative w-full h-full max-w-md max-h-[85vh] sm:max-h-[80vh] cursor-grab active:cursor-grabbing" 
+            id={`discover-card-${currentIndex}`}
+            className="relative w-full h-full max-w-md max-h-[85vh] sm:max-h-[80vh] active:cursor-grabbing transition-transform duration-200" 
             drag="x"
             dragConstraints={{ left: 0, right: 0 }}
             dragElastic={{ left: 0.6, right: 0.6 }}
             onDragEnd={handleDragEnd}
-            style={{ touchAction: 'pan-x' }} // Allow vertical scroll on mobile but horizontal drag
+            style={{ touchAction: 'pan-y' }}
           >
             <motion.div
               className="relative w-full h-full"
@@ -164,12 +169,12 @@ export default function DiscoveryDeck() {
               animate={{ rotateY: isFlipped ? 180 : 0 }}
               transition={{ duration: 0.6, ease: 'easeInOut' }}
             >
-              {/* --- Face avant (Poster) --- */}
+              {/* --- Front (Poster) --- */}
               <motion.div
-                className="absolute w-full h-full shadow-2xl rounded-2xl overflow-hidden"
+                className="absolute w-full h-full shadow-2xl rounded-2xl overflow-hidden cursor-pointer"
                 style={{ backfaceVisibility: "hidden" }}
                 onClick={() => setIsFlipped(f => !f)}
-                onDoubleClick={handleLike}
+                onDoubleClick={handleDoubleClick}
               >
                   <Image
                     src={currentMovie.posterUrl}
@@ -183,9 +188,9 @@ export default function DiscoveryDeck() {
                   </div>
               </motion.div>
 
-              {/* --- Face arrière (Synopsis) --- */}
+              {/* --- Back (Synopsis) --- */}
               <motion.div
-                 className="absolute w-full h-full bg-card rounded-2xl p-6 flex flex-col items-center justify-center text-center shadow-2xl"
+                 className="absolute w-full h-full bg-card rounded-2xl p-6 flex flex-col items-center justify-center text-center shadow-2xl cursor-pointer"
                  style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
                  onClick={() => setIsFlipped(f => !f)}
               >
@@ -197,34 +202,23 @@ export default function DiscoveryDeck() {
               </motion.div>
             </motion.div>
             
-             {/* --- Bouton Like --- */}
-             <div className="absolute bottom-6 right-6 z-10">
-                <Button variant="destructive" size="icon" className="w-16 h-16 rounded-full shadow-lg" onClick={handleLike}>
-                    <Heart className="h-8 w-8" />
+             {/* --- Action bar on the right --- */}
+             <div className="absolute top-1/2 -translate-y-1/2 right-4 z-10 flex flex-col gap-4">
+                <Button variant="ghost" size="icon" className="w-14 h-14 rounded-full bg-black/30 text-white backdrop-blur-sm" onClick={handleLike}>
+                    <Heart className="h-7 w-7"/>
+                </Button>
+                 <Button variant="ghost" size="icon" className="w-14 h-14 rounded-full bg-black/30 text-white backdrop-blur-sm" onClick={() => setIsFlipped(f => !f)}>
+                    <Info className="h-7 w-7"/>
+                </Button>
+                 <Button variant="ghost" size="icon" className="w-14 h-14 rounded-full bg-black/30 text-white backdrop-blur-sm" onClick={() => setShowLinks(true)}>
+                    <LinkIcon className="h-7 w-7"/>
                 </Button>
             </div>
-
-            {/* --- Overlays d'aide --- */}
-            {!isFlipped && !showLinks && (
-                <>
-                 <div className="absolute top-1/2 -translate-y-1/2 -left-20 text-muted-foreground flex items-center gap-2 opacity-50">
-                    <LinkIcon className="h-5 w-5"/>
-                    <p className="font-semibold">Liens</p>
-                    <ChevronRight className="h-5 w-5"/>
-                 </div>
-                 <div className="absolute top-1/2 -translate-y-1/2 -right-20 text-muted-foreground flex items-center gap-2 opacity-50">
-                     <ChevronLeft className="h-5 w-5"/>
-                     <p className="font-semibold">Détails</p>
-                     <Info className="h-5 w-5"/>
-                 </div>
-                </>
-            )}
-
           </motion.div>
         </motion.div>
        </AnimatePresence>
        
-       {/* --- Panneau de Liens --- */}
+       {/* --- Links Panel --- */}
        <AnimatePresence>
         {showLinks && currentMovie && (
              <motion.div
@@ -272,3 +266,5 @@ export default function DiscoveryDeck() {
     </div>
   );
 }
+
+    
