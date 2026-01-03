@@ -1,37 +1,39 @@
 
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import Image from 'next/image';
 import { getPopularMedia, type Media } from '@/services/tmdb';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, RotateCw, X, Eye } from 'lucide-react';
+import { Loader2, RotateCw, X, Eye, Link as LinkIcon, Sparkles } from 'lucide-react';
 import { useMediaLists } from '@/hooks/use-media-lists';
 import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
 import Link from 'next/link';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useDragControls } from 'framer-motion';
 
 type SwipeState = 'loading' | 'ready' | 'empty';
 
 const cardVariants = {
-  hidden: (direction: number) => ({
-    x: direction > 0 ? '150%' : '-150%',
+  hidden: (direction: 'left' | 'right' | 'up') => ({
+    x: direction === 'right' ? '150%' : direction === 'left' ? '-150%' : 0,
+    y: direction === 'up' ? '-150%' : 0,
     opacity: 0,
-    rotate: direction > 0 ? 25 : -25,
+    rotate: direction === 'right' ? 25 : direction === 'left' ? -25 : 0,
     transition: { duration: 0.4 }
   }),
   visible: {
     x: 0,
+    y: 0,
     opacity: 1,
     rotate: 0,
     transition: { duration: 0.5, ease: "easeOut" }
   },
-  exit: (direction: number) => ({
-    x: direction > 0 ? '150%' : '-150%',
+  exit: (direction: 'left' | 'right' | 'up') => ({
+    x: direction === 'right' ? '150%' : direction === 'left' ? '-150%' : 0,
+    y: direction === 'up' ? '-200%' : 0,
     opacity: 0,
-    rotate: direction > 0 ? 25 : -25,
+    rotate: direction === 'right' ? 25 : direction === 'left' ? -25 : 0,
     transition: { duration: 0.4, ease: "easeIn" }
   }),
 };
@@ -46,7 +48,10 @@ export default function DiscoveryDeck() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [swipeState, setSwipeState] = useState<SwipeState>('loading');
   const [page, setPage] = useState(1);
-  const [swipeDirection, setSwipeDirection] = useState(0);
+  const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | 'up' | null>(null);
+  const [isLinksMenuOpen, setIsLinksMenuOpen] = useState(false);
+  const dropZoneRef = useRef<HTMLDivElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
 
   const { addToList, isInList } = useMediaLists();
   const { toast } = useToast();
@@ -74,13 +79,12 @@ export default function DiscoveryDeck() {
 
   const currentMovie = useMemo(() => (movies.length > currentIndex ? movies[currentIndex] : null), [movies, currentIndex]);
 
-  const handleSwipe = (direction: number) => {
+  const handleSwipe = (direction: 'left' | 'right' | 'up') => {
     if (!currentMovie || (swipeState !== 'ready' && swipeState !== 'empty')) return;
     
     setSwipeDirection(direction);
-    setCurrentIndex(prev => prev + 1);
 
-    if (direction > 0) { // Right swipe
+    if (direction === 'right') { // Add to list
       if (!isInList(currentMovie.id, 'toWatch')) {
         addToList(currentMovie, 'toWatch');
         toast({
@@ -93,8 +97,14 @@ export default function DiscoveryDeck() {
           description: `${currentMovie.title} est déjà dans votre liste "À Regarder".`,
         });
       }
+    } else if (direction === 'up') {
+        setIsLinksMenuOpen(true);
+        return; // Don't advance the card yet
     }
     
+    // Advance card for left/right swipe
+    setCurrentIndex(prev => prev + 1);
+
     if (currentIndex >= movies.length - 5 && swipeState !== 'loading') {
         const nextPage = page + 1;
         setPage(nextPage);
@@ -102,7 +112,7 @@ export default function DiscoveryDeck() {
     }
   };
 
-  const paginate = (newDirection: number) => {
+  const paginate = (newDirection: 'left' | 'right' | 'up') => {
     handleSwipe(newDirection);
   };
   
@@ -113,32 +123,48 @@ export default function DiscoveryDeck() {
       fetchMovies(1);
   }
 
+  const handleLinkSelection = () => {
+      setIsLinksMenuOpen(false);
+      // Now advance the card after selection
+      setTimeout(() => {
+          setCurrentIndex(prev => prev + 1);
+      }, 100); 
+  }
+  
+  const isAnimation = currentMovie?.genres?.some(g => g.id === 16);
+
+
   return (
-    <Card className="w-full max-w-xl mx-auto rounded-2xl shadow-xl bg-card p-4 sm:p-6 space-y-4">
-       <div className="relative w-full aspect-[16/9] mb-4">
+    <div className="w-full max-w-xl mx-auto flex flex-col items-center">
+       <div ref={dropZoneRef} className="relative w-full aspect-[16/9] mb-4">
             <AnimatePresence initial={false} custom={swipeDirection}>
                 {currentMovie ? (
                     <motion.div
                         key={currentIndex}
-                        className="absolute inset-0 w-full h-full"
+                        ref={cardRef}
+                        className="absolute inset-0 w-full h-full cursor-grab active:cursor-grabbing"
                         custom={swipeDirection}
                         variants={cardVariants}
                         initial="visible"
                         animate="visible"
                         exit="exit"
-                        drag="x"
-                        dragConstraints={{ left: 0, right: 0 }}
-                        dragElastic={1}
+                        drag
+                        dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
+                        dragElastic={0.5}
                         onDragEnd={(e, { offset, velocity }) => {
                             const swipe = swipePower(offset.x, velocity.x);
-                            if (swipe < -swipeConfidenceThreshold) {
-                                paginate(-1);
+                            const swipeUp = offset.y < -100;
+
+                            if (swipeUp) {
+                                paginate('up');
+                            } else if (swipe < -swipeConfidenceThreshold) {
+                                paginate('left');
                             } else if (swipe > swipeConfidenceThreshold) {
-                                paginate(1);
+                                paginate('right');
                             }
                         }}
                     >
-                      <Link href={`/media/movie/${currentMovie.id}`} className="block w-full h-full">
+                      <Link href={`/media/movie/${currentMovie.id}`} className="block w-full h-full" onClick={(e) => e.preventDefault()}>
                         <Card className="w-full h-full overflow-hidden rounded-2xl shadow-2xl bg-card">
                             <div className="relative w-full h-full">
                                 <Image
@@ -174,28 +200,72 @@ export default function DiscoveryDeck() {
                     </div>
                 )}
             </AnimatePresence>
+            <AnimatePresence>
+            {isLinksMenuOpen && currentMovie && (
+                <motion.div
+                    initial={{ opacity: 0, y: "100%" }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: "100%" }}
+                    transition={{ duration: 0.3, ease: 'easeOut' }}
+                    className="absolute inset-0 bg-background/80 backdrop-blur-lg rounded-2xl flex flex-col items-center justify-center p-6 z-20"
+                >
+                    <h3 className="text-2xl font-bold text-center mb-2 text-foreground">Liens pour</h3>
+                    <h4 className="text-xl font-semibold text-center mb-6 text-primary truncate max-w-full">{currentMovie.title}</h4>
+                    <div className="grid grid-cols-2 gap-4 w-full">
+                        <Button asChild size="lg" variant="default" onClick={handleLinkSelection}>
+                             <a href={`https://cinepulse.lol/sheet/movie-${currentMovie.id}`} target="_blank" rel="noopener noreferrer">
+                                <Sparkles className="mr-2 h-5 w-5" /> Cinepulse
+                            </a>
+                        </Button>
+                         <Button asChild size="lg" variant="secondary" onClick={handleLinkSelection}>
+                            <a href={`https://movix.club/movie/${currentMovie.id}`} target="_blank" rel="noopener noreferrer">Movix</a>
+                        </Button>
+                         <Button asChild size="lg" variant="secondary" onClick={handleLinkSelection}>
+                            <a href="https://xalaflix.men/" target="_blank" rel="noopener noreferrer">Xalaflix</a>
+                        </Button>
+                        {isAnimation && (
+                            <Button asChild size="lg" variant="secondary" onClick={handleLinkSelection}>
+                                <a href={`https://anime-sama.fr/catalogue/${currentMovie.title.toLowerCase().replace(/[\s:]/g, '-')}`} target="_blank" rel="noopener noreferrer">Anime-Sama</a>
+                            </Button>
+                        )}
+                         <Button asChild size="lg" variant="secondary" onClick={handleLinkSelection}>
+                            <a href="https://purstream.to/" target="_blank" rel="noopener noreferrer">PurStream</a>
+                        </Button>
+                    </div>
+                     <Button variant="ghost" size="sm" onClick={() => setIsLinksMenuOpen(false)} className="mt-6 text-muted-foreground">
+                        Annuler
+                    </Button>
+                </motion.div>
+            )}
+            </AnimatePresence>
        </div>
 
-       <div className="flex items-center justify-center gap-6">
-            <Button
-                variant="outline"
-                size="icon"
-                className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-red-500 text-red-500 hover:bg-red-100 hover:text-red-600 shadow-lg"
-                onClick={() => paginate(-1)}
-                disabled={!currentMovie || swipeState === 'loading'}
-            >
-                <X className="h-8 w-8 sm:h-10 sm:w-10" />
-            </Button>
-            <Button
-                variant="outline"
-                size="icon"
-                className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-green-500 text-green-500 hover:bg-green-100 hover:text-green-600 shadow-lg"
-                onClick={() => paginate(1)}
-                disabled={!currentMovie || swipeState === 'loading'}
-            >
-                <Eye className="h-8 w-8 sm:h-10 sm:w-10" />
-            </Button>
-       </div>
-    </Card>
+        <div className="flex flex-col items-center space-y-4 w-full">
+            <div className="flex items-center justify-center gap-6">
+                <Button
+                    variant="outline"
+                    size="icon"
+                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-red-500 text-red-500 hover:bg-red-100 hover:text-red-600 shadow-lg"
+                    onClick={() => paginate('left')}
+                    disabled={!currentMovie || swipeState === 'loading' || isLinksMenuOpen}
+                >
+                    <X className="h-8 w-8 sm:h-10 sm:w-10" />
+                </Button>
+                 <Button
+                    variant="outline"
+                    size="icon"
+                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-green-500 text-green-500 hover:bg-green-100 hover:text-green-600 shadow-lg"
+                    onClick={() => paginate('right')}
+                    disabled={!currentMovie || swipeState === 'loading' || isLinksMenuOpen}
+                >
+                    <Eye className="h-8 w-8 sm:h-10 sm:w-10" />
+                </Button>
+            </div>
+            <div className="text-center text-muted-foreground text-sm flex items-center gap-1.5 pt-2">
+                <LinkIcon className="h-4 w-4"/>
+                <p>Glissez vers le haut pour les liens</p>
+            </div>
+        </div>
+    </div>
   );
 }

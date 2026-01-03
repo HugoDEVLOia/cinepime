@@ -19,7 +19,6 @@ import { ServerCrash, Star, CalendarDays, Clapperboard, Flame, Tv, Film, Eye, Gh
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import MediaCarousel from '@/components/media-carousel';
-import DiscoveryDeck from '@/components/discovery-deck';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -306,6 +305,34 @@ export default function HomePage() {
         </section>
       )}
 
+       <Card className="shadow-lg rounded-xl overflow-hidden group hover:shadow-2xl transition-shadow duration-300 border-2 border-primary/50">
+        <Link href="/discover">
+          <div className="flex flex-col md:flex-row items-center">
+            <div className="relative h-48 w-full md:w-1/2">
+                <Image
+                    src="https://picsum.photos/seed/discover/600/400"
+                    alt="Mode découverte"
+                    fill
+                    className="object-cover"
+                    data-ai-hint="découverte film"
+                />
+                 <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                    <Compass className="h-20 w-20 text-white/80" />
+                 </div>
+            </div>
+            <CardContent className="p-6 text-center md:text-left md:w-1/2">
+                <CardTitle className="text-2xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">Testez le nouveau Mode Découverte !</CardTitle>
+                <CardDescription className="mb-6 min-h-[40px]">
+                    Glissez à droite pour ajouter à votre liste, ou à gauche pour ignorer. Une nouvelle façon amusante et rapide de trouver votre prochain film préféré.
+                </CardDescription>
+                <Button size="lg">
+                    Lancer la découverte <ChevronRight className="ml-2 h-5 w-5" />
+                </Button>
+            </CardContent>
+          </div>
+        </Link>
+      </Card>
+
       {isLoaded && toWatchList.length > 0 && (
          <MediaCarousel 
           title="Ma Liste (À Regarder)"
@@ -313,13 +340,6 @@ export default function HomePage() {
           icon={<Eye className="h-7 w-7 text-primary" />}
         />
       )}
-
-      <section>
-          <h2 className="text-2xl md:text-3xl font-bold mb-4 md:mb-6 text-foreground flex items-center gap-3">
-            <Compass className="h-7 w-7 text-primary" /> Mode Découverte
-          </h2>
-          <DiscoveryDeck />
-      </section>
       
       {trending.length > 0 && (
          <MediaCarousel 

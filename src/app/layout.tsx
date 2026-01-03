@@ -75,6 +75,11 @@ export default function RootLayout({
                           <Film className="h-4 w-4" /> Tendances
                         </Button>
                       </Link>
+                       <Link href="/discover" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+                        <Button variant="ghost" className="gap-2 px-4 py-2">
+                            <Compass className="h-4 w-4" /> Découverte
+                        </Button>
+                      </Link>
                       <Link href="/my-lists" className="text_sm font-medium text-foreground hover:text-primary transition-colors">
                         <Button variant="ghost" className="gap-2 px-4 py-2">
                           <Tv className="h-4 w-4" /> Mes Listes
@@ -125,6 +130,13 @@ export default function RootLayout({
                               <Link href="/">
                                 <Button variant="ghost" className="w-full justify-start gap-3 px-3 py-2.5 text-base">
                                   <Film className="h-5 w-5 text-muted-foreground" /> Tendances
+                                </Button>
+                              </Link>
+                            </SheetClose>
+                             <SheetClose asChild>
+                              <Link href="/discover">
+                                <Button variant="ghost" className="w-full justify-start gap-3 px-3 py-2.5 text-base">
+                                  <Compass className="h-5 w-5 text-muted-foreground" /> Découverte
                                 </Button>
                               </Link>
                             </SheetClose>
