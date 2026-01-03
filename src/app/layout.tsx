@@ -25,12 +25,12 @@ export default function RootLayout({
   return (
     <html lang="fr" className="scrollbar-thin" suppressHydrationWarning>
       <head>
-        <title>CinéCollection</title>
+        <title>CinéPrime</title>
         <meta name="description" content="Explorez, collectionnez et analysez vos films et séries préférés. Suivez ce que vous avez vu et ce que vous voulez voir, le tout en un seul endroit." />
-        <meta name="application-name" content="CinéCollection" />
+        <meta name="application-name" content="CinéPrime" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="CinéCollection" />
+        <meta name="apple-mobile-web-app-title" content="CinéPrime" />
         <meta name="format-detection" content="telephone=no" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="msapplication-config" content="/icons/browserconfig.xml" />
@@ -48,7 +48,7 @@ export default function RootLayout({
       <body className={`${GeistSans.variable} ${GeistMono.variable} antialiased flex flex-col min-h-screen`}>
         <ThemeProvider
           defaultTheme="dark"
-          storageKey="cinecollection-ui-theme"
+          storageKey="cineprime-ui-theme"
         >
           <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/80 backdrop-blur-lg">
             <div className="container flex h-20 items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -65,7 +65,7 @@ export default function RootLayout({
                 <>
                   <Link href="/" className="flex items-center gap-2 group mr-auto">
                     <Clapperboard className="h-8 w-8 text-primary transition-transform group-hover:rotate-[-10deg]" />
-                    <span className="text-2xl font-bold text-primary tracking-tight">CinéCollection</span>
+                    <span className="text-2xl font-bold text-primary tracking-tight">CinéPrime</span>
                   </Link>
 
                   <div className="hidden md:flex items-center gap-1">
@@ -170,7 +170,7 @@ export default function RootLayout({
           </main>
           <footer className="border-t border-border/60 bg-transparent py-8">
             <div className="container px-4 text-center text-sm text-muted-foreground md:px-6">
-              CinéCollection - HugoDEVLO - 2025
+              CinéPrime - HugoDEVLO - 2025
             </div>
           </footer>
           <Toaster />

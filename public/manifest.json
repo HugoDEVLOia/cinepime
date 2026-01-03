@@ -1,6 +1,6 @@
 {
-    "name": "CinéCollection",
-    "short_name": "CinéCollection",
+    "name": "CinéPrime",
+    "short_name": "CinéPrime",
     "description": "Explorez, collectionnez et analysez vos films et séries préférés. Suivez ce que vous avez vu et ce que vous voulez voir, le tout en un seul endroit.",
     "start_url": "/",
     "display": "standalone",
