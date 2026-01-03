@@ -22,6 +22,12 @@ const nextConfig: NextConfig = {
         hostname: 'image.tmdb.org',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.cinepulse.org',
+        port: '',
+        pathname: '/**',
       }
     ],
   },
