@@ -588,16 +588,16 @@ export default function MediaDetailsPage() {
         </h2>
         <Card className="shadow-lg rounded-xl p-4 md:p-6 bg-card">
            <CardContent className="p-0 space-y-4">
-              <Button asChild size="lg" className="w-full sm:w-auto bg-[#5865F2] hover:bg-[#4752C4] text-white">
-                <a
-                  href={`https://cinepulse.lol/sheet/${media.mediaType}-${media.id}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center"
-                >
-                  <Image src="https://www.cinepulse.org/fav/favicon-32x32.png" alt="Cinepulse Logo" width={20} height={20} className="mr-2"/>
-                  Cinepulse (Recommandé)
-                </a>
+              <Button asChild size="lg" className="w-full sm:w-auto bg-black hover:bg-gray-800 text-red-400">
+                  <a
+                    href={`https://cinepulse.lol/sheet/${media.mediaType}-${media.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center"
+                  >
+                    <Image src="https://cinepulse.lol/favicons/favicon.svg" alt="Cinepulse Logo" width={20} height={20} className="mr-2"/>
+                    Cinepulse (Recommandé)
+                  </a>
               </Button>
               
               <div className="flex flex-wrap gap-3 pt-4 border-t border-border">
@@ -868,3 +868,4 @@ function getSafeProfileImageUrl(path: string | null | undefined): string {
     
 
     
+

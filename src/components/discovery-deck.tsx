@@ -19,7 +19,7 @@ export default function DiscoveryDeck() {
   const [movies, setMovies] = useState<Media[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [swipeState, setSwipeState] = useState<SwipeState>('loading');
-  const [page, setPage] = useState(Math.floor(Math.random() * 50) + 1);
+  const [page, setPage] = useState(1);
   const [isFlipped, setIsFlipped] = useState(false);
   const [showLinks, setShowLinks] = useState(false);
 
@@ -28,8 +28,11 @@ export default function DiscoveryDeck() {
   const router = useRouter();
 
   const fetchMovies = useCallback(async (pageNum: number) => {
-    if (swipeState === 'loading' && pageNum > 1 && movies.length > 0) return;
-    setSwipeState('loading');
+    // Only set to loading on the very first fetch or when restarting
+    if (movies.length === 0) {
+      setSwipeState('loading');
+    }
+    
     try {
       const { media } = await getPopularMedia('movie', pageNum);
       const newMovies = media.filter(m => m.posterUrl && !m.posterUrl.includes('picsum.photos') && m.backdropUrl && !m.backdropUrl.includes('picsum.photos'));
@@ -44,27 +47,33 @@ export default function DiscoveryDeck() {
     } catch (error) {
       console.error("Erreur lors de la récupération des films:", error);
       toast({ title: "Erreur de chargement", description: "Impossible de récupérer de nouveaux films.", variant: "destructive" });
-      setSwipeState('empty');
+      if (movies.length === 0) {
+        setSwipeState('empty');
+      }
     }
-  }, [toast, swipeState, movies.length]);
+  }, [toast, movies.length]);
+
 
   useEffect(() => {
-    fetchMovies(page);
+    // Fetch initial movies with a random page
+    fetchMovies(Math.floor(Math.random() * 50) + 1);
   }, []);
 
   const currentMovie = useMemo(() => (movies.length > currentIndex ? movies[currentIndex] : null), [movies, currentIndex]);
 
-  const advanceToNextMovie = () => {
+  const advanceToNextMovie = useCallback(() => {
     setIsFlipped(false);
     setShowLinks(false);
-    setCurrentIndex(prev => prev + 1);
-
-    if (currentIndex >= movies.length - 5 && swipeState === 'ready') {
-      const nextPage = Math.floor(Math.random() * 50) + 1;
-      setPage(nextPage);
-      fetchMovies(nextPage);
-    }
-  };
+    setCurrentIndex(prev => {
+      const nextIndex = prev + 1;
+      // Load more movies when we're nearing the end of the current list
+      if (nextIndex >= movies.length - 5 && swipeState === 'ready') {
+        setPage(p => p + 1);
+        fetchMovies(Math.floor(Math.random() * 50) + 1);
+      }
+      return nextIndex;
+    });
+  }, [movies.length, swipeState, fetchMovies]);
   
   const handleLike = useCallback(() => {
     if (!currentMovie) return;
@@ -80,29 +89,17 @@ export default function DiscoveryDeck() {
           description: `${currentMovie.title} est déjà dans votre liste "À Regarder".`,
         });
       }
-      advanceToNextMovie();
   }, [currentMovie, addToList, isInList, toast]);
   
   const handleDoubleClick = () => {
     if (!currentMovie) return;
-     if (!isInList(currentMovie.id, 'toWatch')) {
-        addToList(currentMovie, 'toWatch');
-        toast({
-          title: "Ajouté !",
-          description: `${currentMovie.title} a été ajouté à votre liste "À Regarder".`,
-        });
-      } else {
-         toast({
-          title: "Déjà dans la liste",
-          description: `${currentMovie.title} est déjà dans votre liste "À Regarder".`,
-        });
-      }
+    handleLike();
+    // Maybe add a little heart animation on the poster
   }
 
   const handleRestart = () => {
     setSwipeState('loading');
     setCurrentIndex(0);
-    setPage(Math.floor(Math.random() * 50) + 1);
     setMovies([]);
     fetchMovies(Math.floor(Math.random() * 50) + 1);
   }
@@ -111,17 +108,17 @@ export default function DiscoveryDeck() {
     const yOffset = info.offset.y;
     const xOffset = info.offset.x;
 
-    if (yOffset < -100) {
+    if (yOffset < -150) { // Swipe up
       advanceToNextMovie();
       return;
     }
     
-    if (xOffset < -100) {
+    if (xOffset < -150) { // Swipe left
       if(currentMovie) router.push(`/media/movie/${currentMovie.id}`);
       return;
     }
     
-    if (xOffset > 100) {
+    if (xOffset > 150) { // Swipe right
       setShowLinks(true);
       return;
     }
@@ -140,6 +137,7 @@ export default function DiscoveryDeck() {
   if (swipeState === 'empty' || !currentMovie) {
        return (
         <div className="flex flex-col items-center justify-center text-center p-6 h-full w-full">
+            <div className="absolute inset-0 bg-background -z-10"></div>
             <Tv className="w-24 h-24 text-muted-foreground mb-6" />
             <h3 className="text-2xl font-bold text-foreground mb-3">C'est tout pour le moment !</h3>
             <p className="text-muted-foreground mb-6">Vous avez vu toutes les suggestions. Revenez plus tard.</p>
@@ -155,12 +153,12 @@ export default function DiscoveryDeck() {
        <AnimatePresence>
         {currentMovie && (
         <motion.div
-            key={currentIndex}
+            key={`${currentIndex}-bg`}
             className="absolute inset-0 w-full h-full"
-            initial={{ scale: 0.95, opacity: 0 }}
+            initial={{ scale: 1.05, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            exit={{ y: -50, opacity: 0 }}
-            transition={{ duration: 0.4, ease: "easeOut" }}
+            exit={{ scale: 1.05, opacity: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
         >
             {currentMovie.backdropUrl && (
               <Image
@@ -170,92 +168,84 @@ export default function DiscoveryDeck() {
                 className="object-cover object-center blur-xl scale-110 opacity-30"
               />
             )}
-             <div className="absolute inset-0 bg-background/50"></div>
+             <div className="absolute inset-0 bg-background/60"></div>
         </motion.div>
         )}
        </AnimatePresence>
-      <motion.div
-        className="w-full h-full"
-        drag="y"
-        dragConstraints={{ top: 0, bottom: 0 }}
-        dragElastic={{ top: 0, bottom: 1 }}
-        onDragEnd={handleDragEnd}
+      <div 
+          className="w-full h-full flex items-center justify-center p-4 sm:p-8"
+          onDoubleClick={handleDoubleClick}
       >
-        <div 
-          className="relative w-full h-full flex items-center justify-center"
-        >
-          <AnimatePresence>
-            {currentMovie && (
-            <motion.div 
-              key={currentIndex}
-              id={`discover-card-${currentIndex}`}
-              className="relative w-full h-full max-w-sm max-h-[85vh] sm:max-h-[80vh] active:cursor-grabbing" 
-              drag
-              dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-              dragElastic={{ left: 0.8, right: 0.8, top: 0, bottom: 0.1 }}
-              onDragEnd={handleDragEnd}
-              initial={{ y: 50, opacity: 0 }}
-              animate={{ y: 0, opacity: 1, transition: { delay: 0.2, duration: 0.4 } }}
-              exit={{ scale: 0.9, opacity: 0, transition: { duration: 0.3 } }}
-              style={{ touchAction: 'pan-y' }}
-              onDoubleClick={handleDoubleClick}
-              onClick={(e) => { e.target === e.currentTarget && setIsFlipped(f => !f) }}
+        <AnimatePresence>
+          {currentMovie && (
+          <motion.div 
+            key={currentIndex}
+            id={`discover-card-${currentIndex}`}
+            className="relative w-full h-full max-w-[400px] sm:max-h-[calc(100vh-12rem)] aspect-[2/3] active:cursor-grabbing" 
+            drag
+            dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
+            dragElastic={{ left: 0.5, right: 0.5, top: 0.1, bottom: 0.8 }}
+            onDragEnd={handleDragEnd}
+            initial={{ y: 50, opacity: 0 }}
+            animate={{ y: 0, opacity: 1, transition: { delay: 0.2, duration: 0.4 } }}
+            exit={{ y: -50, opacity: 0, transition: { duration: 0.4 } }}
+            style={{ touchAction: 'pan-y' }}
+          >
+            <motion.div
+              className="relative w-full h-full"
+              style={{ perspective: 1000, transformStyle: "preserve-3d" }}
+              animate={{ rotateY: isFlipped ? 180 : 0 }}
+              transition={{ duration: 0.6, ease: 'easeInOut' }}
             >
+              {/* --- Front (Poster) --- */}
               <motion.div
-                className="relative w-full h-full"
-                style={{ perspective: 1000, transformStyle: "preserve-3d" }}
-                animate={{ rotateY: isFlipped ? 180 : 0 }}
-                transition={{ duration: 0.6, ease: 'easeInOut' }}
+                className="absolute w-full h-full shadow-2xl rounded-2xl overflow-hidden cursor-pointer bg-muted"
+                style={{ backfaceVisibility: "hidden" }}
+                onClick={() => !showLinks && setIsFlipped(f => !f)}
               >
-                {/* --- Front (Poster) --- */}
-                <motion.div
-                  className="absolute w-full h-full shadow-2xl rounded-2xl overflow-hidden cursor-pointer"
-                  style={{ backfaceVisibility: "hidden" }}
-                >
-                    <Image
-                      src={currentMovie.posterUrl}
-                      alt={`Affiche de ${currentMovie.title}`}
-                      fill
-                      className="object-cover"
-                      priority
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent p-6 flex flex-col justify-end text-white">
-                        <div className="space-y-1"> 
-                            <h2 className="text-3xl font-bold drop-shadow-lg leading-tight">{currentMovie.title}</h2>
-                            <div className="flex items-center text-sm gap-3 text-white/90 drop-shadow-sm">
-                                {currentMovie.releaseDate && (
-                                    <div className="flex items-center gap-1.5">
-                                        <CalendarDays className="w-4 h-4" /> 
-                                        <span>{new Date(currentMovie.releaseDate).getFullYear()}</span>
-                                    </div>
-                                )}
-                                <div className="flex items-center gap-1.5">
-                                    <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" /> 
-                                    <span>{currentMovie.averageRating.toFixed(1)}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </motion.div>
+                  <Image
+                    src={currentMovie.posterUrl}
+                    alt={`Affiche de ${currentMovie.title}`}
+                    fill
+                    className="object-cover"
+                    priority
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-6 flex flex-col justify-end text-white">
+                      <div className="space-y-1"> 
+                          <h2 className="text-3xl font-bold drop-shadow-lg leading-tight">{currentMovie.title}</h2>
+                          <div className="flex items-center text-sm gap-3 text-white/90 drop-shadow-sm">
+                              {currentMovie.releaseDate && (
+                                  <div className="flex items-center gap-1.5">
+                                      <CalendarDays className="w-4 h-4" /> 
+                                      <span>{new Date(currentMovie.releaseDate).getFullYear()}</span>
+                                  </div>
+                              )}
+                              <div className="flex items-center gap-1.5">
+                                  <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" /> 
+                                  <span>{currentMovie.averageRating.toFixed(1)}</span>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </motion.div>
 
-                {/* --- Back (Synopsis) --- */}
-                <motion.div
-                   className="absolute w-full h-full bg-card rounded-2xl p-6 flex flex-col items-center justify-center text-center shadow-2xl cursor-pointer"
-                   style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
-                   onClick={() => setIsFlipped(f => !f)}
-                >
-                    <Info className="h-10 w-10 text-primary mb-4"/>
-                    <h3 className="text-xl font-bold text-foreground mb-2">Synopsis</h3>
-                    <p className="text-muted-foreground text-sm overflow-y-auto max-h-[60%] scrollbar-thin">
-                      {currentMovie.description || "Aucune description disponible."}
-                    </p>
-                </motion.div>
+              {/* --- Back (Synopsis) --- */}
+              <motion.div
+                 className="absolute w-full h-full bg-card rounded-2xl p-6 flex flex-col items-center justify-center text-center shadow-2xl cursor-pointer"
+                 style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
+                 onClick={() => setIsFlipped(f => !f)}
+              >
+                  <Info className="h-10 w-10 text-primary mb-4"/>
+                  <h3 className="text-xl font-bold text-foreground mb-2">Synopsis</h3>
+                  <p className="text-muted-foreground text-sm overflow-y-auto max-h-[60%] scrollbar-thin">
+                    {currentMovie.description || "Aucune description disponible."}
+                  </p>
               </motion.div>
             </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </motion.div>
+          </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
 
 
        {/* --- Action bar on the right --- */}
@@ -265,7 +255,7 @@ export default function DiscoveryDeck() {
               className="flex flex-col items-center gap-1 text-white text-xs font-semibold group"
             >
                 <div className="w-14 h-14 rounded-full flex items-center justify-center bg-black/30 backdrop-blur-sm shadow-lg transition-all duration-300 group-hover:bg-red-500/70 group-active:scale-90">
-                    <Heart className="h-7 w-7 text-white transition-transform group-hover:scale-110"/>
+                    <Heart className={cn("h-7 w-7 text-white transition-all", isInList(currentMovie.id, 'toWatch') && "fill-white")}/>
                 </div>
             </button>
             <button 
@@ -308,9 +298,9 @@ export default function DiscoveryDeck() {
                     <h3 className="text-xl font-bold text-center mb-2 text-foreground">Liens pour</h3>
                     <h4 className="text-lg font-semibold text-center mb-6 text-primary truncate max-w-full">{currentMovie.title}</h4>
                     <div className="grid grid-cols-1 gap-3 w-full">
-                         <Button asChild size="lg" className="w-full bg-[#5865F2] hover:bg-[#4752C4] text-white" onClick={() => setShowLinks(false)}>
-                             <a href={`https://cinepulse.lol/sheet/movie-${currentMovie.id}`} target="_blank" rel="noopener noreferrer">
-                                <Image src="https://www.cinepulse.org/fav/favicon-32x32.png" alt="Cinepulse Logo" width={20} height={20} className="mr-2"/>
+                         <Button asChild size="lg" className="w-full bg-black hover:bg-gray-800 text-red-400" onClick={() => setShowLinks(false)}>
+                            <a href={`https://cinepulse.lol/sheet/movie-${currentMovie.id}`} target="_blank" rel="noopener noreferrer" className="flex items-center">
+                                <Image src="https://cinepulse.lol/favicons/favicon.svg" alt="Cinepulse Logo" width={20} height={20} className="mr-2"/>
                                 Cinepulse
                             </a>
                         </Button>

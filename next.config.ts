@@ -28,6 +28,12 @@ const nextConfig: NextConfig = {
         hostname: 'www.cinepulse.org',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cinepulse.lol',
+        port: '',
+        pathname: '/**',
       }
     ],
   },
