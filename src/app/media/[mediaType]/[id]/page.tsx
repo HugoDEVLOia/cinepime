@@ -642,7 +642,7 @@ export default function MediaDetailsPage() {
                         rel="noopener noreferrer"
                         className="flex items-center"
                       >
-                         <Image src="https://anime-sama.tv/img/favicon.ico?v=4" alt="Anime-Sama Logo" width={20} height={20} className="mr-2 rounded-sm"/>
+                         <Image src="https://anime-sama.tv/img/favicon.ico" alt="Anime-Sama Logo" width={20} height={20} className="mr-2 rounded-sm"/>
                         Anime-Sama
                       </a>
                     </Button>
@@ -869,6 +869,7 @@ function getSafeProfileImageUrl(path: string | null | undefined): string {
     
 
     
+
 
 
 

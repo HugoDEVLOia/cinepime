@@ -362,7 +362,7 @@ export default function DiscoveryDeck() {
                         {isAnimation && (
                             <Button asChild size="lg" variant="secondary" onClick={() => setShowLinks(false)}>
                                 <a href={animeSamaUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2">
-                                     <Image src="https://anime-sama.tv/img/favicon.ico?v=4" alt="Anime-Sama Logo" width={20} height={20} className="rounded-sm"/>
+                                     <Image src="https://anime-sama.tv/img/favicon.ico" alt="Anime-Sama Logo" width={20} height={20} className="rounded-sm"/>
                                      Anime-Sama
                                 </a>
                             </Button>
@@ -378,4 +378,3 @@ export default function DiscoveryDeck() {
     </>
   );
 }
-
