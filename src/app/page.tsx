@@ -307,42 +307,33 @@ export default function HomePage() {
 
       <Card className="shadow-lg rounded-2xl overflow-hidden group transition-shadow duration-300 border-border bg-card/60 backdrop-blur-sm">
         <Link href="/discover" className="block hover:bg-primary/5 transition-colors">
-          <div className="flex flex-col md:flex-row items-center relative p-8">
-            <div className="md:w-1/2 relative flex items-center justify-center mb-6 md:mb-0">
-                <Image
-                    src="https://picsum.photos/seed/discover-promo/600/400?blur=1"
-                    alt="Fond abstrait pour le mode découverte"
-                    width={400}
-                    height={400}
-                    className="absolute inset-0 w-full h-full object-cover rounded-full opacity-20 -translate-x-10"
-                    data-ai-hint="fond abstrait"
-                />
-                <div className="relative w-48 h-48 flex items-center justify-center">
-                    <div className="absolute w-40 h-40 bg-primary/20 rounded-full animate-pulse"></div>
-                    <Compass className="h-24 w-24 text-primary drop-shadow-lg transition-transform duration-500 group-hover:rotate-12" />
-                </div>
-                 <div className="absolute top-1/2 left-1/2 w-32 h-48 -translate-x-[70%] -translate-y-[40%] bg-card p-2 rounded-xl shadow-2xl transform -rotate-12 transition-transform duration-500 group-hover:-rotate-20 group-hover:scale-105">
-                     <div className="w-full h-full bg-muted rounded-md flex items-end p-2">
-                        <div>
-                            <div className="h-3 w-20 bg-muted-foreground/30 rounded-sm mb-1.5"></div>
-                            <div className="h-2 w-12 bg-muted-foreground/20 rounded-sm"></div>
+            <div className="flex flex-col md:flex-row items-center relative p-8">
+                <div className="md:w-1/2 relative flex items-center justify-center mb-6 md:mb-0">
+                    <div className="relative w-48 h-48 flex items-center justify-center">
+                        <div className="absolute inset-0 bg-primary/10 rounded-full animate-pulse-slow"></div>
+                        <div className="absolute inset-4 bg-primary/20 rounded-full animate-pulse-slower"></div>
+                        <Compass className="h-24 w-24 text-primary drop-shadow-lg transition-transform duration-500 group-hover:rotate-12" />
+                        <div className="absolute top-0 right-0 bg-card p-2 rounded-xl shadow-lg transform rotate-12 transition-transform duration-500 group-hover:scale-105 group-hover:rotate-6">
+                            <Heart className="w-6 h-6 text-red-500 fill-red-500" />
                         </div>
-                     </div>
-                 </div>
-            </div>
+                        <div className="absolute bottom-0 left-0 bg-card p-2 rounded-xl shadow-lg transform -rotate-12 transition-transform duration-500 group-hover:scale-105 group-hover:-rotate-6">
+                             <X className="w-6 h-6 text-muted-foreground" />
+                        </div>
+                    </div>
+                </div>
 
-            <div className="md:w-1/2 text-center md:text-left">
-              <h2 className="text-3xl font-bold text-foreground mb-3 transition-colors">
-                Explorez avec le <span className="text-primary">Mode Découverte</span>
-              </h2>
-              <p className="text-lg text-muted-foreground mb-6 max-w-md mx-auto md:mx-0">
-                Une nouvelle façon amusante de trouver votre prochain coup de cœur. Double-cliquez pour liker, glissez pour explorer. Simple et intuitif.
-              </p>
-              <Button size="lg">
-                Lancer la découverte <Sparkles className="ml-2 h-5 w-5" />
-              </Button>
+                <div className="md:w-1/2 text-center md:text-left">
+                  <h2 className="text-3xl font-bold text-foreground mb-3 transition-colors">
+                    Explorez avec le <span className="text-primary">Mode Découverte</span>
+                  </h2>
+                  <p className="text-lg text-muted-foreground mb-6 max-w-md mx-auto md:mx-0">
+                    Une nouvelle façon amusante de trouver votre prochain coup de cœur. Double-cliquez pour aimer, glissez pour explorer. Simple et intuitif.
+                  </p>
+                  <Button size="lg">
+                    Lancer la découverte <Sparkles className="ml-2 h-5 w-5" />
+                  </Button>
+                </div>
             </div>
-          </div>
         </Link>
       </Card>
 

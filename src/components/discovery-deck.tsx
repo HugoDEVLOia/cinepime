@@ -1,28 +1,25 @@
 
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import Image from 'next/image';
 import { getPopularMedia, type Media } from '@/services/tmdb';
 import { Button } from '@/components/ui/button';
-import { Loader2, RotateCw, Heart, X, ChevronsRight, ChevronsUp, ChevronsDown, Link as LinkIcon } from 'lucide-react';
+import { Loader2, RotateCw, Heart, X, ChevronsRight, ChevronsUp, ChevronsDown, Link as LinkIcon, Info } from 'lucide-react';
 import { useMediaLists } from '@/hooks/use-media-lists';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useAnimation } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 
 type SwipeState = 'loading' | 'ready' | 'empty';
 
-// Component for the animated icons behind the card
-const GestureIcon = ({ icon: Icon, className, animate }: { icon: React.ElementType, className?: string, animate: any }) => (
+const GestureIcon = ({ icon: Icon, className, controls }: { icon: React.ElementType, className?: string, controls: any }) => (
   <motion.div 
     className={cn("absolute inset-0 flex items-center justify-center -z-10", className)}
     initial={{ scale: 0.5, opacity: 0 }}
-    animate={animate}
-    exit={{ scale: 0.5, opacity: 0 }}
-    transition={{ duration: 0.2 }}
+    animate={controls}
   >
     <div className="w-24 h-24 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center">
       <Icon className="w-12 h-12 text-white" />
@@ -35,13 +32,18 @@ export default function DiscoveryDeck() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [swipeState, setSwipeState] = useState<SwipeState>('loading');
   const [page, setPage] = useState(1);
-  const [direction, setDirection] = useState<string | null>(null);
   const [showLinks, setShowLinks] = useState(false);
+  const [showSynopsis, setShowSynopsis] = useState(false);
   const [liked, setLiked] = useState(false);
 
   const { addToList, isInList } = useMediaLists();
   const { toast } = useToast();
   const router = useRouter();
+  
+  const upControls = useAnimation();
+  const downControls = useAnimation();
+  const leftControls = useAnimation();
+  const rightControls = useAnimation();
 
   const fetchMovies = useCallback(async (pageNum: number) => {
     if (movies.length === 0) setSwipeState('loading');
@@ -74,7 +76,7 @@ export default function DiscoveryDeck() {
   const currentMovie = useMemo(() => (movies.length > currentIndex ? movies[currentIndex] : null), [movies, currentIndex]);
 
   const advanceToNextMovie = useCallback(() => {
-    setDirection('up');
+    if (showSynopsis) setShowSynopsis(false);
     if (currentIndex < movies.length - 1) {
       setCurrentIndex(prev => {
         const nextIndex = prev + 1;
@@ -89,40 +91,60 @@ export default function DiscoveryDeck() {
     } else {
        setSwipeState('empty');
     }
-  }, [currentIndex, movies.length, swipeState, fetchMovies]);
+  }, [currentIndex, movies.length, swipeState, fetchMovies, showSynopsis]);
 
   const goToPreviousMovie = useCallback(() => {
+    if (showSynopsis) setShowSynopsis(false);
     if (currentIndex > 0) {
-      setDirection('down');
       setCurrentIndex(prev => prev - 1);
     }
-  }, [currentIndex]);
+  }, [currentIndex, showSynopsis]);
   
   const handleLike = useCallback(() => {
-    if (!currentMovie) return;
+    if (!currentMovie || showSynopsis) return;
     if (!isInList(currentMovie.id, 'toWatch')) {
       addToList(currentMovie, 'toWatch');
       setLiked(true);
-      setTimeout(() => setLiked(false), 800); // Visual feedback for like
+      setTimeout(() => setLiked(false), 800);
       toast({
         title: "Ajouté !",
         description: `${currentMovie.title} a été ajouté à votre liste "À Regarder".`,
       });
     }
-  }, [currentMovie, addToList, isInList, toast]);
+  }, [currentMovie, addToList, isInList, toast, showSynopsis]);
+
+  const handleDrag = (event: any, info: any) => {
+    const { offset } = info;
+    const opacityThreshold = 30;
+    const getOpacity = (val: number) => Math.min(Math.abs(val) / opacityThreshold, 0.7);
+
+    if (offset.y < 0) upControls.start({ opacity: getOpacity(offset.y) });
+    else upControls.start({ opacity: 0 });
+
+    if (offset.y > 0) downControls.start({ opacity: getOpacity(offset.y) });
+    else downControls.start({ opacity: 0 });
+
+    if (offset.x < 0) leftControls.start({ opacity: getOpacity(offset.x) });
+    else leftControls.start({ opacity: 0 });
+
+    if (offset.x > 0) rightControls.start({ opacity: getOpacity(offset.x) });
+    else rightControls.start({ opacity: 0 });
+  };
 
   const handleDragEnd = (event: any, info: any) => {
-    const { offset, velocity } = info;
+    const { offset } = info;
     const swipeThreshold = 100;
+    
+    [upControls, downControls, leftControls, rightControls].forEach(c => c.start({ opacity: 0, scale: 0.5 }));
 
-    if (offset.x < -swipeThreshold) { // Swipe Left (Details)
-      if(currentMovie) router.push(`/media/movie/${currentMovie.id}`);
-    } else if (offset.x > swipeThreshold) { // Swipe Right (Links)
-      setShowLinks(true);
-    } else if (offset.y < -swipeThreshold) { // Swipe Up (Next)
+    if (offset.y < -swipeThreshold) {
       advanceToNextMovie();
-    } else if (offset.y > swipeThreshold && currentIndex > 0) { // Swipe Down (Previous)
+    } else if (offset.y > swipeThreshold && currentIndex > 0) {
       goToPreviousMovie();
+    } else if (offset.x < -swipeThreshold) {
+      if(currentMovie) router.push(`/media/movie/${currentMovie.id}`);
+    } else if (offset.x > swipeThreshold) {
+      setShowLinks(true);
     }
   };
 
@@ -134,24 +156,22 @@ export default function DiscoveryDeck() {
     fetchMovies(Math.floor(Math.random() * 50) + 1);
   };
   
+  const onTap = (event: any, info: any) => {
+    if (showLinks) return;
+    setShowSynopsis(s => !s);
+  };
+
   const cardVariants = {
-    initial: (dir: string | null) => ({
-      y: dir === 'up' ? 100 : dir === 'down' ? -100 : 0,
-      opacity: 0,
-      scale: 0.95
-    }),
-    animate: {
-      y: 0,
-      opacity: 1,
-      scale: 1,
-      transition: { duration: 0.4, ease: 'easeOut' }
-    },
-    exit: (dir: string | null) => ({
-      y: dir === 'up' ? -100 : dir === 'down' ? 100 : 0,
-      opacity: 0,
-      scale: 0.95,
-      transition: { duration: 0.3, ease: 'easeIn' }
-    })
+    initial: { y: 0, opacity: 0, scale: 0.9 },
+    animate: { y: 0, opacity: 1, scale: 1, transition: { duration: 0.4, ease: 'easeOut' } },
+    exit: (direction: 'up' | 'down' | 'left' | 'right') => {
+      let exitProps = {};
+      if (direction === 'up') exitProps = { y: -300, opacity: 0 };
+      if (direction === 'down') exitProps = { y: 300, opacity: 0 };
+      if (direction === 'left') exitProps = { x: -300, opacity: 0, rotate: -15 };
+      if (direction === 'right') exitProps = { x: 300, opacity: 0, rotate: 15 };
+      return { ...exitProps, transition: { duration: 0.3, ease: 'easeIn' } };
+    }
   };
 
   if (swipeState === 'loading' && movies.length === 0) {
@@ -190,30 +210,57 @@ export default function DiscoveryDeck() {
           </motion.div>
         )}
       </AnimatePresence>
+      
+      <GestureIcon icon={ChevronsUp} className="-top-8" controls={upControls} />
+      <GestureIcon icon={ChevronsDown} className="-bottom-8" controls={downControls} />
+      <GestureIcon icon={ChevronsRight} className="-left-8" controls={leftControls} />
+      <GestureIcon icon={LinkIcon} className="-right-8" controls={rightControls} />
 
       <div className="w-full h-full flex items-center justify-center">
-        <AnimatePresence custom={direction} initial={false}>
+        <AnimatePresence initial={false}>
           {currentMovie && (
             <motion.div
               key={currentIndex}
-              custom={direction}
               className="relative w-full h-full max-w-[400px] max-h-[calc(100vh-12rem)] aspect-[9/16] sm:aspect-[2/3] cursor-grab active:cursor-grabbing"
               variants={cardVariants}
               initial="initial"
               animate="animate"
-              exit="exit"
+              exit={(custom) => cardVariants.exit(custom)}
               drag
               dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-              dragElastic={{ top: 0.5, bottom: 0.5, left: 0.8, right: 0.8 }}
+              dragElastic={{ top: 0.2, bottom: 0.2, left: 0.5, right: 0.5 }}
+              onDrag={handleDrag}
               onDragEnd={handleDragEnd}
               onDoubleClick={handleLike}
+              onTap={onTap}
             >
-              <motion.div className="w-full h-full shadow-2xl rounded-2xl overflow-hidden bg-muted relative">
-                <Image src={currentMovie.posterUrl} alt={`Affiche de ${currentMovie.title}`} fill className="object-cover" priority />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-6 flex flex-col justify-end text-white">
-                  <h2 className="text-3xl font-bold drop-shadow-lg leading-tight">{currentMovie.title}</h2>
-                  <p className="text-sm text-white/80 drop-shadow-sm">{currentMovie.releaseDate ? new Date(currentMovie.releaseDate).getFullYear() : ''}</p>
-                </div>
+              <motion.div 
+                className="w-full h-full shadow-2xl rounded-2xl bg-muted relative"
+                style={{ transformStyle: 'preserve-3d' }}
+                animate={{ rotateY: showSynopsis ? 180 : 0 }}
+                transition={{ duration: 0.6 }}
+              >
+                {/* Face avant */}
+                <motion.div className="absolute w-full h-full" style={{ backfaceVisibility: 'hidden' }}>
+                    <Image src={currentMovie.posterUrl} alt={`Affiche de ${currentMovie.title}`} fill className="object-cover rounded-2xl" priority />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-6 flex flex-col justify-end text-white rounded-2xl">
+                        <h2 className="text-3xl font-bold drop-shadow-lg leading-tight">{currentMovie.title}</h2>
+                        <p className="text-sm text-white/80 drop-shadow-sm">{currentMovie.releaseDate ? new Date(currentMovie.releaseDate).getFullYear() : ''}</p>
+                    </div>
+                </motion.div>
+                
+                {/* Face arrière */}
+                <motion.div 
+                    className="absolute w-full h-full bg-card p-6 rounded-2xl overflow-y-auto"
+                    style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
+                >
+                   <h3 className="text-2xl font-bold mb-3 text-foreground">{currentMovie.title}</h3>
+                   <div className="flex flex-wrap gap-2 mb-4">
+                      {currentMovie.genres?.slice(0, 3).map(g => <span key={g.id} className="text-xs bg-primary/10 text-primary-foreground font-semibold px-2 py-1 rounded-full">{g.name}</span>)}
+                   </div>
+                   <p className="text-sm text-muted-foreground">{currentMovie.description}</p>
+                </motion.div>
+                 
                  <AnimatePresence>
                   {liked && (
                     <motion.div
@@ -228,11 +275,6 @@ export default function DiscoveryDeck() {
                   )}
                 </AnimatePresence>
               </motion.div>
-              {/* Visual cues for gestures */}
-              <motion.div style={{ opacity: direction === 'up' ? 1 : 0 }}><GestureIcon icon={ChevronsUp} className="top-8" animate={{ y: -50, opacity: [0, 0.7, 0] }} /></motion.div>
-              <motion.div style={{ opacity: direction === 'down' ? 1 : 0 }}><GestureIcon icon={ChevronsDown} className="bottom-8" animate={{ y: 50, opacity: [0, 0.7, 0] }} /></motion.div>
-              <motion.div style={{ opacity: direction === 'left' ? 1 : 0 }}><GestureIcon icon={ChevronsRight} className="left-8" animate={{ x: -50, opacity: [0, 0.7, 0] }} /></motion.div>
-              <motion.div style={{ opacity: direction === 'right' ? 1 : 0 }}><GestureIcon icon={LinkIcon} className="right-8" animate={{ x: 50, opacity: [0, 0.7, 0] }} /></motion.div>
             </motion.div>
           )}
         </AnimatePresence>
