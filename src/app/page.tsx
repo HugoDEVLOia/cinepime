@@ -15,7 +15,7 @@ import {
 import { useMediaLists } from '@/hooks/use-media-lists';
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ServerCrash, Star, CalendarDays, Clapperboard, Flame, Tv, Film, Eye, Ghost, Laugh, Rocket, PencilRuler, HeartPulse, Bomb, ShieldQuestion, ChevronLeft, ChevronRight, Heart, Coffee, Compass } from 'lucide-react';
+import { ServerCrash, Star, CalendarDays, Clapperboard, Flame, Tv, Film, Eye, Ghost, Laugh, Rocket, PencilRuler, HeartPulse, Bomb, ShieldQuestion, ChevronLeft, ChevronRight, Heart, Coffee, Compass, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import MediaCarousel from '@/components/media-carousel';
@@ -305,32 +305,48 @@ export default function HomePage() {
         </section>
       )}
 
-      <Card className="shadow-lg rounded-xl overflow-hidden group hover:shadow-2xl transition-shadow duration-300 border-2 border-primary/50 bg-card">
-          <Link href="/discover">
-            <div className="flex flex-col md:flex-row items-center">
-                <div className="relative h-48 w-full md:h-full md:w-1/2">
-                    <Image
-                        src="https://picsum.photos/seed/discover-promo/600/400"
-                        alt="Mode découverte"
-                        fill
-                        className="object-cover transition-transform duration-300 group-hover:scale-105"
-                        data-ai-hint="découverte film"
-                    />
-                     <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                        <Compass className="h-20 w-20 text-white/80" />
-                     </div>
+       <Card className="shadow-lg rounded-2xl overflow-hidden group transition-shadow duration-300 border-border bg-card/60 backdrop-blur-sm">
+        <Link href="/discover" className="block hover:bg-primary/5 transition-colors">
+          <div className="flex flex-col md:flex-row items-center relative p-8">
+            <div className="md:w-1/2 relative flex items-center justify-center mb-6 md:mb-0">
+                {/* Background Image */}
+                <Image
+                    src="https://picsum.photos/seed/discover-promo/600/400?blur=1"
+                    alt="Fond abstrait"
+                    width={400}
+                    height={400}
+                    className="absolute inset-0 w-full h-full object-cover rounded-full opacity-20 -translate-x-10"
+                    data-ai-hint="fond abstrait"
+                />
+                {/* Central Icon */}
+                <div className="relative w-48 h-48 flex items-center justify-center">
+                    <div className="absolute w-40 h-40 bg-primary/20 rounded-full animate-pulse"></div>
+                    <Compass className="h-24 w-24 text-primary drop-shadow-lg transition-transform duration-500 group-hover:rotate-12" />
                 </div>
-                <CardContent className="p-8 text-center md:text-left md:w-1/2">
-                    <CardTitle className="text-3xl font-bold text-foreground mb-3 group-hover:text-primary transition-colors">Testez le Mode Découverte !</CardTitle>
-                    <CardDescription className="text-lg mb-6">
-                        Glissez à droite pour ajouter à votre liste, à gauche pour ignorer. Trouvez votre prochain film préféré de manière ludique et rapide.
-                    </CardDescription>
-                    <Button size="lg">
-                        Lancer la découverte <ChevronRight className="ml-2 h-5 w-5" />
-                    </Button>
-                </CardContent>
-              </div>
-          </Link>
+                 {/* Decorative card */}
+                 <div className="absolute top-1/2 left-1/2 w-32 h-48 -translate-x-[70%] -translate-y-[40%] bg-card p-2 rounded-xl shadow-2xl transform -rotate-12 transition-transform duration-500 group-hover:-rotate-20 group-hover:scale-105">
+                     <div className="w-full h-full bg-muted rounded-md flex items-end p-2">
+                        <div>
+                            <div className="h-3 w-20 bg-muted-foreground/30 rounded-sm mb-1.5"></div>
+                            <div className="h-2 w-12 bg-muted-foreground/20 rounded-sm"></div>
+                        </div>
+                     </div>
+                 </div>
+            </div>
+
+            <div className="md:w-1/2 text-center md:text-left">
+              <h2 className="text-3xl font-bold text-foreground mb-3 transition-colors">
+                Explorez avec le <span className="text-primary">Mode Découverte</span>
+              </h2>
+              <p className="text-lg text-muted-foreground mb-6 max-w-md mx-auto md:mx-0">
+                Une nouvelle façon amusante de trouver votre prochain coup de cœur. Double-cliquez pour liker, glissez pour explorer. Simple et intuitif.
+              </p>
+              <Button size="lg">
+                Lancer la découverte <Sparkles className="ml-2 h-5 w-5" />
+              </Button>
+            </div>
+          </div>
+        </Link>
       </Card>
 
 
