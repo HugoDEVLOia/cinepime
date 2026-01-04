@@ -13,7 +13,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 224 71.4% 4.1%;
     
-    --primary: 217 91.2% 59.8%; /* Soft pastel blue */
+    --primary: 0 84.2% 60.2%; /* Vibrant Red */
     --primary-foreground: 210 20% 98%;
     
     --secondary: 220 14.3% 95.9%;
@@ -30,7 +30,7 @@
     
     --border: 220 13% 91%;
     --input: 220 13% 91%;
-    --ring: 217 91.2% 59.8%;
+    --ring: 0 84.2% 60.2%;
     
     --radius: 1.25rem; /* Increased for a more rounded feel */
 
@@ -51,7 +51,7 @@
     --popover: 224 71.4% 4.1%;
     --popover-foreground: 210 20% 98%;
     
-    --primary: 217.2 91.2% 59.8%;
+    --primary: 0 72.2% 50.6%; /* Slightly darker red for dark mode */
     --primary-foreground: 210 20% 98%;
     
     --secondary: 215 27.9% 16.9%;
@@ -68,7 +68,7 @@
     
     --border: 215 27.9% 16.9%;
     --input: 215 27.9% 16.9%;
-    --ring: 217.2 91.2% 59.8%;
+    --ring: 0 72.2% 50.6%;
     
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
