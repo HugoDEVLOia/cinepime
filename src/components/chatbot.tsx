@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from '@/components/ui/sheet';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { MessageSquareText, Send, Bot, User, Loader2, ThumbsUp } from 'lucide-react';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { getPopularMedia } from '@/services/tmdb';
 import Link from 'next/link';
@@ -57,7 +57,7 @@ const RATINGS = ["8", "7", "6", "5", "Peu importe"];
 
 const QUIZ_QUESTIONS: Record<Exclude<QuizState, 'initial' | 'results' | 'finished'>, { question: string; options: QuizOption[] }> = {
   type: {
-    question: "Bonjour ! Je suis CinéConseiller. Je vais vous poser quelques questions pour trouver votre film ou série idéal(e).\n\nCommençons : cherchez-vous un **Film** ou une **Série** ?",
+    question: "Salut ! 👋 Je suis CinéConseiller, votre guide personnel.\n\nJe vais vous aider à trouver la perle rare. Commençons : cherchez-vous un **Film** ou une **Série** ?",
     options: [{ value: 'movie', label: 'Film' }, { value: 'tv', label: 'Série' }]
   },
   genre: {
@@ -297,15 +297,15 @@ export default function Chatbot() {
         onClick={() => setIsOpen(true)}
         aria-label="Ouvrir le chatbot CinéConseiller"
       >
-        <MessageSquareText className="h-8 w-8 transition-transform group-hover:rotate-[5deg]" />
+        <Image src="/icon/mascotte.svg" alt="CinéConseiller" width={32} height={32} className="transition-transform group-hover:rotate-[5deg]" />
       </Button>
 
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetContent className="w-full sm:max-w-lg flex flex-col p-0 bg-background shadow-2xl" side="right">
           <SheetHeader className="p-4 border-b border-border sticky top-0 bg-background z-10">
             <SheetTitle className="flex items-center gap-2.5 text-lg font-semibold text-foreground">
-              <Bot className="h-6 w-6 text-primary" />
-              CinéConseiller (Quiz)
+              <Image src="/icon/mascotte.svg" alt="CinéConseiller" width={24} height={24}/>
+              CinéConseiller
             </SheetTitle>
           </SheetHeader>
           
@@ -320,6 +320,7 @@ export default function Chatbot() {
               >
                 {msg.role === 'model' && (
                   <Avatar className="h-9 w-9 shrink-0">
+                    <AvatarImage src="/icon/mascotte.svg" alt="CinéConseiller" />
                     <AvatarFallback className="bg-primary text-primary-foreground text-sm">
                       <Bot size={20} />
                     </AvatarFallback>
@@ -350,6 +351,7 @@ export default function Chatbot() {
             {isLoading && (
               <div className="flex items-start justify-start gap-3">
                  <Avatar className="h-9 w-9 shrink-0">
+                    <AvatarImage src="/icon/mascotte.svg" alt="CinéConseiller" />
                     <AvatarFallback className="bg-primary text-primary-foreground text-sm">
                       <Bot size={20} />
                     </AvatarFallback>
