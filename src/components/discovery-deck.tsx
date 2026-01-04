@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
@@ -337,7 +338,7 @@ export default function DiscoveryDeck() {
                               target="_blank"
                               rel="noopener noreferrer"
                           >
-                              <Image src="https://xalaflix.men/upload/images/logo/4.0.png" alt="Xalaflix Logo" width={20} height={20} className="rounded-sm"/>
+                              <Image src="https://xalaflix.men/upload/images/logo/1.png" alt="Xalaflix Logo" width={20} height={20} className="rounded-sm"/>
                               Xalaflix
                           </a>
                         </Button>
@@ -359,7 +360,10 @@ export default function DiscoveryDeck() {
                         </Button>
                         {isAnimation && (
                             <Button asChild size="lg" variant="secondary" onClick={() => setShowLinks(false)}>
-                                <a href={`https://anime-sama.fr/catalogue/${currentMovie.title.toLowerCase().replace(/[\\s:]/g, '-')}`} target="_blank" rel="noopener noreferrer">Anime-Sama <ExternalLink className="ml-2 h-4 w-4"/></a>
+                                <a href={`https://anime-sama.fr/catalogue/${currentMovie.title.toLowerCase().replace(/[\\s:]/g, '-')}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2">
+                                     <Image src="https://anime-sama.tv/img/favicon.ico?v=4" alt="Anime-Sama Logo" width={20} height={20} className="rounded-sm"/>
+                                     Anime-Sama
+                                </a>
                             </Button>
                         )}
                     </div>
@@ -373,3 +377,4 @@ export default function DiscoveryDeck() {
     </>
   );
 }
+

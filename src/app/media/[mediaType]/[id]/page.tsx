@@ -615,7 +615,7 @@ export default function MediaDetailsPage() {
                           rel="noopener noreferrer"
                           className="flex items-center"
                       >
-                          <Image src="https://xalaflix.men/upload/images/logo/4.0.png" alt="Xalaflix Logo" width={20} height={20} className="mr-2 rounded-sm"/>
+                          <Image src="https://xalaflix.men/upload/images/logo/1.png" alt="Xalaflix Logo" width={20} height={20} className="mr-2 rounded-sm"/>
                           Xalaflix
                       </a>
                   </Button>
@@ -640,7 +640,8 @@ export default function MediaDetailsPage() {
                         rel="noopener noreferrer"
                         className="flex items-center"
                       >
-                        Anime-Sama <ExternalLink className="ml-2 h-4 w-4" />
+                         <Image src="https://anime-sama.tv/img/favicon.ico?v=4" alt="Anime-Sama Logo" width={20} height={20} className="mr-2 rounded-sm"/>
+                        Anime-Sama
                       </a>
                     </Button>
                   )}
@@ -866,6 +867,7 @@ function getSafeProfileImageUrl(path: string | null | undefined): string {
     
 
     
+
 
 
 
