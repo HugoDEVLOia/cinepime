@@ -124,7 +124,7 @@ export default function SettingsPage() {
       }
     } catch (error) {
       console.error("Erreur lors de l'importation depuis le code :", error);
-      let errorMessage = "Un problème est survenu lors du traitement du code. Assurez-vous qu'il s'agit d'un code valide exporté depuis CinéCollection.";
+      let errorMessage = "Un problème est survenu lors du traitement du code. Assurez-vous qu'il s'agit d'un code valide exporté depuis CinéPrime.";
       if (error instanceof Error) {
         if (error.message.includes("not correctly encoded") || error.name === "InvalidCharacterError" || error.message.toLowerCase().includes("the string to be decoded is not correctly encoded") || error.message.toLowerCase().includes("failed to execute 'atob'")) {
             errorMessage = "Le code fourni n'est pas un code Base64 valide ou est corrompu.";
@@ -160,7 +160,7 @@ export default function SettingsPage() {
             <Heart className="h-6 w-6 text-primary"/>Soutenir le projet
           </CardTitle>
           <CardDescription>
-            CinéCollection est un projet personnel développé avec passion. Si vous appréciez l'application, vous pouvez soutenir son développement et aider à couvrir les frais avec un don. Chaque contribution, même la plus modeste, est grandement appréciée !
+            CinéPrime est un projet personnel développé avec passion. Si vous appréciez l'application, vous pouvez soutenir son développement et aider à couvrir les frais avec un don. Chaque contribution, même la plus modeste, est grandement appréciée !
           </CardDescription>
         </CardHeader>
         <CardContent>

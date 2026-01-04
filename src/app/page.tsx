@@ -372,10 +372,10 @@ export default function HomePage() {
 
       <Card className="bg-card border-border shadow-lg rounded-xl">
         <CardHeader className="text-center">
-            <div className="mx-auto bg-primary/10 p-3 rounded-full mb-3">
-                <Heart className="h-8 w-8 text-primary"/>
+            <div className="mx-auto w-24 h-24 p-3 rounded-full mb-3">
+                 <Image src="/icon/mascotte_tips.svg" alt="Mascotte Popito" width={96} height={96} />
             </div>
-            <CardTitle className="text-2xl font-bold text-foreground">Soutenez CinéCollection !</CardTitle>
+            <CardTitle className="text-2xl font-bold text-foreground">Soutenez CinéPrime !</CardTitle>
             <CardDescription className="text-muted-foreground max-w-xl mx-auto">
              C'est grâce à vos dons que nous pouvons garder ce site gratuit et sans aucune publicité. Chaque contribution, même la plus petite, fait une grande différence. Merci !
             </CardDescription>
@@ -508,4 +508,5 @@ const HomePageSkeleton = () => (
 );
 
     
+
 

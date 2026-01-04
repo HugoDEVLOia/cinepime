@@ -28,7 +28,7 @@ const ThemeProviderContext = createContext<ThemeProviderState>(initialState as T
 export function ThemeProvider({
   children,
   defaultTheme = 'dark',
-  storageKey = 'cinecollection-ui-theme',
+  storageKey = 'cineprime-ui-theme',
 }: ThemeProviderProps) {
   const [theme, setThemeState] = useState<Theme>(() => {
     if (typeof window === 'undefined') {
