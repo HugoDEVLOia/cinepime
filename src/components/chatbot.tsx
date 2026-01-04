@@ -57,7 +57,7 @@ const RATINGS = ["8", "7", "6", "5", "Peu importe"];
 
 const QUIZ_QUESTIONS: Record<Exclude<QuizState, 'initial' | 'results' | 'finished'>, { question: string; options: QuizOption[] }> = {
   type: {
-    question: "Salut ! 👋 Je suis Popito, votre guide personnel.\n\nJe vais vous aider à trouver la perle rare. Commençons : cherchez-vous un **Film** ou une **Série** ?",
+    question: "Salut ! 👋 Je suis Popito, votre guide personnel pour trouver la perle rare.\n\nCommençons : cherchez-vous un **Film** ou une **Série** ?",
     options: [{ value: 'movie', label: 'Film' }, { value: 'tv', label: 'Série' }]
   },
   genre: {
@@ -138,60 +138,37 @@ export default function Chatbot() {
     if (isOpen && quizState === 'initial') {
         startQuiz();
     }
-  }, [isOpen]);
+  }, [isOpen, quizState]);
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen || isLoading) return;
 
-    const askQuestion = async (state: QuizState) => {
-      let questionData;
-      switch(state) {
-        case 'type':
-          questionData = QUIZ_QUESTIONS.type;
-          break;
-        case 'genre':
-          questionData = QUIZ_QUESTIONS.genre;
-          break;
-        case 'decade':
-          questionData = QUIZ_QUESTIONS.decade;
-          break;
-        case 'popularity':
-          questionData = QUIZ_QUESTIONS.popularity;
-          break;
-        case 'rating':
-          questionData = QUIZ_QUESTIONS.rating;
-          break;
-        case 'results':
-            setIsLoading(true);
-            await findResults(answers);
-            setIsLoading(false);
-            return;
-        default:
-          return;
-      }
-      
-      addMessage('model', 
-        <div>
-          <p className="whitespace-pre-wrap">{questionData.question}</p>
-          {createOptionButtons(questionData.options, (value, label) => handleAnswer(value, label))}
-        </div>
-      );
-    }
+    const currentQuestionKey = quizState as keyof typeof QUIZ_QUESTIONS;
+    const lastMessage = messages[messages.length - 1];
     
-    // Only ask question if it's the beginning of a new state for the bot
-    if (messages.length === 0 || (messages[messages.length - 1]?.role === 'user' && !isLoading)) {
-      askQuestion(quizState);
+    // Only ask a question if the state requires it and if the last message was from the user or if it's the first message.
+    if (QUIZ_QUESTIONS[currentQuestionKey] && (messages.length === 0 || (lastMessage && lastMessage.role === 'user'))) {
+        const questionData = QUIZ_QUESTIONS[currentQuestionKey];
+        addMessage('model', 
+            <div>
+                <p className="whitespace-pre-wrap">{questionData.question}</p>
+                {createOptionButtons(questionData.options, (value, label) => handleAnswer(value, label))}
+            </div>
+        );
+    } else if (quizState === 'results' && lastMessage && lastMessage.role === 'user') {
+        setIsLoading(true);
+        findResults(answers);
     }
-  }, [quizState, isOpen, messages, isLoading]);
+  }, [quizState, isOpen, messages, isLoading, answers]);
 
 
   const handleAnswer = (value: string, label: string) => {
     if (isLoading) return;
-    setIsLoading(true);
     addMessage('user', label);
+    setIsLoading(true);
 
-    const newAnswers = { ...answers };
     let nextState: QuizState = quizState;
+    const newAnswers = { ...answers };
 
     switch (quizState) {
         case 'type':
@@ -199,8 +176,7 @@ export default function Chatbot() {
             nextState = 'genre';
             break;
         case 'genre':
-            const selectedGenre = GENRES.find(g => g.name === value);
-            if (selectedGenre) newAnswers.genre = selectedGenre;
+            newAnswers.genre = GENRES.find(g => g.name === value) || null;
             nextState = 'decade';
             break;
         case 'decade':
@@ -235,9 +211,10 @@ export default function Chatbot() {
       );
       
       try {
+        const randomPage = Math.floor(Math.random() * 20) + 1; // Pick a random page from 1 to 20 for more diversity
         const results = await getPopularMedia(
             finalAnswers.mediaType!, 
-            1, 
+            randomPage,
             undefined, 
             finalAnswers.genre?.id, 
             finalAnswers.decade ? parseInt(finalAnswers.decade) : undefined,
@@ -272,13 +249,16 @@ export default function Chatbot() {
             );
             addMessage('model', resultMessage);
         } else {
-            addMessage('model', "Oups, je n'ai pas trouvé assez de résultats avec ces critères. Essayons avec des choix différents !");
+            addMessage('model', "Oups, je n'ai pas trouvé assez de résultats avec ces critères. Relançons une recherche !");
+            // Automatically restart if no results
+            setTimeout(startQuiz, 2000);
         }
 
     } catch (error) {
         console.error("Erreur lors de la recherche TMDB:", error);
         addMessage('model', "Désolé, une erreur s'est produite lors de la recherche. Veuillez réessayer.");
     } finally {
+      setIsLoading(false);
       setQuizState('finished');
     }
   };
@@ -348,7 +328,7 @@ export default function Chatbot() {
                 )}
               </div>
             ))}
-            {isLoading && (
+            {isLoading && quizState !== 'results' && (
               <div className="flex items-start justify-start gap-3">
                  <Avatar className="h-9 w-9 shrink-0">
                     <AvatarImage src="/icon/mascotte.svg" alt="Popito" />
