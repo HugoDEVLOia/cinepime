@@ -367,6 +367,8 @@ export default function MediaDetailsPage() {
   const isWatched = isInList(media.id, 'watched');
   const trailerToDisplay = findBestTrailer(media.videos);
   const isAnimation = media.genres?.some(g => g.id === 16);
+  const animeSamaUrl = `https://anime-sama.tv/catalogue/${media.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}/`;
+
 
   const handleToggleList = async (listType: 'toWatch' | 'watched') => {
     if (!media) return;
@@ -635,7 +637,7 @@ export default function MediaDetailsPage() {
                   {isAnimation && (
                     <Button asChild variant="secondary">
                       <a 
-                        href={`https://anime-sama.tv/`}
+                        href={animeSamaUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center"
@@ -867,6 +869,7 @@ function getSafeProfileImageUrl(path: string | null | undefined): string {
     
 
     
+
 
 
 

@@ -127,6 +127,7 @@ export default function DiscoveryDeck() {
   };
   
   const isAnimation = currentMovie?.genres?.some(g => g.id === 16);
+  const animeSamaUrl = currentMovie ? `https://anime-sama.tv/catalogue/${currentMovie.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}/` : '#';
 
   if (swipeState === 'loading' && movies.length === 0) {
       return (
@@ -360,7 +361,7 @@ export default function DiscoveryDeck() {
                         </Button>
                         {isAnimation && (
                             <Button asChild size="lg" variant="secondary" onClick={() => setShowLinks(false)}>
-                                <a href={`https://anime-sama.tv/`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2">
+                                <a href={animeSamaUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2">
                                      <Image src="https://anime-sama.tv/img/favicon.ico?v=4" alt="Anime-Sama Logo" width={20} height={20} className="rounded-sm"/>
                                      Anime-Sama
                                 </a>
