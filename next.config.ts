@@ -46,6 +46,12 @@ const nextConfig: NextConfig = {
         hostname: 'purstream.to',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'anime-sama.tv',
+        port: '',
+        pathname: '/**',
       }
     ],
   },
