@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getPopularMedia, getMediaDetails, type Media } from '@/services/tmdb';
-import { Gamepad2, Trophy, ArrowRight, RotateCw, Home, Loader2, Info, CheckCircle } from 'lucide-react';
+import { Gamepad2, Trophy, ArrowRight, RotateCw, Home, Loader2, Info, CheckCircle, Puzzle } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { AnimatePresence, motion } from 'framer-motion';
