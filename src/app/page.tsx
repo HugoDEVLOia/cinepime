@@ -305,25 +305,22 @@ export default function HomePage() {
         </section>
       )}
 
-       <Card className="shadow-lg rounded-2xl overflow-hidden group transition-shadow duration-300 border-border bg-card/60 backdrop-blur-sm">
+      <Card className="shadow-lg rounded-2xl overflow-hidden group transition-shadow duration-300 border-border bg-card/60 backdrop-blur-sm">
         <Link href="/discover" className="block hover:bg-primary/5 transition-colors">
           <div className="flex flex-col md:flex-row items-center relative p-8">
             <div className="md:w-1/2 relative flex items-center justify-center mb-6 md:mb-0">
-                {/* Background Image */}
                 <Image
                     src="https://picsum.photos/seed/discover-promo/600/400?blur=1"
-                    alt="Fond abstrait"
+                    alt="Fond abstrait pour le mode découverte"
                     width={400}
                     height={400}
                     className="absolute inset-0 w-full h-full object-cover rounded-full opacity-20 -translate-x-10"
                     data-ai-hint="fond abstrait"
                 />
-                {/* Central Icon */}
                 <div className="relative w-48 h-48 flex items-center justify-center">
                     <div className="absolute w-40 h-40 bg-primary/20 rounded-full animate-pulse"></div>
                     <Compass className="h-24 w-24 text-primary drop-shadow-lg transition-transform duration-500 group-hover:rotate-12" />
                 </div>
-                 {/* Decorative card */}
                  <div className="absolute top-1/2 left-1/2 w-32 h-48 -translate-x-[70%] -translate-y-[40%] bg-card p-2 rounded-xl shadow-2xl transform -rotate-12 transition-transform duration-500 group-hover:-rotate-20 group-hover:scale-105">
                      <div className="w-full h-full bg-muted rounded-md flex items-end p-2">
                         <div>
@@ -518,3 +515,5 @@ const HomePageSkeleton = () => (
     ))}
   </div>
 );
+
+    
