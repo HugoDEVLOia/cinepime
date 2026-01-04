@@ -635,7 +635,7 @@ export default function MediaDetailsPage() {
                   {isAnimation && (
                     <Button asChild variant="secondary">
                       <a 
-                        href={`https://anime-sama.fr/catalogue/${media.title.toLowerCase().replace(/[\s:]/g, '-')}`}
+                        href={`https://anime-sama.tv/`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center"
@@ -867,6 +867,7 @@ function getSafeProfileImageUrl(path: string | null | undefined): string {
     
 
     
+
 
 
 

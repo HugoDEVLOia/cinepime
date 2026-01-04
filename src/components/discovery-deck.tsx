@@ -360,7 +360,7 @@ export default function DiscoveryDeck() {
                         </Button>
                         {isAnimation && (
                             <Button asChild size="lg" variant="secondary" onClick={() => setShowLinks(false)}>
-                                <a href={`https://anime-sama.fr/catalogue/${currentMovie.title.toLowerCase().replace(/[\\s:]/g, '-')}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2">
+                                <a href={`https://anime-sama.tv/`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2">
                                      <Image src="https://anime-sama.tv/img/favicon.ico?v=4" alt="Anime-Sama Logo" width={20} height={20} className="rounded-sm"/>
                                      Anime-Sama
                                 </a>
