@@ -57,7 +57,7 @@ const RATINGS = ["8", "7", "6", "5", "Peu importe"];
 
 const QUIZ_QUESTIONS: Record<Exclude<QuizState, 'initial' | 'results' | 'finished'>, { question: string; options: QuizOption[] }> = {
   type: {
-    question: "Salut ! 👋 Je suis CinéConseiller, votre guide personnel.\n\nJe vais vous aider à trouver la perle rare. Commençons : cherchez-vous un **Film** ou une **Série** ?",
+    question: "Salut ! 👋 Je suis Popito, votre guide personnel.\n\nJe vais vous aider à trouver la perle rare. Commençons : cherchez-vous un **Film** ou une **Série** ?",
     options: [{ value: 'movie', label: 'Film' }, { value: 'tv', label: 'Série' }]
   },
   genre: {
@@ -131,22 +131,21 @@ export default function Chatbot() {
    const startQuiz = () => {
     setMessages([]);
     setAnswers({ mediaType: null, genre: null, decade: null, popularity: null, rating: null });
-    setQuizState('initial');
+    setQuizState('type');
   };
-
+  
   useEffect(() => {
     if (isOpen && quizState === 'initial') {
         startQuiz();
-        setQuizState('type');
     }
-  }, [isOpen, quizState]);
+  }, [isOpen]);
 
   useEffect(() => {
-    if (!isOpen || isLoading) return;
+    if (!isOpen) return;
 
-    const askQuestion = async () => {
+    const askQuestion = async (state: QuizState) => {
       let questionData;
-      switch(quizState) {
+      switch(state) {
         case 'type':
           questionData = QUIZ_QUESTIONS.type;
           break;
@@ -179,10 +178,11 @@ export default function Chatbot() {
       );
     }
     
-    if (['type', 'genre', 'decade', 'popularity', 'rating', 'results'].includes(quizState)) {
-      askQuestion();
+    // Only ask question if it's the beginning of a new state for the bot
+    if (messages.length === 0 || (messages[messages.length - 1]?.role === 'user' && !isLoading)) {
+      askQuestion(quizState);
     }
-  }, [quizState, isOpen, isLoading]);
+  }, [quizState, isOpen, messages, isLoading]);
 
 
   const handleAnswer = (value: string, label: string) => {
@@ -295,17 +295,17 @@ export default function Chatbot() {
         size="icon"
         className="fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-2xl z-50 flex items-center justify-center group hover:scale-105 transition-transform"
         onClick={() => setIsOpen(true)}
-        aria-label="Ouvrir le chatbot CinéConseiller"
+        aria-label="Ouvrir le chatbot Popito"
       >
-        <Image src="/icon/mascotte.svg" alt="CinéConseiller" width={32} height={32} className="transition-transform group-hover:rotate-[5deg]" />
+        <Image src="/icon/mascotte.svg" alt="Popito" width={32} height={32} className="transition-transform group-hover:rotate-[5deg]" />
       </Button>
 
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetContent className="w-full sm:max-w-lg flex flex-col p-0 bg-background shadow-2xl" side="right">
           <SheetHeader className="p-4 border-b border-border sticky top-0 bg-background z-10">
             <SheetTitle className="flex items-center gap-2.5 text-lg font-semibold text-foreground">
-              <Image src="/icon/mascotte.svg" alt="CinéConseiller" width={24} height={24}/>
-              CinéConseiller
+              <Image src="/icon/mascotte.svg" alt="Popito" width={24} height={24}/>
+              Popito
             </SheetTitle>
           </SheetHeader>
           
@@ -320,7 +320,7 @@ export default function Chatbot() {
               >
                 {msg.role === 'model' && (
                   <Avatar className="h-9 w-9 shrink-0">
-                    <AvatarImage src="/icon/mascotte.svg" alt="CinéConseiller" />
+                    <AvatarImage src="/icon/mascotte.svg" alt="Popito" />
                     <AvatarFallback className="bg-primary text-primary-foreground text-sm">
                       <Bot size={20} />
                     </AvatarFallback>
@@ -351,7 +351,7 @@ export default function Chatbot() {
             {isLoading && (
               <div className="flex items-start justify-start gap-3">
                  <Avatar className="h-9 w-9 shrink-0">
-                    <AvatarImage src="/icon/mascotte.svg" alt="CinéConseiller" />
+                    <AvatarImage src="/icon/mascotte.svg" alt="Popito" />
                     <AvatarFallback className="bg-primary text-primary-foreground text-sm">
                       <Bot size={20} />
                     </AvatarFallback>
