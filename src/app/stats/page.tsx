@@ -360,9 +360,14 @@ export default function StatsPage() {
   return (
     <div className="space-y-10">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h1 className="text-3xl md:text-4xl font-extrabold text-foreground tracking-tight flex items-center gap-2">
-            <BarChartBig className="h-8 w-8 text-primary"/> Mes Statistiques
-        </h1>
+        <div className="flex items-center gap-4">
+            <div className="w-16 h-16 hidden sm:block">
+                <Image src="/icon/mascotte_nerd.svg" alt="Mascotte Nerd" width={64} height={64} />
+            </div>
+            <h1 className="text-3xl md:text-4xl font-extrabold text-foreground tracking-tight">
+                Mes Statistiques
+            </h1>
+        </div>
       </div>
 
       <div>

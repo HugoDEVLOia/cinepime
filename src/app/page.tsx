@@ -310,15 +310,7 @@ export default function HomePage() {
             <div className="flex flex-col md:flex-row items-center relative p-8">
                 <div className="md:w-1/2 relative flex items-center justify-center mb-6 md:mb-0">
                     <div className="relative w-48 h-48 flex items-center justify-center">
-                        <div className="absolute inset-0 bg-primary/10 rounded-full animate-pulse-slow"></div>
-                        <div className="absolute inset-4 bg-primary/20 rounded-full animate-pulse-slower"></div>
-                        <Compass className="h-24 w-24 text-primary drop-shadow-lg transition-transform duration-500 group-hover:rotate-12" />
-                        <div className="absolute top-0 right-0 bg-card p-2 rounded-xl shadow-lg transform rotate-12 transition-transform duration-500 group-hover:scale-105 group-hover:rotate-6">
-                            <Heart className="w-6 h-6 text-red-500 fill-red-500" />
-                        </div>
-                        <div className="absolute bottom-0 left-0 bg-card p-2 rounded-xl shadow-lg transform -rotate-12 transition-transform duration-500 group-hover:scale-105 group-hover:-rotate-6">
-                             <X className="w-6 h-6 text-muted-foreground" />
-                        </div>
+                        <Image src="/icon/mascotte_discover.svg" alt="Mascotte Découverte" width={192} height={192} className="transition-transform duration-500 group-hover:scale-110" />
                     </div>
                 </div>
 
@@ -506,7 +498,3 @@ const HomePageSkeleton = () => (
     ))}
   </div>
 );
-
-    
-
-
