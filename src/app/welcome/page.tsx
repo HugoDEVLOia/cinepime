@@ -217,7 +217,6 @@ const getSeriesFromPath = (path: string): string => {
         return seriesKey.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
     }
     
-    // Handle special multi-word keys for Netflix
     const twoWordKey = nameParts.slice(0,2).join('-');
     if (nameMapping[twoWordKey]) return nameMapping[twoWordKey];
 
@@ -226,10 +225,8 @@ const getSeriesFromPath = (path: string): string => {
     
     if(nameMapping[seriesKey]) return nameMapping[seriesKey];
 
-    // Fallback for names not in mapping
     return seriesKey.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 };
-
 
 const groupAvatarsBySeries = (avatarPaths: string[]) => {
     const grouped: Record<string, string[]> = {};
@@ -244,7 +241,6 @@ const groupAvatarsBySeries = (avatarPaths: string[]) => {
 };
 
 export default function WelcomePage() {
-    const [activeTab, setActiveTab] = useState('create');
     const [username, setUsername] = useState('');
     const [selectedAvatar, setSelectedAvatar] = useState(netflixAvatars[0]);
     const [importCode, setImportCode] = useState('');
@@ -300,7 +296,7 @@ export default function WelcomePage() {
 
     const AvatarGroup = ({ title, avatars }: { title: string, avatars: Record<string, string[]> }) => (
         <div>
-            <h3 className="text-xl font-semibold text-foreground mb-4 sticky top-0 bg-background/95 py-3 z-10">{title}</h3>
+            <h3 className="text-xl font-semibold text-foreground mb-4 sticky top-0 bg-popover py-3 z-10">{title}</h3>
             <div className="space-y-6">
                 {Object.entries(avatars).sort(([a], [b]) => a.localeCompare(b)).map(([series, paths]) => (
                     <div key={series}>
@@ -321,34 +317,29 @@ export default function WelcomePage() {
         </div>
     );
 
-    const WelcomePanel = ({ isLogin }: { isLogin: boolean }) => (
-         <div className={cn("p-8 flex flex-col items-center justify-center text-center bg-primary text-primary-foreground transition-all duration-500", isLogin ? "rounded-r-lg" : "rounded-l-lg")}>
-            <Image src={isLogin ? "/assets/mascotte/mascotte_wink.svg" : "/assets/mascotte/mascotte.svg"} alt="Popito Mascotte" width={120} height={120} className="mb-4" />
-            <h1 className="text-3xl font-bold">{isLogin ? "Content de vous revoir !" : "Bienvenue sur CinéPrime !"}</h1>
-            <p className="opacity-80 mt-2">{isLogin ? "Restaurez votre session en un instant." : "Votre nouvelle aventure cinéma commence ici."}</p>
-        </div>
-    );
-
     return (
         <div className="min-h-screen w-full flex items-center justify-center bg-background p-4">
-            <Card className="w-full max-w-5xl shadow-2xl overflow-hidden h-[90vh]">
-                <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full">
-                    <div className={cn("grid grid-cols-1 md:grid-cols-2 h-full transition-all duration-500", activeTab === 'login' && 'md:grid-cols-[1fr,2fr]')}>
-                        {activeTab === 'create' && <WelcomePanel isLogin={false} />}
-
-                        <div className="p-8 flex flex-col h-full">
-                           <TabsList className="grid w-full grid-cols-2 mb-6">
-                                <TabsTrigger value="create"><User className="mr-2 h-4 w-4" /> Créer un profil</TabsTrigger>
-                                <TabsTrigger value="login"><LogIn className="mr-2 h-4 w-4" /> Se connecter</TabsTrigger>
-                            </TabsList>
-                            <TabsContent value="create" className="flex-grow flex flex-col space-y-4 min-h-0">
+            <Card className="w-full max-w-4xl shadow-2xl">
+                 <div className="p-2 sm:p-6 md:p-8">
+                     <div className="text-center mb-8">
+                        <Image src="/assets/mascotte/mascotte.svg" alt="Popito Mascotte" width={96} height={96} className="mx-auto mb-4" />
+                        <h1 className="text-3xl font-bold text-primary">Bienvenue sur CinéPrime !</h1>
+                        <p className="text-muted-foreground mt-2">Configurez votre profil pour commencer.</p>
+                    </div>
+                    <Tabs defaultValue="create" className="w-full">
+                        <TabsList className="grid w-full grid-cols-2">
+                            <TabsTrigger value="create"><User className="mr-2 h-4 w-4" /> Créer un profil</TabsTrigger>
+                            <TabsTrigger value="login"><LogIn className="mr-2 h-4 w-4" /> Se connecter</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="create" className="mt-6">
+                            <div className="flex flex-col space-y-6" style={{maxHeight: 'calc(100vh - 20rem)', overflow: 'hidden'}}>
                                 <div className="space-y-2">
                                     <Label htmlFor="username" className="text-base font-semibold">1. Choisissez un pseudo</Label>
                                     <Input id="username" placeholder="Ex: PopcornLover" value={username} onChange={(e) => setUsername(e.target.value)} />
                                 </div>
                                 <div className="space-y-2 flex-grow flex flex-col min-h-0">
                                     <Label className="text-base font-semibold">2. Choisissez un avatar</Label>
-                                    <ScrollArea className="flex-grow pr-4 -mr-4 border-t border-b border-border py-4">
+                                    <ScrollArea className="flex-grow rounded-md border p-4">
                                         <div className="space-y-8">
                                             <AvatarGroup title="Netflix" avatars={groupedNetflixAvatars} />
                                             <AvatarGroup title="Disney+" avatars={groupedDisneyAvatars} />
@@ -358,8 +349,10 @@ export default function WelcomePage() {
                                 <div className="pt-4">
                                   <Button onClick={handleCreateProfile} className="w-full text-lg py-6">Commencer</Button>
                                 </div>
-                            </TabsContent>
-                            <TabsContent value="login" className="flex-grow flex flex-col justify-center space-y-4">
+                            </div>
+                        </TabsContent>
+                        <TabsContent value="login" className="mt-6">
+                           <div className="flex flex-col justify-center space-y-4 max-w-md mx-auto">
                                 <CardHeader className="p-0 text-center mb-4">
                                     <CardTitle>Restaurer vos données</CardTitle>
                                     <CardDescription>Collez votre code de sauvegarde pour retrouver votre profil et vos listes.</CardDescription>
@@ -371,13 +364,14 @@ export default function WelcomePage() {
                                 <Button onClick={handleImportFromCode} className="w-full text-lg py-6" disabled={isImporting}>
                                     {isImporting ? <Loader2 className="animate-spin mr-2"/> : <LogIn className="mr-2"/>} Se Connecter
                                 </Button>
-                            </TabsContent>
-                        </div>
-
-                         {activeTab === 'login' && <WelcomePanel isLogin={true} />}
-                    </div>
-                </Tabs>
+                            </div>
+                        </TabsContent>
+                    </Tabs>
+                </div>
             </Card>
         </div>
     );
 }
+
+
+    
