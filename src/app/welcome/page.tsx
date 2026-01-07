@@ -62,7 +62,7 @@ const disneyAvatars = [
     "/assets/avatars/Disney+/star wars_obi-wan kenobi-rXXVGSdR.png", "/assets/avatars/Disney+/star wars_reva-JkoYPzQX.png", "/assets/avatars/Disney+/star wars_the child-D3HQIIdX.png",
     "/assets/avatars/Disney+/star wars_the mandalorian-OTyLNb1m.png", "/assets/avatars/Disney+/the muppets_animal-Brzo_leC.png", "/assets/avatars/Disney+/the muppets_beaker-BsP3Ptfz.png",
     "/assets/avatars/Disney+/the muppets_fozzie bear-BLRv-d_I.png", "/assets/avatars/Disney+/the muppets_gonzo-DIzZ66h0.png", "/assets/avatars/Disney+/the muppets_janice-w-AxFDCK.png",
-    "/assets/avatars/Disney+/the muppets_kermit the frog-CH96OK_o.png", "/assets/avatars/Disney+/the muppets_miss piggy-DIlkrb-d.png", "/assets/avatars/Disney+/the muppets_pepe the king prawn-B9W4U6Wt.png",
+    "/assets/avatars/Disney+/the muppets_kermit the frog-CH96OK_o.png", "/assets.avatars/Disney+/the muppets_miss piggy-DIlkrb-d.png", "/assets/avatars/Disney+/the muppets_pepe the king prawn-B9W4U6Wt.png",
     "/assets/avatars/Disney+/the muppets_scooter-HVVSgOCW.png", "/assets/avatars/Disney+/the muppets_the swedish chef-BqMefekp.png", "/assets/avatars/Disney+/the simpsons_bart simpson-DuomYjwc.png",
     "/assets/avatars/Disney+/the simpsons_dr_ julius hibbert-DrNK5MU9.png", "/assets/avatars/Disney+/the simpsons_homer simpson-C2kqrGX6.png", "/assets/avatars/Disney+/the simpsons_krusty the clown-BNemYwrL.png",
     "/assets/avatars/Disney+/the simpsons_lisa simpson-Br4660Vs.png", "/assets/avatars/Disney+/the simpsons_maggie simpson-DUv3_ncr.png", "/assets/avatars/Disney+/the simpsons_marge simpson-c35VK5WW.png",
@@ -71,7 +71,7 @@ const disneyAvatars = [
     "/assets/avatars/Disney+/villains_hades-fQ3GpMvc.png", "/assets/avatars/Disney+/villains_jafar-Q6BV869r.png", "/assets/avatars/Disney+/villains_maleficent-D6DUDWjO.png",
     "/assets/avatars/Disney+/villains_mother gothel-CN_WTrdS.png", "/assets/avatars/Disney+/villains_queen of hearts-DczjZOhT.png", "/assets/avatars/Disney+/villains_queen _snow white-DNdpMTEv.png",
     "/assets/avatars/Disney+/villains_randall boggs-CdFW7Din.png", "/assets/avatars/Disney+/villains_scar-CsaKuItO.png", "/assets/avatars/Disney+/villains_ursula-B_s7Eok2.png",
-    "/assets/avatars/Disney+/villains_yzma-XW5KIGRn.png"
+    "/assets_avatars/Disney+/villains_yzma-XW5KIGRn.png"
 ];
 const netflixAvatars = [
     "/assets/avatars/Netflix/aib-arisu-vieux-C_qonjjQ.png", "/assets/avatars/Netflix/aib-joker-Fe3fAlEV.png", "/assets/avatars/Netflix/aib-jsais-plus-Dcr6kVBs.png",
@@ -92,14 +92,14 @@ const netflixAvatars = [
     "/assets/avatars/Netflix/black-mirror_bandersnatch-CN0bwA11.png", "/assets/avatars/Netflix/black-mirror_foulode-0RhX9oHU.png", "/assets/avatars/Netflix/black-mirror_glyphe-DoT3jIVb.png",
     "/assets/avatars/Netflix/black-mirror_icne_de_chargement-C9ejWjhC.png", "/assets/avatars/Netflix/black-mirror_poupe-BLJQRLHw.png", "/assets/avatars/Netflix/black-mirror_singe_en_peluche-q_t6PMs-.png",
     "/assets/avatars/Netflix/black-mirror_visage_moticne_casse-DiwrsD28.png", "/assets/avatars/Netflix/black-mirror_waldo-Dl-3cIEc.png", "/assets/avatars/Netflix/bojack-horseman_bojack-DU_r4Ohn.png",
-    "/assets/avatars/Netflix/bojack-horseman_diane-DvK1brR9.png", "/assets/avatars/Netflix/bojack-horseman_m_peanutbutter-DlDKYd6l.png", "/assets/avatars/Netflix/bojack-horseman_princesse_carolyn-nd0EmhRs.png",
+    "/assets/avatars/Netflix/bojack-horseman_diane-DvK1brR9.png", "/assets_avatars/Netflix/bojack-horseman_m_peanutbutter-DlDKYd6l.png", "/assets/avatars/Netflix/bojack-horseman_princesse_carolyn-nd0EmhRs.png",
     "/assets/avatars/Netflix/bojack-horseman_todd-COuPJ6Ou.png", "/assets/avatars/Netflix/cobra-kai_amanda-Bf8_iHlV.png", "/assets/avatars/Netflix/cobra-kai_anthony-Dl_uiw7R.png",
     "/assets/avatars/Netflix/cobra-kai_axel-D_vF6R95.png", "/assets/avatars/Netflix/cobra-kai_carmen-DmmyAnSN.png", "/assets/avatars/Netflix/cobra-kai_chozen-DsiWUnup.png",
     "/assets/avatars/Netflix/cobra-kai_daniel-DRehUYTf.png", "/assets/avatars/Netflix/cobra-kai_devon-DhcipvQA.png", "/assets/avatars/Netflix/cobra-kai_dimitri-DxHpB6QF.png",
     "/assets/avatars/Netflix/cobra-kai_johnny-KBczCHN8.png", "/assets/avatars/Netflix/cobra-kai_kenny-Dgi74RQN.png", "/assets/avatars/Netflix/cobra-kai_kreese-o9ltUhad.png",
     "/assets/avatars/Netflix/cobra-kai_kwon-zbcNoL67.png", "/assets/avatars/Netflix/cobra-kai_laigle-CH9vDTEW.png", "/assets/avatars/Netflix/cobra-kai_miguel--VUz3j1p.png",
-    "/assets/avatars/Netflix/cobra-kai_m_miyagi-RfcJlLE3.png", "/assets/avatars/Netflix/cobra-kai_robby-BpkpUGfb.png", "/assets/avatars/Netflix/cobra-kai_samantha-DbBFea6o.png",
-    "/assets/avatars/Netflix/cobra-kai_sensei_kim-CYssXiWB.png", "/assets/avatars/Netflix/cobra-kai_sensei_wolf-B0D7iM3L.png", "/assets/avatars/Netflix/cobra-kai_terry_silver-BJRnJUEW.png",
+    "/assets_avatars/Netflix/cobra-kai_m_miyagi-RfcJlLE3.png", "/assets/avatars/Netflix/cobra-kai_robby-BpkpUGfb.png", "/assets/avatars/Netflix/cobra-kai_samantha-DbBFea6o.png",
+    "/assets/avatars/Netflix/cobra-kai_sensei_kim-CYssXiWB.png", "/assets_avatars/Netflix/cobra-kai_sensei_wolf-B0D7iM3L.png", "/assets/avatars/Netflix/cobra-kai_terry_silver-BJRnJUEW.png",
     "/assets/avatars/Netflix/cobra-kai_tory-BTmagy63.png", "/assets/avatars/Netflix/cobra-kai_zara-CYi3Ggr5.png", "/assets/avatars/Netflix/dark_claudia-CqEoavHW.png",
     "/assets/avatars/Netflix/dark_jeune_jonas-BRN8EuOW.png", "/assets/avatars/Netflix/dark_jeune_martha-CVdxsN1m.png", "/assets/avatars/Netflix/dark_machine_voyager_dans_le_temps-DjmLs5ik.png",
     "/assets/avatars/Netflix/dark_mikkel-BZGPLJA2.png", "/assets/avatars/Netflix/dark_noah-C0W4Yl50.png", "/assets/avatars/Netflix/dark_nud_de_la_trinit-DDgdWPr7.png",
@@ -109,7 +109,7 @@ const netflixAvatars = [
     "/assets/avatars/Netflix/dĂŠsenchantĂŠe_zog-DSgD4fWb.png", "/assets/avatars/Netflix/enid-DEWt9m2f.png", "/assets/avatars/Netflix/frere-de-mercredi-Dh7l5MnB.png",
     "/assets/avatars/Netflix/jeudi-CBloyiNt.png", "/assets/avatars/Netflix/jspcqui-CRMgjyrf.png", "/assets/avatars/Netflix/kpop-demon-hunters_abby_saja-EDJhZeGR.png",
     "/assets/avatars/Netflix/kpop-demon-hunters_baby_saja-_7unYEVm.png", "/assets/avatars/Netflix/kpop-demon-hunters_bobby-vztVWmS2.png", "/assets/avatars/Netflix/kpop-demon-hunters_derpy-pTQUAJFo.png",
-    "/assets/avatars/Netflix/kpop-demon-hunters_jinu-C3u760J8.png", "/assets/avatars/Netflix/kpop-demon-hunters_mira-C7q7bnix.png", "/assets/avatars/Netflix/kpop-demon-hunters_mystery_saja-Tmx9H5bT.png",
+    "/assets/avatars/Netflix/kpop-demon-hunters_jinu-C3u760J8.png", "/assets_avatars/Netflix/kpop-demon-hunters_mira-C7q7bnix.png", "/assets/avatars/Netflix/kpop-demon-hunters_mystery_saja-Tmx9H5bT.png",
     "/assets/avatars/Netflix/kpop-demon-hunters_romance_saja-B4noPscn.png", "/assets/avatars/Netflix/kpop-demon-hunters_rumi-DyZRIbXA.png", "/assets/avatars/Netflix/kpop-demon-hunters_sussie-BdeOMMWp.png",
     "/assets/avatars/Netflix/kpop-demon-hunters_zoey-XyJ5tXhC.png", "/assets/avatars/Netflix/la-casa-de-papel_berlin-BnibrxEE.png", "/assets/avatars/Netflix/la-casa-de-papel_denver-DFzayFdZ.png",
     "/assets/avatars/Netflix/la-casa-de-papel_le_professeur-DCGMPM_M.png", "/assets/avatars/Netflix/la-casa-de-papel_lisbonne-CsHDOHo2.png", "/assets/avatars/Netflix/la-casa-de-papel_masque-DVY77Ttc.png",
@@ -121,19 +121,19 @@ const netflixAvatars = [
     "/assets/avatars/Netflix/la-chronique-des-bridgerton_lady_whistledown-DXtrAWMW.png", "/assets/avatars/Netflix/la-chronique-des-bridgerton_la_reine_charlotte-BIVaWVPD.png", "/assets/avatars/Netflix/la-chronique-des-bridgerton_lose_bridgerton-DdGzdAIX.png",
     "/assets/avatars/Netflix/la-chronique-des-bridgerton_marina_thompson-C5uFu6af.png", "/assets/avatars/Netflix/la-chronique-des-bridgerton_pnlope_featherington-BArNyKZK.png", "/assets/avatars/Netflix/la-chronique-des-bridgerton_simon_basset-o0ApCq_A.png",
     "/assets/avatars/Netflix/la-grand-mere-DBaTkZYR.png", "/assets/avatars/Netflix/la-mano-EAOH57bj.png", "/assets/avatars/Netflix/le-loup-garou-jcrois-CbuwaGfZ.png",
-    "/assets/avatars/Netflix/love_-death-_-robots_femme_dore-TpSMvU3f.png", "/assets/avatars/Netflix/love_-death-_-robots_k-vrc-CI3EjJxi.png", "/assets/avatars/Netflix/love_-death-_-robots_le_tmoin-BWZzDex5.png",
+    "/assets/avatars/Netflix/love_-death-_-robots_femme_dore-TpSMvU3f.png", "/assets/avatars/Netflix/love_-death-_-robots_k-vrc-CI3EjJxi.png", "/assets_avatars/Netflix/love_-death-_-robots_le_tmoin-BWZzDex5.png",
     "/assets/avatars/Netflix/love_-death-_-robots_rose-BLDKtgb3.png", "/assets/avatars/Netflix/love_-death-_-robots_sonnie-Drxladsv.png", "/assets/avatars/Netflix/love_-death-_-robots_zima-C9kMTjCI.png",
     "/assets/avatars/Netflix/lucifer_amenadiel-FUjMj8Ie.png", "/assets/avatars/Netflix/lucifer_avatar_de_profil-BVPOZ7pe.png", "/assets/avatars/Netflix/lucifer_chloe-BWPfxgiF.png",
-    "/assets/avatars/Netflix/lucifer_dan-BOIL3RRA.png", "/assets/avatars/Netflix/lucifer_ella-BOdOij9A.png", "/assets/avatars/Netflix/lucifer_linda-Bzeu93IU.png",
+    "/assets/avatars/Netflix/lucifer_dan-BOIL3RRA.png", "/assets_avatars/Netflix/lucifer_ella-BOdOij9A.png", "/assets/avatars/Netflix/lucifer_linda-Bzeu93IU.png",
     "/assets/avatars/Netflix/lucifer_lucifer--Byu8K_6.png", "/assets/avatars/Netflix/lucifer_maze-B5jcY7lM.png", "/assets/avatars/Netflix/lupin_assane_lagent_de_scurit-EKvN3SY1.png",
     "/assets/avatars/Netflix/lupin_assane_lboueur-Dp9hmYaZ.png", "/assets/avatars/Netflix/lupin_assane_le_geek-D4DDIUtS.png", "/assets/avatars/Netflix/lupin_assane_le_gentleman_cambrioleur-5DFQOIid.png",
     "/assets/avatars/Netflix/lupin_assane_le_sapeur-B4A-DDfk.png", "/assets/avatars/Netflix/lupin_assane_le_vieil_homme-BtjVJLdJ.png", "/assets/avatars/Netflix/lupin_assane_le_voyou-M-Q_sV52.png",
     "/assets/avatars/Netflix/lupin_assane_lhomme_au_chapeau-DejOoNCQ.png", "/assets/avatars/Netflix/lupin_assane_lhomme_daffaires-BCgkC6W7.png", "/assets/avatars/Netflix/lupin_assane_lhomme_de_mnage-DKxuDtpE.png",
-    "/assets/avatars/Netflix/lupin_assane_lhomme_lgant-NH9nZKgo.png", "/assets/avatars/Netflix/lupin_jaccuse-BIPgNCch.png", "/assets/avatars/Netflix/lupin_la_perle_noire-BFYbzaq6.png",
+    "/assets/avatars/Netflix/lupin_assane_lhomme_lgant-NH9nZKgo.png", "/assets_avatars/Netflix/lupin_jaccuse-BIPgNCch.png", "/assets/avatars/Netflix/lupin_la_perle_noire-BFYbzaq6.png",
     "/assets/avatars/Netflix/mere-8j5O-7xe.png", "/assets/avatars/Netflix/meuf-chelou-F1Rkf6HT.png", "/assets/avatars/Netflix/nicotine-D69dhJf6.png",
     "/assets/avatars/Netflix/on-my-block_cesar-N75ueWBZ.png", "/assets/avatars/Netflix/on-my-block_jamal-BGSSitIK.png", "/assets/avatars/Netflix/on-my-block_jasmine-DNwfAz9n.png",
     "/assets/avatars/Netflix/on-my-block_juanita-DdS2AX_C.png", "/assets/avatars/Netflix/on-my-block_monse-D3XmxPOA.png", "/assets/avatars/Netflix/on-my-block_ruby-oPw_DBd2.png",
-    "/assets/avatars/Netflix/on-my-block_spooky-DvjWMCdo.png", "/assets/avatars/Netflix/one-piece_arlong-PcTi2I_B.png", "/assets/avatars/Netflix/one-piece_baggy-BE3_uW2f.png",
+    "/assets/avatars/Netflix/on-my-block_spooky-DvjWMCdo.png", "/assets/avatars/Netflix/one-piece_arlong-PcTi2I_B.png", "/assets_avatars/Netflix/one-piece_baggy-BE3_uW2f.png",
     "/assets/avatars/Netflix/one-piece_escargophone-BLcXzvW8.png", "/assets/avatars/Netflix/one-piece_garp-BmZO5XeP.png", "/assets/avatars/Netflix/one-piece_kobby-0YQlbID5.png",
     "/assets/avatars/Netflix/one-piece_le_vogue_merry-9YBG_kt2.png", "/assets/avatars/Netflix/one-piece_luffy-DJaiYcJR.png", "/assets/avatars/Netflix/one-piece_mihawk-C7gjvL-b.png",
     "/assets/avatars/Netflix/one-piece_nami-DKs4BMpq.png", "/assets/avatars/Netflix/one-piece_pavillon-Dlgslg11.png", "/assets/avatars/Netflix/one-piece_sanji-UvkG_Mns.png",
@@ -144,34 +144,34 @@ const netflixAvatars = [
     "/assets/avatars/Netflix/orange-is-the-new-black_taystee-Bq8Ggz2g.png", "/assets/avatars/Netflix/outer-banks_cleo-wrS8oKvf.png", "/assets/avatars/Netflix/outer-banks_jj-BupciCeI.png",
     "/assets/avatars/Netflix/outer-banks_john_b-Brjbl1kC.png", "/assets/avatars/Netflix/outer-banks_kiara-Dv1vH43f.png", "/assets/avatars/Netflix/outer-banks_pope-CGh0dxqI.png",
     "/assets/avatars/Netflix/outer-banks_rafe-LEz59HIa.png", "/assets/avatars/Netflix/outer-banks_sarah-Cot6YWdq.png", "/assets/avatars/Netflix/perdus-dans-l'espace_don_west-3XmzZEgS.png",
-    "/assets/avatars/Netflix/perdus-dans-l'espace_dr_smith-BTlBTzFX.png", "/assets/avatars/Netflix/perdus-dans-l'espace_john-BZYRZLib.png", "/assets/avatars/Netflix/perdus-dans-l'espace_judy-BwuqNCJy.png",
+    "/assets/avatars/Netflix/perdus-dans-l'espace_dr_smith-BTlBTzFX.png", "/assets_avatars/Netflix/perdus-dans-l'espace_john-BZYRZLib.png", "/assets/avatars/Netflix/perdus-dans-l'espace_judy-BwuqNCJy.png",
     "/assets/avatars/Netflix/perdus-dans-l'espace_maureen-CGV-vqEJ.png", "/assets/avatars/Netflix/perdus-dans-l'espace_penny-D-go35yj.png", "/assets/avatars/Netflix/perdus-dans-l'espace_poulet_lis-B17mx2NS.png",
     "/assets/avatars/Netflix/perdus-dans-l'espace_robot-CHE3HMNR.png", "/assets/avatars/Netflix/perdus-dans-l'espace_will-0K7QIXGq.png", "/assets/avatars/Netflix/pere-BLyrNjnT.png",
     "/assets/avatars/Netflix/sandman_dsir-DnxUY3UM.png", "/assets/avatars/Netflix/sandman_irving-1EzJyEFi.png", "/assets/avatars/Netflix/sandman_johanna-DxnibDOk.png",
-    "/assets/avatars/Netflix/sandman_lucienne-BxIaHZwB.png", "/assets/avatars/Netflix/sandman_lucifer-DmwDDrz8.png", "/assets/avatars/Netflix/sandman_matthew-D9F-jzj_.png",
-    "/assets/avatars/Netflix/sandman_mort-By1bJhMV.png", "/assets/avatars/Netflix/sandman_rve-BgZfIS2j.png", "/assets/avatars/Netflix/sex-education_adam-DiAaOFAg.png",
+    "/assets/avatars/Netflix/sandman_lucienne-BxIaHZwB.png", "/assets/avatars/Netflix/sandman_lucifer-DmwDDrz8.png", "/assets_avatars/Netflix/sandman_matthew-D9F-jzj_.png",
+    "/assets/avatars/Netflix/sandman_mort-By1bJhMV.png", "/assets/avatars/Netflix/sandman_rve-BgZfIS2j.png", "/assets_avatars/Netflix/sex-education_adam-DiAaOFAg.png",
     "/assets/avatars/Netflix/sex-education_aimee-BBIMyO9O.png", "/assets/avatars/Netflix/sex-education_anwar-CePcnt9w.png", "/assets/avatars/Netflix/sex-education_cal-CfEztvy1.png",
-    "/assets/avatars/Netflix/sex-education_eric-Du6CUSXu.png", "/assets/avatars/Netflix/sex-education_isaac-CWjZtNWu.png", "/assets/avatars/Netflix/sex-education_jackson-DePbQVic.png",
+    "/assets/avatars/Netflix/sex-education_eric-Du6CUSXu.png", "/assets_avatars/Netflix/sex-education_isaac-CWjZtNWu.png", "/assets/avatars/Netflix/sex-education_jackson-DePbQVic.png",
     "/assets/avatars/Netflix/sex-education_jean-Do8Pu5Su.png", "/assets/avatars/Netflix/sex-education_lily-DNuQSyls.png", "/assets/avatars/Netflix/sex-education_maeve-Bp5yrey-.png",
     "/assets/avatars/Netflix/sex-education_ola-q_onlDEE.png", "/assets/avatars/Netflix/sex-education_olivia-DEDSRX6j.png", "/assets/avatars/Netflix/sex-education_otis-dHH7FTff.png",
     "/assets/avatars/Netflix/sex-education_rahim-QOGHJLlT.png", "/assets/avatars/Netflix/sex-education_ruby-Dmb-BZbU.png", "/assets/avatars/Netflix/sex-education_viv-Cq0Mlnzr.png",
     "/assets/avatars/Netflix/sirenejcrois-CYkuW-P2.png", "/assets/avatars/Netflix/squid-game_alvole-C4FlkKLj.png", "/assets/avatars/Netflix/squid-game_avatar_de_profil-DwcN9Ip_.png",
-    "/assets/avatars/Netflix/squid-game_gi-hun-LUj9vumu.png", "/assets/avatars/Netflix/squid-game_gi-hun_saison_2-t9K3hHbc.png", "/assets/avatars/Netflix/squid-game_hyun-ju-BWXQi48P.png",
-    "/assets/avatars/Netflix/squid-game_in-ho-BF_JtXyF.png", "/assets/avatars/Netflix/squid-game_jun-hee-Bq_D-P6z.png", "/assets/avatars/Netflix/squid-game_jun-ho-D95wdo2A.png",
+    "/assets_avatars/Netflix/squid-game_gi-hun-LUj9vumu.png", "/assets/avatars/Netflix/squid-game_gi-hun_saison_2-t9K3hHbc.png", "/assets/avatars/Netflix/squid-game_hyun-ju-BWXQi48P.png",
+    "/assets/avatars/Netflix/squid-game_in-ho-BF_JtXyF.png", "/assets/avatars/Netflix/squid-game_jun-hee-Bq_D-P6z.png", "/assets_avatars/Netflix/squid-game_jun-ho-D95wdo2A.png",
     "/assets/avatars/Netflix/squid-game_leader-DV-KDfCW.png", "/assets/avatars/Netflix/squid-game_manager_masqu-DRAHBYmp.png", "/assets/avatars/Netflix/squid-game_masked_worker-CpZk2pPA.png",
     "/assets/avatars/Netflix/squid-game_myung-gi-BxBTL3Kh.png", "/assets/avatars/Netflix/squid-game_no-eul-cTX0eQtB.png", "/assets/avatars/Netflix/squid-game_officier_masqu-xzED9ZZr.png",
-    "/assets/avatars/Netflix/squid-game_recruteur-B3mVjqKy.png", "/assets/avatars/Netflix/squid-game_soldat_masqu-B3Ko69Hg.png", "/assets/avatars/Netflix/squid-game_thanos-DmmMtF-t.png",
+    "/assets_avatars/Netflix/squid-game_recruteur-B3mVjqKy.png", "/assets/avatars/Netflix/squid-game_soldat_masqu-B3Ko69Hg.png", "/assets/avatars/Netflix/squid-game_thanos-DmmMtF-t.png",
     "/assets/avatars/Netflix/squid-game_tirelire-C-pOOH4A.png", "/assets/avatars/Netflix/squid-game_young-hee-oNvylBt9.png", "/assets/avatars/Netflix/stranger-things_avatar_de_profil-CUSbybub.png",
     "/assets/avatars/Netflix/stranger-things_dmogorgon-6N9xdYNC.png", "/assets/avatars/Netflix/stranger-things_dustin-24cjRKE0.png", "/assets/avatars/Netflix/stranger-things_jonathan-D23yCp3Q.png",
     "/assets/avatars/Netflix/stranger-things_joyce-DAWoO4Er.png", "/assets/avatars/Netflix/stranger-things_lucas-Dkz2LwBa.png", "/assets/avatars/Netflix/stranger-things_mike-BMFAOzap.png",
     "/assets/avatars/Netflix/stranger-things_nancy-DoF9kIUP.png", "/assets/avatars/Netflix/stranger-things_onze-rlZ3jnlV.png", "/assets/avatars/Netflix/stranger-things_will-BRTmbT4m.png",
-    "/assets/avatars/Netflix/the-witcher_ablette-BQOgPuhI.png", "/assets/avatars/Netflix/the-witcher_ciri-B55Q2n5R.png", "/assets/avatars/Netflix/the-witcher_deux_pes-Fbn765Nk.png",
+    "/assets/avatars/Netflix/the-witcher_ablette-BQOgPuhI.png", "/assets/avatars/Netflix/the-witcher_ciri-B55Q2n5R.png", "/assets_avatars/Netflix/the-witcher_deux_pes-Fbn765Nk.png",
     "/assets/avatars/Netflix/the-witcher_geralt-Bd-LkC5G.png", "/assets/avatars/Netflix/the-witcher_jaskier-uT0u4zQ8.png", "/assets/avatars/Netflix/the-witcher_kikimorrhe-D_0ywMke.png",
     "/assets/avatars/Netflix/the-witcher_lchi-BblvP8CG.png", "/assets/avatars/Netflix/the-witcher_logo_the_witcher-BAfbp8BI.png", "/assets/avatars/Netflix/the-witcher_nivellen-BjyvAFcn.png",
     "/assets/avatars/Netflix/the-witcher_pe_joyeuse-BSkBdUvI.png", "/assets/avatars/Netflix/the-witcher_yennefer-DqVqze_8.png", "/assets/avatars/Netflix/umbrella-academy_allison-71Eo86NH.png",
     "/assets/avatars/Netflix/umbrella-academy_ben-C9TTb2AQ.png", "/assets/avatars/Netflix/umbrella-academy_cinq-BLl7wvPx.png", "/assets/avatars/Netflix/umbrella-academy_diego-R7kEepk3.png",
-    "/assets/avatars/Netflix/umbrella-academy_klaus-BwqcPTcY.png", "/assets/avatars/Netflix/umbrella-academy_luther-DpBi0VzS.png", "/assets/avatars/Netflix/umbrella-academy_pogo-CuZ5SV8w.png",
-    "/assets/avatars/Netflix/umbrella-academy_viktor-DFa-gou4.png", "/assets/avatars/Netflix/zombie-EFkfL8gF.png"
+    "/assets/avatars/Netflix/umbrella-academy_klaus-BwqcPTcY.png", "/assets/avatars/Netflix/umbrella-academy_luther-DpBi0VzS.png", "/assets_avatars/Netflix/umbrella-academy_pogo-CuZ5SV8w.png",
+    "/assets´s/avatars/Netflix/umbrella-academy_viktor-DFa-gou4.png", "/assets/avatars/Netflix/zombie-EFkfL8gF.png"
 ];
 
 const nameMapping: Record<string, string> = {
@@ -180,16 +180,16 @@ const nameMapping: Record<string, string> = {
   'black-mirror': 'Black Mirror',
   'bojack-horseman': 'Bojack Horseman',
   'cobra-kai': 'Cobra Kai',
-  'disney-channel': 'Disney Channel',
-  'disney-classics': 'Disney Classics',
-  'disney-princess': 'Disney Princesses',
-  'ice-age': 'L\'Âge de Glace',
+  'disney channel': 'Disney Channel',
+  'disney classics': 'Disney Classics',
+  'disney princess': 'Disney Princesses',
+  'ice age': 'L\'Âge de Glace',
   'kpop-demon-hunters': 'K-Pop: Demon Hunters',
   'la-casa-de-papel': 'La Casa de Papel',
   'la-chronique-des-bridgerton': 'La Chronique des Bridgerton',
   'love': 'Love, Death & Robots',
-  'mickey-and-friends': 'Mickey et ses amis',
-  'national-geographic': 'National Geographic',
+  'mickey and friends': 'Mickey et ses amis',
+  'national geographic': 'National Geographic',
   'on-my-block': 'On My Block',
   'one-piece': 'One Piece',
   'orange-is-the-new-black': 'Orange Is The New Black',
@@ -197,10 +197,10 @@ const nameMapping: Record<string, string> = {
   "perdus-dans-l'espace": 'Perdus dans l\'espace',
   'sex-education': 'Sex Education',
   'squid-game': 'Squid Game',
-  'star-wars': 'Star Wars',
+  'star wars': 'Star Wars',
   'stranger-things': 'Stranger Things',
-  'the-muppets': 'The Muppets',
-  'the-simpsons': 'The Simpsons',
+  'the muppets': 'The Muppets',
+  'the simpsons': 'The Simpsons',
   'the-witcher': 'The Witcher',
   'umbrella-academy': 'Umbrella Academy',
 };
@@ -208,29 +208,34 @@ const nameMapping: Record<string, string> = {
 const getSeriesFromPath = (path: string): string => {
     const fileName = path.split('/').pop()?.split('.')[0] || '';
     const nameParts = fileName.split('_');
-    let seriesKey = nameParts[0];
+    let seriesKey = nameParts[0].replace(/-/g, ' ');
 
     if (path.includes('Disney+')) {
-        const disneyKey = nameParts.slice(0, 2).join('-').replace(/\s+/g, '-');
-        if (nameMapping[disneyKey]) return nameMapping[disneyKey];
-        if (nameMapping[seriesKey]) return nameMapping[seriesKey];
-        return seriesKey.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        seriesKey = nameParts[0].replace(/-/g, ' ');
+    } else {
+       seriesKey = nameParts[0];
     }
     
-    const twoWordKey = nameParts.slice(0,2).join('-');
+    // Attempt multi-word keys first
+    const twoWordKey = nameParts.slice(0, 2).join(' ');
     if (nameMapping[twoWordKey]) return nameMapping[twoWordKey];
-
-    const threeWordKey = nameParts.slice(0,3).join('-');
-     if (nameMapping[threeWordKey]) return nameMapping[threeWordKey];
     
-    if(nameMapping[seriesKey]) return nameMapping[seriesKey];
-
+    const threeWordKey = nameParts.slice(0, 3).join(' ');
+    if (nameMapping[threeWordKey]) return nameMapping[threeWordKey];
+    
+    // Fallback to single word key
+    const singleWordKey = nameParts[0];
+    if (nameMapping[singleWordKey]) return nameMapping[singleWordKey];
+    
+    // Generic fallback for keys not in mapping
     return seriesKey.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 };
 
 const groupAvatarsBySeries = (avatarPaths: string[]) => {
     const grouped: Record<string, string[]> = {};
     for (const path of avatarPaths) {
+        // Simple cleaning of bad paths
+        if (!path.startsWith('/assets/')) continue;
         const series = getSeriesFromPath(path);
         if (!grouped[series]) {
             grouped[series] = [];
@@ -332,14 +337,14 @@ export default function WelcomePage() {
                             <TabsTrigger value="login"><LogIn className="mr-2 h-4 w-4" /> Se connecter</TabsTrigger>
                         </TabsList>
                         <TabsContent value="create" className="mt-6">
-                            <div className="flex flex-col space-y-6" style={{maxHeight: 'calc(100vh - 20rem)', overflow: 'hidden'}}>
+                            <div className="flex flex-col space-y-6">
                                 <div className="space-y-2">
                                     <Label htmlFor="username" className="text-base font-semibold">1. Choisissez un pseudo</Label>
                                     <Input id="username" placeholder="Ex: PopcornLover" value={username} onChange={(e) => setUsername(e.target.value)} />
                                 </div>
                                 <div className="space-y-2 flex-grow flex flex-col min-h-0">
                                     <Label className="text-base font-semibold">2. Choisissez un avatar</Label>
-                                    <ScrollArea className="flex-grow rounded-md border p-4">
+                                    <ScrollArea className="flex-grow rounded-md border p-4" style={{maxHeight: '400px'}}>
                                         <div className="space-y-8">
                                             <AvatarGroup title="Netflix" avatars={groupedNetflixAvatars} />
                                             <AvatarGroup title="Disney+" avatars={groupedDisneyAvatars} />
@@ -372,6 +377,5 @@ export default function WelcomePage() {
         </div>
     );
 }
-
 
     
