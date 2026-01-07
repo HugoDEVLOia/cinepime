@@ -4,16 +4,29 @@
 import type { ChangeEvent } from 'react';
 import { useState } from 'react';
 import { useMediaLists, type Media } from '@/hooks/use-media-lists';
+import { useUser } from '@/contexts/user-provider';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Copy, ClipboardPaste, Code2, AlertTriangle, Loader2, SettingsIcon, SunMoon, Heart, Coffee } from 'lucide-react';
+import { Copy, ClipboardPaste, Code2, AlertTriangle, Loader2, SettingsIcon, SunMoon, Heart, Coffee, LogOut } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Textarea } from '@/components/ui/textarea';
 import { ThemeSwitcher } from '@/components/theme-switcher';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 export default function SettingsPage() {
   const { toWatchList, watchedList, setLists, isLoaded } = useMediaLists();
+  const { username, avatar, clearUserData } = useUser();
   const { toast } = useToast();
 
   const [exportedCode, setExportedCode] = useState<string | null>(null);
@@ -22,127 +35,39 @@ export default function SettingsPage() {
   const [isImporting, setIsImporting] = useState(false);
 
   const handleGenerateExportCode = () => {
-    if (!isLoaded) {
-      toast({
-        title: "Exportation impossible",
-        description: "Les listes ne sont pas encore chargées.",
-        variant: "destructive",
-      });
+    if (!isLoaded || !username || !avatar) {
+      toast({ title: "Exportation impossible", description: "Les données ne sont pas encore chargées.", variant: "destructive" });
       return;
     }
     setIsExporting(true);
     setExportedCode(null); 
 
     try {
-      const dataToExport = {
-        toWatchList,
-        watchedList,
-      };
+      const dataToExport = { username, avatar, toWatchList, watchedList };
       const jsonString = JSON.stringify(dataToExport, null, 2);
-      // Encode to Base64, handling potential UTF-8 characters
       const base64String = btoa(unescape(encodeURIComponent(jsonString)));
       setExportedCode(base64String);
-      toast({
-        title: "Code d'exportation généré",
-        description: "Copiez le code ci-dessous pour sauvegarder vos listes.",
-      });
+      toast({ title: "Code de sauvegarde généré", description: "Copiez ce code pour restaurer votre profil et vos listes." });
     } catch (error) {
-      console.error("Erreur lors de la génération du code d'exportation:", error);
-      toast({
-        title: "Erreur d'exportation",
-        description: "Un problème est survenu lors de la génération du code.",
-        variant: "destructive",
-      });
+      toast({ title: "Erreur d'exportation", variant: "destructive" });
     } finally {
       setIsExporting(false);
     }
   };
 
   const handleCopyToClipboard = () => {
-    if (!exportedCode) {
-      toast({
-        title: "Aucun code à copier",
-        description: "Veuillez d'abord générer le code d'exportation.",
-        variant: "destructive",
-      });
-      return;
-    }
-    navigator.clipboard.writeText(exportedCode)
-      .then(() => {
-        toast({
-          title: "Code copié !",
-          description: "Le code d'exportation a été copié dans le presse-papiers.",
-        });
-      })
-      .catch(err => {
-        console.error("Erreur lors de la copie du code:", err);
-        toast({
-          title: "Erreur de copie",
-          description: "Impossible de copier le code automatiquement. Veuillez le copier manuellement.",
-          variant: "destructive",
-        });
-      });
+    if (!exportedCode) return;
+    navigator.clipboard.writeText(exportedCode).then(() => {
+      toast({ title: "Code copié !", description: "Le code a été copié dans le presse-papiers." });
+    }).catch(() => {
+      toast({ title: "Erreur de copie", variant: "destructive" });
+    });
   };
 
-  const handleImportFromCode = () => {
-    if (!importCode.trim()) {
-      toast({
-        title: "Aucun code à importer",
-        description: "Veuillez coller votre code d'importation dans la zone de texte.",
-        variant: "destructive",
-      });
-      return;
-    }
-    setIsImporting(true);
-
-    try {
-      const jsonString = decodeURIComponent(escape(atob(importCode.trim())));
-      const importedData = JSON.parse(jsonString);
-
-      if (Array.isArray(importedData.toWatchList) && Array.isArray(importedData.watchedList)) {
-        const isValidMediaArray = (arr: any[]): arr is Media[] => 
-          arr.every(item => 
-            typeof item.id === 'string' && // TMDB IDs are numbers but we store them as strings
-            typeof item.title === 'string' && 
-            (item.mediaType === 'movie' || item.mediaType === 'tv')
-            // Add other essential property checks if necessary
-          );
-
-        if (isValidMediaArray(importedData.toWatchList) && isValidMediaArray(importedData.watchedList)) {
-          setLists(importedData.toWatchList, importedData.watchedList);
-          toast({
-            title: "Importation réussie",
-            description: "Vos listes ont été importées avec succès.",
-          });
-          setImportCode(''); 
-          setExportedCode(null); 
-        } else {
-          throw new Error("Le code importé ne contient pas de données de listes valides (structure ou types incorrects).");
-        }
-      } else {
-        throw new Error("Le code importé n'a pas la structure attendue (toWatchList et watchedList arrays).");
-      }
-    } catch (error) {
-      console.error("Erreur lors de l'importation depuis le code :", error);
-      let errorMessage = "Un problème est survenu lors du traitement du code. Assurez-vous qu'il s'agit d'un code valide exporté depuis CinéPrime.";
-      if (error instanceof Error) {
-        if (error.message.includes("not correctly encoded") || error.name === "InvalidCharacterError" || error.message.toLowerCase().includes("the string to be decoded is not correctly encoded") || error.message.toLowerCase().includes("failed to execute 'atob'")) {
-            errorMessage = "Le code fourni n'est pas un code Base64 valide ou est corrompu.";
-        } else if (error instanceof SyntaxError) { // JSON.parse error
-            errorMessage = "Le code décodé n'est pas un JSON valide. Il pourrait être corrompu ou malformé.";
-        } else {
-            errorMessage = error.message; // Use the specific error message if available
-        }
-      }
-      toast({
-        title: "Erreur d'importation",
-        description: errorMessage,
-        variant: "destructive",
-        duration: 7000, // Longer duration for error messages
-      });
-    } finally {
-      setIsImporting(false);
-    }
+  const handleLogout = () => {
+    clearUserData();
+    toast({ title: "Déconnecté", description: "Vos données locales ont été effacées."});
+    // La redirection sera gérée par le layout principal
   };
 
 
@@ -196,26 +121,25 @@ export default function SettingsPage() {
       <Card className="shadow-md rounded-xl">
         <CardHeader>
           <CardTitle className="text-xl font-semibold flex items-center gap-2 text-foreground">
-            <Code2 className="h-6 w-6 text-primary"/>Gérer mes données (Listes)
+            <Code2 className="h-6 w-6 text-primary"/>Gérer mes données
           </CardTitle>
           <CardDescription>
-            Exportez vos listes "À Regarder" et "Vus" sous forme de code ou importez un code pour restaurer vos données.
+            Exportez toutes vos données (profil et listes) sous forme d'un code de sauvegarde unique.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <Alert variant="default" className="bg-accent/20 border-accent/50 text-accent-foreground [&>svg]:text-accent">
             <AlertTriangle className="h-5 w-5" />
-            <AlertTitle className="font-semibold">Gestion des données par code</AlertTitle>
+            <AlertTitle className="font-semibold">Important : Code de Sauvegarde</AlertTitle>
             <AlertDescription>
-              Vous pouvez générer un code unique (format Base64) pour sauvegarder vos listes.
-              Collez ce code ultérieurement pour restaurer vos listes. L'importation remplacera les listes existantes.
+              Ce code contient TOUTES vos données. Conservez-le précieusement pour vous connecter sur un autre appareil ou navigateur. N'utilisez la fonction d'importation que sur la page de bienvenue.
             </AlertDescription>
           </Alert>
 
           <div>
             <Button onClick={handleGenerateExportCode} variant="default" className="w-full sm:w-auto" disabled={!isLoaded || isExporting}>
               {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Copy className="mr-2 h-4 w-4" />}
-              Générer le code d'exportation
+              Générer mon code de sauvegarde
             </Button>
             {exportedCode && (
               <div className="mt-4 space-y-2">
@@ -223,7 +147,7 @@ export default function SettingsPage() {
                   readOnly
                   value={exportedCode}
                   className="h-32 resize-none bg-muted/50 font-mono text-xs"
-                  aria-label="Code d'exportation généré"
+                  aria-label="Code de sauvegarde généré"
                 />
                 <Button onClick={handleCopyToClipboard} variant="outline" size="sm" className="w-full sm:w-auto">
                   <Copy className="mr-2 h-4 w-4" /> Copier le code
@@ -231,25 +155,37 @@ export default function SettingsPage() {
               </div>
             )}
           </div>
-          
-          <hr className="border-border"/>
-
-          <div>
-            <h3 className="text-lg font-medium mb-2 text-foreground">Importer depuis un code</h3>
-            <Textarea
-              placeholder="Collez votre code d'exportation ici..."
-              value={importCode}
-              onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setImportCode(e.target.value)}
-              className="h-32 resize-none font-mono text-xs mb-3"
-              aria-label="Zone de texte pour coller le code d'importation"
-              disabled={isImporting}
-            />
-            <Button onClick={handleImportFromCode} variant="default" className="w-full sm:w-auto" disabled={!isLoaded || isImporting || !importCode.trim()}>
-              {isImporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ClipboardPaste className="mr-2 h-4 w-4" />}
-              Importer depuis le code
-            </Button>
-          </div>
         </CardContent>
+      </Card>
+
+      <Card className="shadow-md rounded-xl border-destructive/50">
+          <CardHeader>
+              <CardTitle className="text-xl font-semibold flex items-center gap-2 text-destructive">
+                <LogOut className="h-6 w-6"/> Zone de Danger
+              </CardTitle>
+              <CardDescription>
+                Cette action est irréversible. Elle supprimera toutes vos données locales (profil et listes) de ce navigateur.
+              </CardDescription>
+          </CardHeader>
+          <CardContent>
+              <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                      <Button variant="destructive">Se déconnecter</Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                      <AlertDialogHeader>
+                          <AlertDialogTitle>Êtes-vous absolument sûr ?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                              Cette action supprimera votre profil et toutes vos listes de ce navigateur. Assurez-vous d'avoir sauvegardé votre code si vous souhaitez les récupérer plus tard.
+                          </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                          <AlertDialogCancel>Annuler</AlertDialogCancel>
+                          <AlertDialogAction onClick={handleLogout}>Oui, me déconnecter</AlertDialogAction>
+                      </AlertDialogFooter>
+                  </AlertDialogContent>
+              </AlertDialog>
+          </CardContent>
       </Card>
     </div>
   );

@@ -5,19 +5,23 @@ import { createContext, useContext, useState, useEffect, useCallback } from 'rea
 
 interface UserContextState {
   username: string | null;
-  setUsername: (name: string) => void;
+  avatar: string | null;
+  setUsernameAndAvatar: (name: string, avatar: string) => void;
   hasCompletedOnboarding: boolean;
   markOnboardingAsComplete: () => void;
   isLoaded: boolean;
+  clearUserData: () => void;
 }
 
 const UserContext = createContext<UserContextState | undefined>(undefined);
 
 const ONBOARDING_KEY = 'cineprime_onboarding_complete';
 const USERNAME_KEY = 'cineprime_username';
+const AVATAR_KEY = 'cineprime_avatar';
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
   const [username, setUsernameState] = useState<string | null>(null);
+  const [avatar, setAvatarState] = useState<string | null>(null);
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState<boolean>(true); // Default to true to avoid flash
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
 
@@ -26,9 +30,11 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       try {
         const onboardingStatus = localStorage.getItem(ONBOARDING_KEY) === 'true';
         const storedUsername = localStorage.getItem(USERNAME_KEY);
+        const storedAvatar = localStorage.getItem(AVATAR_KEY);
         
         setHasCompletedOnboarding(onboardingStatus);
         setUsernameState(storedUsername);
+        setAvatarState(storedAvatar);
       } catch (error) {
         console.error("Erreur lors de l'accès à localStorage:", error);
       }
@@ -36,12 +42,14 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const setUsername = useCallback((name: string) => {
+  const setUsernameAndAvatar = useCallback((name: string, avatarUrl: string) => {
     try {
       localStorage.setItem(USERNAME_KEY, name);
+      localStorage.setItem(AVATAR_KEY, avatarUrl);
       setUsernameState(name);
+      setAvatarState(avatarUrl);
     } catch (error) {
-      console.error("Erreur lors de la sauvegarde du nom d'utilisateur:", error);
+      console.error("Erreur lors de la sauvegarde des données utilisateur:", error);
     }
   }, []);
 
@@ -53,13 +61,33 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       console.error("Erreur lors de la sauvegarde du statut d'onboarding:", error);
     }
   }, []);
+  
+  const clearUserData = useCallback(() => {
+     try {
+      localStorage.removeItem(USERNAME_KEY);
+      localStorage.removeItem(AVATAR_KEY);
+      localStorage.removeItem(ONBOARDING_KEY);
+      // Optional: clear media lists as well if that's desired on logout
+      // localStorage.removeItem('cineCollection_toWatchList');
+      // localStorage.removeItem('cineCollection_watchedList');
+      
+      setUsernameState(null);
+      setAvatarState(null);
+      setHasCompletedOnboarding(false);
+
+    } catch (error) {
+      console.error("Erreur lors de la suppression des données utilisateur:", error);
+    }
+  }, []);
 
   const value = {
     username,
-    setUsername,
+    avatar,
+    setUsernameAndAvatar,
     hasCompletedOnboarding,
     markOnboardingAsComplete,
     isLoaded,
+    clearUserData,
   };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
