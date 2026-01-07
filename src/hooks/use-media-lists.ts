@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import type { Media } from '@/services/tmdb';
 import { getMediaDetails } from '@/services/tmdb'; // Import getMediaDetails
