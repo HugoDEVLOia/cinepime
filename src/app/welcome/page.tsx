@@ -16,16 +16,9 @@ import { useMediaLists, type Media } from '@/hooks/use-media-lists';
 import { cn } from '@/lib/utils';
 import { User, LogIn, Key, Users, Film, Check, Loader2 } from 'lucide-react';
 
-const netflixAvatars = [
-    '/assets/profil_pictures/netflix/1.png', '/assets/profil_pictures/netflix/2.png',
-    '/assets/profil_pictures/netflix/3.png', '/assets/profil_pictures/netflix/4.png',
-    '/assets/profil_pictures/netflix/5.png', '/assets/profil_pictures/netflix/6.png',
-];
-const disneyAvatars = [
-    '/assets/profil_pictures/disney+/1.png', '/assets/profil_pictures/disney+/2.png',
-    '/assets/profil_pictures/disney+/3.png', '/assets/profil_pictures/disney+/4.png',
-    '/assets/profil_pictures/disney+/5.png', '/assets/profil_pictures/disney+/6.png',
-];
+const netflixAvatars = Array.from({ length: 6 }, (_, i) => `/assets/profil_pictures/netflix/${i + 1}.png`);
+const disneyAvatars = Array.from({ length: 6 }, (_, i) => `/assets/profil_pictures/disney+/${i + 1}.png`);
+
 
 export default function WelcomePage() {
     const [username, setUsername] = useState('');
