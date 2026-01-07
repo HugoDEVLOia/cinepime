@@ -277,14 +277,14 @@ export default function Chatbot() {
         onClick={() => setIsOpen(true)}
         aria-label="Ouvrir le chatbot Popito"
       >
-        <Image src="/icon/mascotte.svg" alt="Popito" width={32} height={32} className="transition-transform group-hover:rotate-[5deg]" />
+        <Image src="/assets/mascotte/mascotte.svg" alt="Popito" width={32} height={32} className="transition-transform group-hover:rotate-[5deg]" />
       </Button>
 
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetContent className="w-full sm:max-w-lg flex flex-col p-0 bg-background shadow-2xl" side="right">
           <SheetHeader className="p-4 border-b border-border sticky top-0 bg-background z-10">
             <SheetTitle className="flex items-center gap-2.5 text-lg font-semibold text-foreground">
-              <Image src="/icon/mascotte.svg" alt="Popito" width={24} height={24}/>
+              <Image src="/assets/mascotte/mascotte.svg" alt="Popito" width={24} height={24}/>
               Popito
             </SheetTitle>
           </SheetHeader>
@@ -300,7 +300,7 @@ export default function Chatbot() {
               >
                 {msg.role === 'model' && (
                   <Avatar className="h-9 w-9 shrink-0">
-                    <AvatarImage src="/icon/mascotte.svg" alt="Popito" />
+                    <AvatarImage src="/assets/mascotte/mascotte.svg" alt="Popito" />
                     <AvatarFallback className="bg-primary text-primary-foreground text-sm">
                       <Bot size={20} />
                     </AvatarFallback>
@@ -331,7 +331,7 @@ export default function Chatbot() {
             {isLoading && quizState !== 'results' && (
               <div className="flex items-start justify-start gap-3">
                  <Avatar className="h-9 w-9 shrink-0">
-                    <AvatarImage src="/icon/mascotte.svg" alt="Popito" />
+                    <AvatarImage src="/assets/mascotte/mascotte.svg" alt="Popito" />
                     <AvatarFallback className="bg-primary text-primary-foreground text-sm">
                       <Bot size={20} />
                     </AvatarFallback>

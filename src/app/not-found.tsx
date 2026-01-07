@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -10,7 +11,7 @@ export default function NotFound() {
     <div className="flex flex-col items-center justify-center text-center py-20 min-h-[calc(100vh-250px)]">
       <div className="relative w-48 h-48 mb-8">
         <Image 
-            src="/icon/mascotte_offside.svg" 
+            src="/assets/mascotte/mascotte_offside.svg" 
             alt="Mascotte Popito Hors-jeu" 
             fill
             className="object-contain"

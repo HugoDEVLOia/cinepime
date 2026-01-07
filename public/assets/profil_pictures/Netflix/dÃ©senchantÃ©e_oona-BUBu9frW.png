@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, max-image-preview:small">
+    <meta name="apple-mobile-web-app-title" content="Cinepulse" />
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="application-name" content="Cinepulse" />
+    <meta name="msapplication-TileColor" content="#090201" />
+    <meta name="theme-color" content="#090201" />
+    <meta name="description" content="Cinepulse est une interface de gestion de contenus multimédia. Accès restreint, nouveautés régulières, service privé." />
+
+    <link rel="dns-prefetch" href="//image.tmdb.org">
+    <link rel="preconnect" href="https://image.tmdb.org" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link rel="icon" href="/favicons/favicon.ico" />
+    <link rel="icon" type="image/png" href="/favicons/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/favicons/favicon.svg" />
+    <link rel="shortcut icon" href="/favicons/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+
+    <title data-rh="true">Cinepulse - Plateforme multimédia en ligne</title>
+
+    <script type="application/ld+json" data-rh="true">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Cinepulse",
+        "url": "https://cinepulse.cc",
+        "applicationCategory": "ProductivityApplication"
+    }
+    </script>
+  <script type="module" crossorigin src="/assets/index-HpDdzlHR.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/react-vendor-Bhm9mNs1.js">
+  <link rel="modulepreload" crossorigin href="/assets/ui-vendor-DKOYf1a_.js">
+  <link rel="modulepreload" crossorigin href="/assets/state-vendor-DV-1qTJS.js">
+  <link rel="stylesheet" crossorigin href="/assets/index-DFEmwt38.css">
+<link rel="manifest" href="/manifest.webmanifest"></head>
+<body>
+    <div id="root"></div>
+    <script async src="https://plausible.io/js/pa-GhGfNhenL6afurldMpZJf.js"></script>
+    <script>
+        window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+        plausible.init()
+    </script>
+    <script>
+        (function loadCastSender() {
+            const script = document.createElement('script')
+            script.type = 'text/javascript'
+            script.src = 'https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1&cb=' + Date.now()
+
+            document.head.appendChild(script)
+        })()
+    </script>
+</body>
+</html>

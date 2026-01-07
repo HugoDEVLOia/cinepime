@@ -48,10 +48,10 @@ export default function RootLayout({
         
         <meta name="google-site-verification" content="hpSnb8QC163Oqt1-hTO2vUz9fqTOdFDlyH5C3JtKleI" />
 
-        <link rel="apple-touch-icon" href="/icon/favicon.svg" />
+        <link rel="apple-touch-icon" href="/assets/icon/favicon.svg" />
         <link rel="manifest" href="/manifest.json" />
-        <link rel="shortcut icon" href="/icon/favicon.svg" />
-        <link rel="icon" href="/icon/favicon.svg" type="image/svg+xml" />
+        <link rel="shortcut icon" href="/assets/icon/favicon.svg" />
+        <link rel="icon" href="/assets/icon/favicon.svg" type="image/svg+xml" />
       </head>
       <body className={`${GeistSans.variable} ${GeistMono.variable} antialiased flex flex-col min-h-screen`}>
         <ThemeProvider

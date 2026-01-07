@@ -44,7 +44,7 @@ export default function OnboardingDialog() {
       <DialogContent className="max-w-md p-0 overflow-hidden" onInteractOutside={(e) => e.preventDefault()}>
         <DialogHeader className="p-6 pb-0 text-center">
           <div className="mx-auto w-20 h-20 mb-4">
-             <Image src="/icon/mascotte.svg" alt="Mascotte Popito" width={80} height={80} />
+             <Image src="/assets/mascotte/mascotte.svg" alt="Mascotte Popito" width={80} height={80} />
           </div>
           <DialogTitle className="text-2xl font-bold">Bienvenue sur CinéPrime !</DialogTitle>
           <DialogDescription>

@@ -310,7 +310,7 @@ export default function HomePage() {
             <div className="flex flex-col md:flex-row items-center relative p-8">
                 <div className="md:w-1/2 relative flex items-center justify-center mb-6 md:mb-0">
                     <div className="relative w-48 h-48 flex items-center justify-center">
-                        <Image src="/icon/mascotte_discover.svg" alt="Mascotte Découverte" width={192} height={192} className="transition-transform duration-500 group-hover:scale-110" />
+                        <Image src="/assets/mascotte/mascotte_discover.svg" alt="Mascotte Découverte" width={192} height={192} className="transition-transform duration-500 group-hover:scale-110" />
                     </div>
                 </div>
 
@@ -365,7 +365,7 @@ export default function HomePage() {
       <Card className="bg-card border-border shadow-lg rounded-xl">
         <CardHeader className="text-center">
             <div className="mx-auto w-24 h-24 p-3 rounded-full mb-3">
-                 <Image src="/icon/mascotte_tips.svg" alt="Mascotte Popito" width={96} height={96} />
+                 <Image src="/assets/mascotte/mascotte_tips.svg" alt="Mascotte Popito" width={96} height={96} />
             </div>
             <CardTitle className="text-2xl font-bold text-foreground">Soutenez CinéPrime !</CardTitle>
             <CardDescription className="text-muted-foreground max-w-xl mx-auto">
