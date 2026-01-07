@@ -618,44 +618,44 @@ export default function WelcomePage() {
                         <p className="text-primary-foreground/80 mt-2">Votre nouvelle aventure cinéma commence ici.</p>
                     </div>
 
-                    <div className="flex flex-col">
-                         <div className="p-8 flex flex-col h-full">
-                            <Tabs defaultValue="create" className="flex flex-col flex-grow">
-                                <TabsList className="grid w-full grid-cols-2">
-                                    <TabsTrigger value="create"><User className="mr-2 h-4 w-4" /> Créer un profil</TabsTrigger>
-                                    <TabsTrigger value="login"><LogIn className="mr-2 h-4 w-4" /> Se connecter</TabsTrigger>
-                                </TabsList>
-                                <TabsContent value="create" className="mt-6 space-y-4 flex-grow flex flex-col">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="username" className="text-base font-semibold">Choisissez un pseudo</Label>
-                                        <Input id="username" placeholder="Ex: PopcornLover" value={username} onChange={(e) => setUsername(e.target.value)} />
-                                    </div>
-                                    <div className="space-y-2 flex-grow flex flex-col min-h-0">
-                                        <Label className="text-base font-semibold">Choisissez un avatar</Label>
-                                        <ScrollArea className="flex-grow pr-4">
-                                            <div className="space-y-8">
-                                                <AvatarGroup title="Netflix" avatars={groupedNetflixAvatars} />
-                                                <AvatarGroup title="Disney+" avatars={groupedDisneyAvatars} />
-                                            </div>
-                                        </ScrollArea>
-                                    </div>
-                                    <Button onClick={handleCreateProfile} className="w-full text-lg py-6 mt-4">Commencer</Button>
-                                </TabsContent>
-                                <TabsContent value="login" className="mt-6 space-y-4">
-                                    <CardHeader className="p-0 text-center mb-4">
-                                        <CardTitle>Restaurer vos données</CardTitle>
-                                        <CardDescription>Collez votre code de sauvegarde pour retrouver votre profil et vos listes.</CardDescription>
-                                    </CardHeader>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="import-code" className="font-semibold">Code de sauvegarde</Label>
-                                        <Textarea id="import-code" placeholder="Collez votre code ici..." value={importCode} onChange={(e) => setImportCode(e.target.value)} className="min-h-[120px] font-mono text-xs" />
-                                    </div>
-                                    <Button onClick={handleImportFromCode} className="w-full text-lg py-6" disabled={isImporting}>
-                                        {isImporting ? <Loader2 className="animate-spin mr-2"/> : <LogIn className="mr-2"/>} Se Connecter
-                                    </Button>
-                                </TabsContent>
-                            </Tabs>
-                         </div>
+                    <div className="p-8 flex flex-col h-full">
+                        <Tabs defaultValue="create" className="flex flex-col flex-grow">
+                            <TabsList className="grid w-full grid-cols-2">
+                                <TabsTrigger value="create"><User className="mr-2 h-4 w-4" /> Créer un profil</TabsTrigger>
+                                <TabsTrigger value="login"><LogIn className="mr-2 h-4 w-4" /> Se connecter</TabsTrigger>
+                            </TabsList>
+                            <TabsContent value="create" className="mt-6 flex-grow flex flex-col space-y-4 min-h-0">
+                                <div className="space-y-2">
+                                    <Label htmlFor="username" className="text-base font-semibold">Choisissez un pseudo</Label>
+                                    <Input id="username" placeholder="Ex: PopcornLover" value={username} onChange={(e) => setUsername(e.target.value)} />
+                                </div>
+                                <div className="space-y-2 flex-grow flex flex-col min-h-0">
+                                    <Label className="text-base font-semibold">Choisissez un avatar</Label>
+                                    <ScrollArea className="flex-grow pr-4 -mr-4">
+                                        <div className="space-y-8">
+                                            <AvatarGroup title="Netflix" avatars={groupedNetflixAvatars} />
+                                            <AvatarGroup title="Disney+" avatars={groupedDisneyAvatars} />
+                                        </div>
+                                    </ScrollArea>
+                                </div>
+                                <div className="pt-4">
+                                  <Button onClick={handleCreateProfile} className="w-full text-lg py-6">Commencer</Button>
+                                </div>
+                            </TabsContent>
+                            <TabsContent value="login" className="mt-6 space-y-4">
+                                <CardHeader className="p-0 text-center mb-4">
+                                    <CardTitle>Restaurer vos données</CardTitle>
+                                    <CardDescription>Collez votre code de sauvegarde pour retrouver votre profil et vos listes.</CardDescription>
+                                </CardHeader>
+                                <div className="space-y-2">
+                                    <Label htmlFor="import-code" className="font-semibold">Code de sauvegarde</Label>
+                                    <Textarea id="import-code" placeholder="Collez votre code ici..." value={importCode} onChange={(e) => setImportCode(e.target.value)} className="min-h-[120px] font-mono text-xs" />
+                                </div>
+                                <Button onClick={handleImportFromCode} className="w-full text-lg py-6" disabled={isImporting}>
+                                    {isImporting ? <Loader2 className="animate-spin mr-2"/> : <LogIn className="mr-2"/>} Se Connecter
+                                </Button>
+                            </TabsContent>
+                        </Tabs>
                     </div>
                 </div>
             </Card>
