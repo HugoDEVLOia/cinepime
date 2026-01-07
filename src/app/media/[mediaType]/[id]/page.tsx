@@ -604,7 +604,7 @@ export default function MediaDetailsPage() {
               
               <div className="flex flex-wrap gap-3 pt-4 border-t border-border">
                   <Button asChild style={{ backgroundColor: '#E50914', color: '#F5F5F1' }} className="hover:bg-red-800">
-                      <a href={`https://movix.blog/`} target="_blank" rel="noopener noreferrer" className="flex items-center">
+                      <a href={`https://movix.blog/search?q=${encodeURIComponent(media.title)}`} target="_blank" rel="noopener noreferrer" className="flex items-center">
                           <Image src="https://movix.blog/assets/movix-CzqwVOTS.png" alt="Movix Logo" width={20} height={20} className="mr-2 rounded-sm"/>
                           Movix
                       </a>
@@ -869,6 +869,7 @@ function getSafeProfileImageUrl(path: string | null | undefined): string {
     
 
     
+
 
 
 
