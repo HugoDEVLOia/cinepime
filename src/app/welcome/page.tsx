@@ -15,6 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useMediaLists, type Media } from '@/hooks/use-media-lists';
 import { cn } from '@/lib/utils';
 import { User, LogIn, Key, Users, Film, Check, Loader2 } from 'lucide-react';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
 const disneyAvatars = [
     "/assets/avatars/Disney+/disney channel_candace flynn-C1vj9fmL.png",
@@ -475,6 +476,60 @@ const netflixAvatars = [
     "/assets/avatars/Netflix/zombie-EFkfL8gF.png"
   ];
 
+// Helper function to extract series name from avatar path
+const getSeriesFromPath = (path: string): string => {
+    const fileName = path.split('/').pop()?.split('.')[0] || '';
+    // Handle Disney+ format: "disney channel_candace flynn-..."
+    // Handle Netflix format: "arcane_caitlyn-..." or "aib-arisu-..."
+    const parts = fileName.split(/_|-/);
+    let seriesName = parts[0];
+
+    // Handle multi-word series names for Disney+
+    if (path.includes('Disney+')) {
+        const potentialSeriesName = fileName.split('_')[0];
+        seriesName = potentialSeriesName;
+    } else { // Handle Netflix series names that might have hyphens
+        const netflixMapping: Record<string, string> = {
+            'aib': 'Alice in Borderland',
+            'big': 'Big Mouth',
+            'black': 'Black Mirror',
+            'bojack': 'Bojack Horseman',
+            'la': 'La Casa De Papel', // Can be tricky, might need more specific
+            'love': 'Love, Death & Robots',
+            'on': 'On My Block',
+            'one': 'One Piece',
+            'orange': 'Orange is the new Black',
+            'outer': 'Outer Banks',
+            'sex': 'Sex Education',
+            'squid': 'Squid Game',
+            'stranger': 'Stranger Things',
+            'the': 'The Witcher',
+            'umbrella': 'Umbrella Academy'
+        };
+        if (netflixMapping[seriesName]) {
+            seriesName = netflixMapping[seriesName];
+        }
+    }
+    
+    // Capitalize and clean up
+    return seriesName
+        .replace(/_/g, ' ')
+        .replace(/-/g, ' ')
+        .replace(/\b\w/g, l => l.toUpperCase());
+};
+
+const groupAvatarsBySeries = (avatarPaths: string[]) => {
+    const grouped: Record<string, string[]> = {};
+    for (const path of avatarPaths) {
+        const series = getSeriesFromPath(path);
+        if (!grouped[series]) {
+            grouped[series] = [];
+        }
+        grouped[series].push(path);
+    }
+    return grouped;
+};
+
 export default function WelcomePage() {
     const [username, setUsername] = useState('');
     const [selectedAvatar, setSelectedAvatar] = useState(netflixAvatars[0]);
@@ -485,6 +540,9 @@ export default function WelcomePage() {
     const { setLists } = useMediaLists();
     const { toast } = useToast();
     const router = useRouter();
+
+    const groupedNetflixAvatars = groupAvatarsBySeries(netflixAvatars);
+    const groupedDisneyAvatars = groupAvatarsBySeries(disneyAvatars);
 
     const handleCreateProfile = () => {
         if (!username.trim()) {
@@ -527,69 +585,82 @@ export default function WelcomePage() {
     };
 
 
+    const AvatarGroup = ({ title, avatars }: { title: string, avatars: Record<string, string[]> }) => (
+        <div>
+            <h3 className="text-lg font-semibold text-muted-foreground mb-3 sticky top-0 bg-background/95 py-2 z-10">{title}</h3>
+            <div className="space-y-6">
+                {Object.entries(avatars).sort(([a], [b]) => a.localeCompare(b)).map(([series, paths]) => (
+                    <div key={series}>
+                        <p className="text-sm font-medium text-foreground mb-2">{series}</p>
+                         <ScrollArea className="w-full whitespace-nowrap">
+                            <div className="flex space-x-3 pb-4">
+                                {paths.map(src => (
+                                    <button key={src} onClick={() => setSelectedAvatar(src)} className={cn("rounded-full overflow-hidden border-4 flex-shrink-0 transition-all duration-200", selectedAvatar === src ? 'border-primary ring-4 ring-primary/50' : 'border-transparent hover:border-primary/50')}>
+                                        <Image src={src} alt={`Avatar ${src}`} width={80} height={80} className="hover:scale-110 transition-transform"/>
+                                    </button>
+                                ))}
+                            </div>
+                            <ScrollBar orientation="horizontal" />
+                        </ScrollArea>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+
     return (
         <div className="min-h-screen w-full flex items-center justify-center bg-background p-4">
-            <Card className="w-full max-w-2xl shadow-2xl">
-                <div className="grid grid-cols-1 md:grid-cols-2">
+            <Card className="w-full max-w-4xl shadow-2xl overflow-hidden">
+                <div className="grid grid-cols-1 md:grid-cols-2 h-[85vh]">
                     <div className="p-8 flex flex-col items-center justify-center text-center bg-primary rounded-t-lg md:rounded-tr-none md:rounded-l-lg">
                         <Image src="/assets/mascotte/mascotte.svg" alt="Popito Mascotte" width={120} height={120} className="mb-4" />
                         <h1 className="text-3xl font-bold text-primary-foreground">Bienvenue !</h1>
                         <p className="text-primary-foreground/80 mt-2">Votre nouvelle aventure cinéma commence ici.</p>
                     </div>
 
-                    <div className="p-8">
-                        <Tabs defaultValue="create">
-                            <TabsList className="grid w-full grid-cols-2">
-                                <TabsTrigger value="create"><User className="mr-2 h-4 w-4" /> Créer un profil</TabsTrigger>
-                                <TabsTrigger value="login"><LogIn className="mr-2 h-4 w-4" /> Se connecter</TabsTrigger>
-                            </TabsList>
-                            <TabsContent value="create" className="mt-6 space-y-6">
-                                <div className="space-y-2">
-                                    <Label htmlFor="username" className="text-base font-semibold">Choisissez un pseudo</Label>
-                                    <Input id="username" placeholder="Ex: PopcornLover" value={username} onChange={(e) => setUsername(e.target.value)} />
-                                </div>
-                                <div className="space-y-4">
-                                    <Label className="text-base font-semibold">Choisissez un avatar</Label>
-                                    <div>
-                                        <p className="text-sm font-medium text-muted-foreground mb-2">Netflix</p>
-                                        <div className="grid grid-cols-6 gap-2">
-                                            {netflixAvatars.map(src => (
-                                                <button key={src} onClick={() => setSelectedAvatar(src)} className={cn("rounded-full overflow-hidden border-2 transition-all", selectedAvatar === src ? 'border-primary ring-2 ring-primary' : 'border-transparent hover:border-primary/50')}>
-                                                    <Image src={src} alt={`Avatar ${src}`} width={64} height={64} />
-                                                </button>
-                                            ))}
-                                        </div>
+                    <div className="flex flex-col">
+                         <div className="p-8 pb-0">
+                            <Tabs defaultValue="create">
+                                <TabsList className="grid w-full grid-cols-2">
+                                    <TabsTrigger value="create"><User className="mr-2 h-4 w-4" /> Créer un profil</TabsTrigger>
+                                    <TabsTrigger value="login"><LogIn className="mr-2 h-4 w-4" /> Se connecter</TabsTrigger>
+                                </TabsList>
+                                <TabsContent value="create" className="mt-6 space-y-6 flex-grow flex flex-col">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="username" className="text-base font-semibold">Choisissez un pseudo</Label>
+                                        <Input id="username" placeholder="Ex: PopcornLover" value={username} onChange={(e) => setUsername(e.target.value)} />
                                     </div>
-                                     <div>
-                                        <p className="text-sm font-medium text-muted-foreground mb-2">Disney+</p>
-                                        <div className="grid grid-cols-6 gap-2">
-                                            {disneyAvatars.map(src => (
-                                                <button key={src} onClick={() => setSelectedAvatar(src)} className={cn("rounded-full overflow-hidden border-2 transition-all", selectedAvatar === src ? 'border-primary ring-2 ring-primary' : 'border-transparent hover:border-primary/50')}>
-                                                    <Image src={src} alt={`Avatar ${src}`} width={64} height={64} />
-                                                </button>
-                                            ))}
-                                        </div>
+                                    <div className="space-y-4 flex-grow relative">
+                                        <Label className="text-base font-semibold">Choisissez un avatar</Label>
+                                        <ScrollArea className="h-[calc(85vh-350px)] pr-4">
+                                            <div className="space-y-8">
+                                                <AvatarGroup title="Netflix" avatars={groupedNetflixAvatars} />
+                                                <AvatarGroup title="Disney+" avatars={groupedDisneyAvatars} />
+                                            </div>
+                                        </ScrollArea>
                                     </div>
-                                </div>
-                                <Button onClick={handleCreateProfile} className="w-full text-lg py-6">Commencer</Button>
-                            </TabsContent>
-                            <TabsContent value="login" className="mt-6 space-y-4">
-                                <CardHeader className="p-0 text-center mb-4">
-                                    <CardTitle>Restaurer vos données</CardTitle>
-                                    <CardDescription>Collez votre code de sauvegarde pour retrouver votre profil et vos listes.</CardDescription>
-                                </CardHeader>
-                                <div className="space-y-2">
-                                    <Label htmlFor="import-code" className="font-semibold">Code de sauvegarde</Label>
-                                    <Textarea id="import-code" placeholder="Collez votre code ici..." value={importCode} onChange={(e) => setImportCode(e.target.value)} className="min-h-[120px] font-mono text-xs" />
-                                </div>
-                                <Button onClick={handleImportFromCode} className="w-full text-lg py-6" disabled={isImporting}>
-                                    {isImporting ? <Loader2 className="animate-spin mr-2"/> : <LogIn className="mr-2"/>} Se Connecter
-                                </Button>
-                            </TabsContent>
-                        </Tabs>
+                                    <Button onClick={handleCreateProfile} className="w-full text-lg py-6 mt-auto">Commencer</Button>
+                                </TabsContent>
+                                <TabsContent value="login" className="mt-6 space-y-4">
+                                    <CardHeader className="p-0 text-center mb-4">
+                                        <CardTitle>Restaurer vos données</CardTitle>
+                                        <CardDescription>Collez votre code de sauvegarde pour retrouver votre profil et vos listes.</CardDescription>
+                                    </CardHeader>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="import-code" className="font-semibold">Code de sauvegarde</Label>
+                                        <Textarea id="import-code" placeholder="Collez votre code ici..." value={importCode} onChange={(e) => setImportCode(e.target.value)} className="min-h-[120px] font-mono text-xs" />
+                                    </div>
+                                    <Button onClick={handleImportFromCode} className="w-full text-lg py-6" disabled={isImporting}>
+                                        {isImporting ? <Loader2 className="animate-spin mr-2"/> : <LogIn className="mr-2"/>} Se Connecter
+                                    </Button>
+                                </TabsContent>
+                            </Tabs>
+                         </div>
                     </div>
                 </div>
             </Card>
         </div>
     );
 }
+
+    
