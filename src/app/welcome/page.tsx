@@ -174,81 +174,29 @@ const netflixAvatars = [
     "/assets/avatars/Netflix/umbrella-academy_viktor-DFa-gou4.png", "/assets/avatars/Netflix/zombie-EFkfL8gF.png"
 ];
 
-const nameMapping: Record<string, string> = {
-  'aib': 'Alice in Borderland',
-  'big-mouth': 'Big Mouth',
-  'black-mirror': 'Black Mirror',
-  'bojack-horseman': 'Bojack Horseman',
-  'cobra-kai': 'Cobra Kai',
-  'disney channel': 'Disney Channel',
-  'disney classics': 'Disney Classics',
-  'disney princess': 'Disney Princesses',
-  'ice age': 'L\'Âge de Glace',
-  'kpop-demon-hunters': 'K-Pop: Demon Hunters',
-  'la-casa-de-papel': 'La Casa de Papel',
-  'la-chronique-des-bridgerton': 'La Chronique des Bridgerton',
-  'love': 'Love, Death & Robots',
-  'mickey and friends': 'Mickey et ses amis',
-  'national geographic': 'National Geographic',
-  'on-my-block': 'On My Block',
-  'one-piece': 'One Piece',
-  'orange-is-the-new-black': 'Orange Is The New Black',
-  'outer-banks': 'Outer Banks',
-  "perdus-dans-l'espace": 'Perdus dans l\'espace',
-  'sex-education': 'Sex Education',
-  'squid-game': 'Squid Game',
-  'star wars': 'Star Wars',
-  'stranger-things': 'Stranger Things',
-  'the muppets': 'The Muppets',
-  'the simpsons': 'The Simpsons',
-  'the-witcher': 'The Witcher',
-  'umbrella-academy': 'Umbrella Academy',
-};
+const AvatarGroup = ({ title, avatarPaths, selectedAvatar, onSelect }: { title: string, avatarPaths: string[], selectedAvatar: string, onSelect: (path: string) => void }) => (
+    <div className="space-y-4">
+        <h3 className="text-lg font-semibold text-foreground">{title}</h3>
+        <ScrollArea className="w-full whitespace-nowrap">
+            <div className="flex space-x-4 pb-4">
+                {avatarPaths.map(src => (
+                    <button 
+                        key={src} 
+                        onClick={() => onSelect(src)} 
+                        className={cn(
+                            "rounded-full overflow-hidden border-4 flex-shrink-0 transition-all duration-200", 
+                            selectedAvatar === src ? 'border-primary ring-4 ring-primary/30' : 'border-transparent hover:border-primary/50'
+                        )}
+                    >
+                        <Image src={src} alt={`Avatar de ${title}`} width={80} height={80} className="hover:scale-110 transition-transform"/>
+                    </button>
+                ))}
+            </div>
+            <ScrollBar orientation="horizontal" />
+        </ScrollArea>
+    </div>
+);
 
-const getSeriesFromPath = (path: string): string => {
-    // Correctly extract the file name, even with URL encoding issues
-    const decodedPath = decodeURIComponent(path);
-    const fileName = decodedPath.split('/').pop()?.split('.')[0] || '';
-    
-    // Handle specific cases like "love_-death-_-robots"
-    let cleanedFileName = fileName.replace(/_-/g, '_').toLowerCase();
-    
-    // Handle "dsenchante"
-    cleanedFileName = cleanedFileName.replace(/^dsenchante/, 'désenchantée');
-
-    const nameParts = cleanedFileName.split('_');
-
-    // Check for multi-word keys first, from longest to shortest
-    for (let i = 4; i > 0; i--) {
-        const potentialKey = nameParts.slice(0, i).join(' ').replace(/-/g, ' ');
-        if (nameMapping[potentialKey as keyof typeof nameMapping]) {
-            return nameMapping[potentialKey as keyof typeof nameMapping];
-        }
-    }
-    
-    // Capitalize the first part if not in mapping
-    return nameParts[0].replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-};
-
-const groupAvatarsBySeries = (avatarPaths: string[]) => {
-    const grouped: Record<string, string[]> = {};
-    for (const path of avatarPaths) {
-        if (!path.startsWith('/assets/')) continue;
-        
-        // Basic path cleaning
-        const cleanedPath = path.replace(/%20/g, ' ').replace(/\/assets\s*/, '/assets/');
-
-        const series = getSeriesFromPath(cleanedPath);
-        if (!grouped[series]) {
-            grouped[series] = [];
-        }
-        // Avoid adding duplicate or invalid paths
-        if (!grouped[series].includes(cleanedPath)) {
-            grouped[series].push(cleanedPath);
-        }
-    }
-    return grouped;
-};
 
 export default function WelcomePage() {
     const [username, setUsername] = useState('');
@@ -260,9 +208,6 @@ export default function WelcomePage() {
     const { setLists } = useMediaLists();
     const { toast } = useToast();
     const router = useRouter();
-
-    const groupedNetflixAvatars = groupAvatarsBySeries(netflixAvatars);
-    const groupedDisneyAvatars = groupAvatarsBySeries(disneyAvatars);
 
     const handleCreateProfile = () => {
         if (!username.trim()) {
@@ -303,32 +248,11 @@ export default function WelcomePage() {
           setIsImporting(false);
         }
     };
-
-    const AvatarGroup = ({ title, avatars }: { title: string, avatars: Record<string, string[]> }) => (
-        <div className="space-y-6">
-            <h3 className="text-xl font-semibold text-foreground mb-4 sticky top-0 bg-card py-3 z-10">{title}</h3>
-            {Object.entries(avatars).sort(([a], [b]) => a.localeCompare(b)).map(([series, paths]) => (
-                <div key={series}>
-                    <p className="text-sm font-medium text-muted-foreground mb-3">{series}</p>
-                     <ScrollArea className="w-full whitespace-nowrap">
-                        <div className="flex space-x-4 pb-4">
-                            {paths.map(src => (
-                                <button key={src} onClick={() => setSelectedAvatar(src)} className={cn("rounded-full overflow-hidden border-4 flex-shrink-0 transition-all duration-200", selectedAvatar === src ? 'border-primary ring-4 ring-primary/30' : 'border-transparent hover:border-primary/50')}>
-                                    <Image src={src} alt={`Avatar ${series}`} width={80} height={80} className="hover:scale-110 transition-transform"/>
-                                </button>
-                            ))}
-                        </div>
-                        <ScrollBar orientation="horizontal" />
-                    </ScrollArea>
-                </div>
-            ))}
-        </div>
-    );
-
+    
     return (
         <div className="min-h-screen w-full flex items-center justify-center bg-background p-4">
             <Card className="w-full max-w-4xl shadow-2xl">
-                 <div className="p-2 sm:p-6 md:p-8">
+                 <div className="p-4 sm:p-6 md:p-8">
                      <div className="text-center mb-8">
                         <Image src="/assets/mascotte/mascotte.svg" alt="Popito Mascotte" width={96} height={96} className="mx-auto mb-4" />
                         <h1 className="text-3xl font-bold text-primary">Bienvenue sur CinéPrime !</h1>
@@ -339,28 +263,40 @@ export default function WelcomePage() {
                             <TabsTrigger value="create"><User className="mr-2 h-4 w-4" /> Créer un profil</TabsTrigger>
                             <TabsTrigger value="login"><LogIn className="mr-2 h-4 w-4" /> Se connecter</TabsTrigger>
                         </TabsList>
+                        
                         <TabsContent value="create" className="mt-6">
-                            <div className="flex flex-col space-y-6">
+                            <div className="flex flex-col h-[60vh] space-y-6">
                                 <div className="space-y-2">
                                     <Label htmlFor="username" className="text-base font-semibold">1. Choisissez un pseudo</Label>
                                     <Input id="username" placeholder="Ex: PopcornLover" value={username} onChange={(e) => setUsername(e.target.value)} />
                                 </div>
                                 <div className="space-y-2 flex-grow flex flex-col min-h-0">
                                     <Label className="text-base font-semibold">2. Choisissez un avatar</Label>
-                                    <ScrollArea className="flex-grow rounded-md border p-4 h-96">
+                                    <ScrollArea className="flex-grow rounded-md border p-4">
                                         <div className="space-y-8">
-                                            <AvatarGroup title="Netflix" avatars={groupedNetflixAvatars} />
-                                            <AvatarGroup title="Disney+" avatars={groupedDisneyAvatars} />
+                                            <AvatarGroup 
+                                                title="Netflix" 
+                                                avatarPaths={netflixAvatars} 
+                                                selectedAvatar={selectedAvatar}
+                                                onSelect={setSelectedAvatar}
+                                            />
+                                            <AvatarGroup 
+                                                title="Disney+" 
+                                                avatarPaths={disneyAvatars} 
+                                                selectedAvatar={selectedAvatar}
+                                                onSelect={setSelectedAvatar}
+                                            />
                                         </div>
                                     </ScrollArea>
                                 </div>
-                                <div className="pt-4">
+                                <div className="flex-shrink-0 pt-4">
                                   <Button onClick={handleCreateProfile} className="w-full text-lg py-6">Commencer</Button>
                                 </div>
                             </div>
                         </TabsContent>
+
                         <TabsContent value="login" className="mt-6">
-                           <div className="flex flex-col justify-center space-y-4 max-w-md mx-auto">
+                           <div className="flex flex-col justify-center space-y-4 max-w-md mx-auto py-8">
                                 <CardHeader className="p-0 text-center mb-4">
                                     <CardTitle>Restaurer vos données</CardTitle>
                                     <CardDescription>Collez votre code de sauvegarde pour retrouver votre profil et vos listes.</CardDescription>
@@ -381,3 +317,4 @@ export default function WelcomePage() {
     );
 }
 
+    
