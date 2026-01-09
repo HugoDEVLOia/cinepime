@@ -140,7 +140,7 @@ const netflixAvatars = [
     "/assets/avatars/Netflix/one-piece_shanks-Ca1waVs2.png", "/assets/avatars/Netflix/one-piece_usopp-Ck9nESoS.png", "/assets/avatars/Netflix/one-piece_zoro-BmZo-lKp.png",
     "/assets/avatars/Netflix/orange-is-the-new-black_alex-Dw5Ws_ph.png", "/assets/avatars/Netflix/orange-is-the-new-black_black_cindy-DaDPI4oY.png", "/assets/avatars/Netflix/orange-is-the-new-black_daya-udUNgczu.png",
     "/assets/avatars/Netflix/orange-is-the-new-black_gloria-CIVBSn9P.png", "/assets/avatars/Netflix/orange-is-the-new-black_nicky-DCUDhaR7.png", "/assets/avatars/Netflix/orange-is-the-new-black_piper-DQzGm0nm.png",
-    "/assets->avatars/Netflix/orange-is-the-new-black_poulet_onb-CPtLf9TB.png", "/assets/avatars/Netflix/orange-is-the-new-black_red-B9YN_VCD.png", "/assets/avatars/Netflix/orange-is-the-new-black_suzanne-CGE3XWXv.png",
+    "/assets/avatars/Netflix/orange-is-the-new-black_poulet_onb-CPtLf9TB.png", "/assets/avatars/Netflix/orange-is-the-new-black_red-B9YN_VCD.png", "/assets/avatars/Netflix/orange-is-the-new-black_suzanne-CGE3XWXv.png",
     "/assets/avatars/Netflix/orange-is-the-new-black_taystee-Bq8Ggz2g.png", "/assets/avatars/Netflix/outer-banks_cleo-wrS8oKvf.png", "/assets/avatars/Netflix/outer-banks_jj-BupciCeI.png",
     "/assets/avatars/Netflix/outer-banks_john_b-Brjbl1kC.png", "/assets/avatars/Netflix/outer-banks_kiara-Dv1vH43f.png", "/assets/avatars/Netflix/outer-banks_pope-CGh0dxqI.png",
     "/assets/avatars/Netflix/outer-banks_rafe-LEz59HIa.png", "/assets/avatars/Netflix/outer-banks_sarah-Cot6YWdq.png", "/assets/avatars/Netflix/perdus-dans-l'espace_don_west-3XmzZEgS.png",
@@ -174,9 +174,25 @@ const netflixAvatars = [
     "/assets/avatars/Netflix/umbrella-academy_viktor-DFa-gou4.png", "/assets/avatars/Netflix/zombie-EFkfL8gF.png"
 ];
 
+const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
+const groupAvatarsBySeries = (avatarPaths: string[]): Record<string, string[]> => {
+  return avatarPaths.reduce((acc, path) => {
+    const filename = path.split('/').pop() || '';
+    const seriesKey = filename.split('_')[0].replace(/-/g, ' ');
+    const seriesTitle = seriesKey.split(' ').map(capitalize).join(' ');
+
+    if (!acc[seriesTitle]) {
+      acc[seriesTitle] = [];
+    }
+    acc[seriesTitle].push(path);
+    return acc;
+  }, {} as Record<string, string[]>);
+};
+
 const AvatarGroup = ({ title, avatarPaths, selectedAvatar, onSelect }: { title: string, avatarPaths: string[], selectedAvatar: string, onSelect: (path: string) => void }) => (
     <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-foreground">{title}</h3>
+        <h3 className="text-lg font-semibold text-foreground capitalize">{title}</h3>
         <ScrollArea className="w-full whitespace-nowrap">
             <div className="flex space-x-4 pb-4">
                 {avatarPaths.map(src => (
@@ -208,6 +224,9 @@ export default function WelcomePage() {
     const { setLists } = useMediaLists();
     const { toast } = useToast();
     const router = useRouter();
+
+    const groupedNetflixAvatars = groupAvatarsBySeries(netflixAvatars);
+    const groupedDisneyAvatars = groupAvatarsBySeries(disneyAvatars);
 
     const handleCreateProfile = () => {
         if (!username.trim()) {
@@ -274,18 +293,26 @@ export default function WelcomePage() {
                                     <Label className="text-base font-semibold">2. Choisissez un avatar</Label>
                                     <ScrollArea className="flex-grow rounded-md border p-4">
                                         <div className="space-y-8">
-                                            <AvatarGroup 
-                                                title="Netflix" 
-                                                avatarPaths={netflixAvatars} 
-                                                selectedAvatar={selectedAvatar}
-                                                onSelect={setSelectedAvatar}
-                                            />
-                                            <AvatarGroup 
-                                                title="Disney+" 
-                                                avatarPaths={disneyAvatars} 
-                                                selectedAvatar={selectedAvatar}
-                                                onSelect={setSelectedAvatar}
-                                            />
+                                            <h2 className="text-xl font-bold text-primary">Netflix</h2>
+                                            {Object.entries(groupedNetflixAvatars).map(([series, avatars]) => (
+                                                <AvatarGroup 
+                                                    key={series}
+                                                    title={series}
+                                                    avatarPaths={avatars}
+                                                    selectedAvatar={selectedAvatar}
+                                                    onSelect={setSelectedAvatar}
+                                                />
+                                            ))}
+                                            <h2 className="text-xl font-bold text-primary mt-8">Disney+</h2>
+                                             {Object.entries(groupedDisneyAvatars).map(([series, avatars]) => (
+                                                <AvatarGroup 
+                                                    key={series}
+                                                    title={series}
+                                                    avatarPaths={avatars}
+                                                    selectedAvatar={selectedAvatar}
+                                                    onSelect={setSelectedAvatar}
+                                                />
+                                            ))}
                                         </div>
                                     </ScrollArea>
                                 </div>
@@ -316,5 +343,3 @@ export default function WelcomePage() {
         </div>
     );
 }
-
-    
