@@ -4,9 +4,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { getPopularMedia, type Media, getMediaDetails } from '@/services/tmdb';
 import { Button } from '@/components/ui/button';
-import { Loader2, Heart, Check, Info, Star, CalendarDays, ArrowLeft, ArrowRight, PlaySquare } from 'lucide-react';
+import { Loader2, Heart, Check, Info, Star, CalendarDays, ArrowLeft } from 'lucide-react';
 import { useMediaLists } from '@/hooks/use-media-lists';
 import { useToast } from '@/hooks/use-toast';
 import { AnimatePresence, motion, useAnimation, PanInfo } from 'framer-motion';
@@ -20,8 +21,7 @@ function DirectLinksPanel({ media, isVisible }: { media: Media, isVisible: boole
 
     return (
         <div className={cn(
-            "absolute inset-y-0 w-full h-full bg-black/70 backdrop-blur-md p-6 flex flex-col justify-center items-center text-white",
-            "left-full" // Positioned to the right of the main view
+            "absolute inset-y-0 right-[-100%] w-full h-full bg-black/70 backdrop-blur-md p-6 flex flex-col justify-center items-center text-white"
         )}>
             <h3 className="text-2xl font-bold mb-6">Liens Directs</h3>
              <div className="flex flex-col gap-4 w-full max-w-xs">
@@ -46,61 +46,13 @@ function DirectLinksPanel({ media, isVisible }: { media: Media, isVisible: boole
     )
 }
 
-function DetailsPanel({ media, isVisible }: { media: Media, isVisible: boolean }) {
-  const director = media.credits?.crew?.find(c => c.job === 'Director');
-
-  return (
-    <div className={cn(
-        "absolute inset-y-0 w-full h-full bg-black/70 backdrop-blur-md p-6 flex flex-col justify-center items-start text-white overflow-y-auto",
-        "right-full" // Positioned to the left of the main view
-    )}>
-      <h3 className="text-2xl font-bold mb-4">Détails</h3>
-      <div className="space-y-4 text-sm w-full">
-          {director && (
-              <div>
-                  <h4 className="font-semibold text-white/80 mb-1">Réalisateur</h4>
-                  <p>{director.name}</p>
-              </div>
-          )}
-          {media.cast && media.cast.length > 0 && (
-              <div>
-                  <h4 className="font-semibold text-white/80 mb-2">Distribution principale</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {media.cast.slice(0, 5).map(actor => (
-                        <Badge key={actor.id} variant="secondary" className="text-xs font-normal">{actor.name}</Badge>
-                    ))}
-                  </div>
-              </div>
-          )}
-          {media.genres && media.genres.length > 0 && (
-              <div>
-                  <h4 className="font-semibold text-white/80 mb-2">Genres</h4>
-                  <div className="flex flex-wrap gap-2">
-                      {media.genres.map(genre => (
-                          <Badge key={genre.id} variant="outline" className="text-xs font-normal backdrop-blur-sm bg-white/10">{genre.name}</Badge>
-                      ))}
-                  </div>
-              </div>
-          )}
-      </div>
-       <Button asChild size="lg" className="mt-8 w-full">
-            <Link href={`/media/movie/${media.id}`} target="_blank">
-                Voir la page complète
-            </Link>
-       </Button>
-      <p className="absolute bottom-6 text-sm text-white/50 flex items-center gap-2">Glissez pour fermer <ArrowRight className="h-4 w-4"/></p>
-    </div>
-  )
-}
-
-
 function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean }) {
   const { addToList, isInList } = useMediaLists();
   const { toast } = useToast();
+  const router = useRouter();
   const [showHeart, setShowHeart] = useState(false);
-  const [panel, setPanel] = useState<'details' | 'links' | null>(null);
+  const [panel, setPanel] = useState<'links' | null>(null);
   const controls = useAnimation();
-  const containerRef = useRef<HTMLDivElement>(null);
 
 
   const handleLike = () => {
@@ -130,27 +82,22 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
   const onDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     const { offset, velocity } = info;
     const swipeThreshold = 80;
-    const itemWidth = containerRef.current?.clientWidth || window.innerWidth;
     
-    if (!panel) {
+    if (panel === 'links') {
         if (offset.x > swipeThreshold || velocity.x > 300) {
-            setPanel('details');
-            controls.start({ x: itemWidth });
+            setPanel(null);
+            controls.start({ x: 0 });
+        } else {
+            controls.start({ x: '-100%' });
+        }
+    } else {
+        if (offset.x > swipeThreshold || velocity.x > 300) {
+            router.push(`/media/movie/${media.id}`);
         } else if (offset.x < -swipeThreshold || velocity.x < -300) {
             setPanel('links');
-            controls.start({ x: -itemWidth });
+            controls.start({ x: '-100%' });
         } else {
             controls.start({ x: 0 });
-        }
-    } else { 
-        if (panel === 'details' && (offset.x < -swipeThreshold || velocity.x < -300)) {
-            setPanel(null);
-            controls.start({ x: 0 });
-        } else if (panel === 'links' && (offset.x > swipeThreshold || velocity.x > 300)) {
-            setPanel(null);
-            controls.start({ x: 0 });
-        } else {
-            controls.start({ x: panel === 'details' ? itemWidth : -itemWidth });
         }
     }
   };
@@ -170,8 +117,7 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent" />
         
         <motion.div
-            ref={containerRef}
-            className="relative w-full h-full"
+            className="relative w-full h-full flex"
             drag="x"
             dragConstraints={{ left: 0, right: 0 }}
             dragElastic={0.2}
@@ -180,11 +126,8 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
             transition={{ type: 'tween', ease: 'circOut', duration: 0.4 }}
             onDoubleClick={handleDoubleClick}
         >
-            <DetailsPanel media={media} isVisible={panel === 'details'} />
-            <DirectLinksPanel media={media} isVisible={panel === 'links'} />
-
-            {/* Main content panel that moves */}
-            <div className="absolute inset-0 w-full h-full">
+            <div className="w-full h-full flex-shrink-0 relative">
+                {/* Main content panel */}
                 <div className={cn("absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10 transition-opacity duration-300", panel && "opacity-0")} />
                 <div className={cn("absolute inset-0 bg-gradient-to-r from-black/50 to-transparent transition-opacity duration-300", panel && "opacity-0")} />
 
@@ -244,6 +187,8 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
                 </div>
                 {!panel && <p className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/30 text-xs animate-pulse hidden md:block">Glissez pour plus d'options</p>}
             </div>
+
+            <DirectLinksPanel media={media} isVisible={panel === 'links'} />
         </motion.div>
     </section>
   );
