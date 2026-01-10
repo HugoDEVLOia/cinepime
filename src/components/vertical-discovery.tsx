@@ -100,6 +100,8 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
   const [showHeart, setShowHeart] = useState(false);
   const [panel, setPanel] = useState<'details' | 'links' | null>(null);
   const controls = useAnimation();
+  const itemRef = useRef<HTMLDivElement>(null);
+
 
   const handleLike = () => {
     if (isInList(media.id, 'toWatch')) return;
@@ -127,34 +129,31 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
   
   const onDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     const { offset, velocity } = info;
-    const swipeThreshold = 100;
-
-    if (offset.x > swipeThreshold || velocity.x > 500) {
-      // Swiped Right -> Open Details
-      setPanel('details');
-      controls.start({ x: '95%' });
-    } else if (offset.x < -swipeThreshold || velocity.x < -500) {
-      // Swiped Left -> Open Links
-      setPanel('links');
-      controls.start({ x: '-95%' });
-    } else {
-      // Snap back
-      setPanel(null);
-      controls.start({ x: 0 });
-    }
-  };
-  
-  // Close panel by swiping back
-  const onPanelDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    const { offset } = info;
-    const swipeThreshold = 50;
-
-    if ((panel === 'details' && offset.x < -swipeThreshold) || (panel === 'links' && offset.x > swipeThreshold)) {
-      setPanel(null);
-      controls.start({ x: 0 });
-    } else {
-      // Snap back to open state
-      controls.start({ x: panel === 'details' ? '95%' : '-95%' });
+    const swipeThreshold = 80;
+    const itemWidth = itemRef.current?.clientWidth || window.innerWidth;
+    
+    // Only handle drag if no panel is open
+    if (!panel) {
+        if (offset.x > swipeThreshold || velocity.x > 300) {
+            setPanel('details');
+            controls.start({ x: itemWidth * 0.85 });
+        } else if (offset.x < -swipeThreshold || velocity.x < -300) {
+            setPanel('links');
+            controls.start({ x: -itemWidth * 0.85 });
+        } else {
+            controls.start({ x: 0 });
+        }
+    } else { // If a panel is open, handle closing it
+        if (panel === 'details' && (offset.x < -swipeThreshold || velocity.x < -300)) {
+            setPanel(null);
+            controls.start({ x: 0 });
+        } else if (panel === 'links' && (offset.x > swipeThreshold || velocity.x > 300)) {
+            setPanel(null);
+            controls.start({ x: 0 });
+        } else {
+            // Snap back to open state
+            controls.start({ x: panel === 'details' ? itemWidth * 0.85 : -itemWidth * 0.85 });
+        }
     }
   };
 
@@ -176,11 +175,12 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
         <DirectLinksPanel media={media} isVisible={panel === 'links'} />
 
         <motion.div
+            ref={itemRef}
             className="relative w-full h-full"
             drag="x"
             dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.3}
-            onDragEnd={panel ? onPanelDragEnd : onDragEnd}
+            dragElastic={0.2}
+            onDragEnd={onDragEnd}
             animate={controls}
             transition={{ type: 'tween', ease: 'easeInOut', duration: 0.4 }}
             onDoubleClick={handleDoubleClick}
@@ -284,7 +284,7 @@ export default function VerticalDiscovery() {
       if (pageNum === 1) setIsLoading(false);
       isFetching.current = false;
     }
-  }, []);
+  }, [page]); // dépendance à page ajoutée
 
   useEffect(() => {
     fetchMovies(1);
@@ -304,7 +304,9 @@ export default function VerticalDiscovery() {
     
     // Fetch more when user is 3 items away from the end of the list
     if (scrollTop + clientHeight >= scrollHeight - clientHeight * 3) {
-      fetchMovies(page + 1);
+      if (!isFetching.current) { // Check to prevent multiple fetches
+          fetchMovies(page + 1);
+      }
     }
   };
 
@@ -325,6 +327,3 @@ export default function VerticalDiscovery() {
     </div>
   );
 }
-
-
-    
