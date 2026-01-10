@@ -93,7 +93,7 @@ export default function SettingsPage() {
                     {avatar && (
                         <div className="relative w-32 h-32 rounded-full border-4 border-primary shadow-lg">
                            <Image 
-                             src={avatar.startsWith('http') ? avatar : `/${avatar}`}
+                             src={avatar.startsWith('http') ? avatar : avatar.startsWith('/') ? avatar : `/${avatar}`}
                              alt={username || 'Avatar'}
                              fill
                              className="rounded-full object-cover"
@@ -222,5 +222,3 @@ export default function SettingsPage() {
     </div>
   );
 }
-
-    
