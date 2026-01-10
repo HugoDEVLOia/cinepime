@@ -4,6 +4,7 @@ import type { Media } from '@/services/tmdb';
 import { getMediaDetails } from '@/services/tmdb'; // Import getMediaDetails
 
 export type ListType = 'toWatch' | 'watched';
+export type { Media };
 
 const LIST_STORAGE_KEYS: Record<ListType, string> = {
   toWatch: 'cineCollection_toWatchList',
