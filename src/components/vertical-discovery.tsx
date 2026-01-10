@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Loader2, Heart, Check, Info, Star, CalendarDays, ArrowLeft, Link2 } from 'lucide-react';
 import { useMediaLists } from '@/hooks/use-media-lists';
 import { useToast } from '@/hooks/use-toast';
-import { AnimatePresence, motion, useAnimation, PanInfo } from 'framer-motion';
+import { AnimatePresence, motion, useAnimation } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 
@@ -21,29 +21,53 @@ function DirectLinksPanel({ media }: { media: Media }) {
 
     return (
         <div className={cn(
-            "absolute inset-y-0 left-full w-full h-full bg-black/70 backdrop-blur-md p-6 flex flex-col justify-center items-center text-white"
+            "absolute inset-y-0 right-full w-full h-full bg-black/80 backdrop-blur-md p-6 flex flex-col justify-center items-center text-white"
         )}>
             <h3 className="text-2xl font-bold mb-6">Liens Directs</h3>
-             <div className="flex flex-col gap-4 w-full max-w-xs">
+             <div className="flex flex-col gap-4 w-full max-w-xs text-sm">
                 <Button asChild size="lg" className="w-full" style={{ backgroundColor: '#1E1E1E' }}>
                     <a href={`https://cinepulse.lol/sheet/movie-${media.id}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 text-[#FF4545]">
                         <Image src="https://cinepulse.lol/favicons/favicon.svg" alt="Cinepulse Logo" width={20} height={20}/>
-                        Cinepulse (VF/VOSTFR)
+                        Cinepulse (Recommandé)
                     </a>
                 </Button>
-                {isAnimation && (
-                    <Button asChild size="lg" variant="secondary" className="w-full">
-                        <a href={animeSamaUrl} target="_blank" rel="noopener noreferrer" className="flex items-center">
-                            <Image src="https://anime-sama.tv/img/favicon.ico" alt="Anime-Sama Logo" width={20} height={20} className="mr-2 rounded-sm"/>
-                            Anime-Sama
+                
+                <div className="flex flex-col gap-3 pt-4 border-t border-border/20">
+                    <Button asChild style={{ backgroundColor: '#E50914', color: '#F5F5F1' }} className="hover:bg-red-800">
+                        <a href={`https://movix.blog/search?q=${encodeURIComponent(media.title)}`} target="_blank" rel="noopener noreferrer" className="flex items-center">
+                            <Image src="https://movix.blog/assets/movix-CzqwVOTS.png" alt="Movix Logo" width={16} height={16} className="mr-2 rounded-sm"/>
+                            Movix
                         </a>
                     </Button>
-                )}
-                 <p className="text-xs text-center text-muted-foreground mt-2">D'autres liens sont disponibles sur la page détaillée du film.</p>
+                    
+                    <Button asChild style={{ backgroundColor: '#4c1d95', color: '#fff' }} className="hover:bg-purple-900">
+                        <a href="https://xalaflix.men/" target="_blank" rel="noopener noreferrer" className="flex items-center">
+                            <Image src="https://xalaflix.men/upload/images/logo/1.png" alt="Xalaflix Logo" width={16} height={16} className="mr-2 rounded-sm"/>
+                            Xalaflix
+                        </a>
+                    </Button>
+                    
+                    <Button asChild style={{ backgroundColor: '#212121', color: '#fff' }} className="hover:bg-black/80">
+                        <a href="https://purstream.to/" target="_blank" rel="noopener noreferrer" className="flex items-center">
+                            <Image src="https://purstream.to/assets/favicon.BYaz4d7M.ico" alt="PurStream Logo" width={16} height={16} className="mr-2 rounded-sm"/>
+                            PurStream
+                        </a>
+                    </Button>
+
+                    {isAnimation && (
+                        <Button asChild variant="secondary">
+                        <a href={animeSamaUrl} target="_blank" rel="noopener noreferrer" className="flex items-center">
+                            <Image src="https://anime-sama.tv/img/favicon.ico" alt="Anime-Sama Logo" width={16} height={16} className="mr-2 rounded-sm"/>
+                            Anime-Sama
+                        </a>
+                        </Button>
+                    )}
+                </div>
             </div>
         </div>
     )
 }
+
 
 function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean }) {
   const { addToList, removeFromList, isInList } = useMediaLists();
@@ -82,133 +106,141 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
     setTimeout(() => setShowHeart(false), 800);
   };
   
-  const onDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    event.stopPropagation();
-    const { offset, velocity } = info;
-    const swipeThreshold = 80;
-
-    if (offset.x > swipeThreshold || velocity.x > 300) {
-        // Swipe left to right -> show links
-        controls.start({ x: '100%' });
-    } else if (offset.x < -swipeThreshold || velocity.x < -300) {
-        // Swipe right to left -> Go to details
-        router.push(`/media/movie/${media.id}?from=discover`);
-    } else {
-        // Not enough swipe, snap back
-        controls.start({ x: 0 });
-    }
-  };
-  
-  const onPanelDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    event.stopPropagation();
+  const handleDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: any) => {
     const { offset, velocity } = info;
     const swipeThreshold = 80;
 
     if (offset.x < -swipeThreshold || velocity.x < -300) {
-        // Swipe left on panel, close it
-        controls.start({ x: 0 });
+      // Swipe right to left -> Go to details
+      router.push(`/media/movie/${media.id}?from=discover`);
+    } else if (offset.x > swipeThreshold || velocity.x > 300) {
+      // Swipe left to right -> show links
+      controls.start({ x: '100%' });
     } else {
-        controls.start({ x: '100%' });
+      // Not enough swipe, snap back to center
+      controls.start({ x: 0 });
+    }
+  };
+  
+  const handleClosePanel = (event: MouseEvent | TouchEvent | PointerEvent, info: any) => {
+    const { offset, velocity } = info;
+    const swipeThreshold = 80;
+
+    if (offset.x < -swipeThreshold || velocity.x < -300) {
+      controls.start({ x: 0 });
+    } else {
+      controls.start({ x: '100%' });
     }
   }
 
 
   return (
     <section 
-      className="relative h-full w-full snap-start snap-always flex-shrink-0 overflow-hidden"
+      className="relative h-full w-full snap-start snap-always flex-shrink-0 overflow-hidden bg-black"
     >
-        <div className="absolute inset-0 bg-black">
-          <Image src={media.posterUrl} alt={`Affiche de ${media.title}`} fill className="object-cover opacity-30" />
+        <div className="absolute inset-0">
+          <Image src={media.posterUrl} alt={`Affiche de ${media.title}`} fill className="object-cover" />
         </div>
-        <motion.div
-            className="absolute inset-0 flex"
-            animate={controls}
-            transition={{ type: 'tween', ease: 'easeOut', duration: 0.4 }}
-            drag="x"
-            dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={{ left: 0.2, right: 0.2 }}
-            onDragEnd={onDragEnd}
+        <div 
+          className="absolute inset-0 flex"
+          onDoubleClick={handleDoubleClick}
         >
-            <DirectLinksPanel media={media} />
-
-            <div
-                className="w-full h-full flex-shrink-0 flex flex-col justify-end"
-                onDoubleClick={handleDoubleClick}
+            <motion.div
+                className="relative w-full h-full flex-shrink-0"
+                drag="x"
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={{ left: 0.2, right: 0.8 }}
+                onDragEnd={handleDragEnd}
+                animate={controls}
+                transition={{ type: 'tween', ease: 'easeOut', duration: 0.4 }}
             >
-              <div className="relative w-full flex-grow flex items-center justify-center p-4 perspective-1000">
-                  <AnimatePresence>
-                    {showHeart && (
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.5 }}
-                        animate={{ opacity: 1, scale: 1.2, transition: { type: 'spring', stiffness: 200, damping: 10 } }}
-                        exit={{ opacity: 0, scale: 0 }}
-                        className="absolute inset-0 flex items-center justify-center pointer-events-none z-30"
-                    >
-                        <Heart className="h-24 w-24 text-white drop-shadow-lg" fill="currentColor" />
-                    </motion.div>
-                    )}
-                  </AnimatePresence>
-                  
-                  <motion.div 
-                    className="relative w-full max-w-[calc(90vh*0.66)] h-full max-h-[90vh] preserve-3d"
-                    animate={{ rotateY: isFlipped ? 180 : 0 }}
-                    transition={{ duration: 0.5, ease: 'easeInOut' }}
+              <div className="absolute inset-y-0 left-0 w-full h-full flex flex-col justify-end" style={{ transform: 'translateX(-100%)' }}>
+                  <motion.div
+                      className="w-full h-full"
+                      drag="x"
+                      dragConstraints={{ left: 0, right: 0 }}
+                      dragElastic={{ left: 0.8, right: 0.2 }}
+                      onDragEnd={handleClosePanel}
                   >
-                    {/* Front of the card */}
-                     <motion.div 
-                        className="absolute w-full h-full backface-hidden cursor-pointer"
-                        onClick={() => setIsFlipped(true)}
-                     >
-                        <Image src={media.posterUrl} alt={`Affiche de ${media.title}`} fill className="object-contain rounded-2xl shadow-2xl" />
-                     </motion.div>
-
-                    {/* Back of the card */}
-                    <motion.div
-                        className="absolute w-full h-full backface-hidden p-6 bg-card rounded-2xl flex flex-col justify-center items-center text-card-foreground cursor-pointer"
-                        style={{ transform: 'rotateY(180deg)' }}
-                        onClick={() => setIsFlipped(false)}
-                    >
-                        <h3 className="text-xl font-bold mb-4">Synopsis</h3>
-                        <p className="text-sm text-center text-muted-foreground overflow-y-auto scrollbar-thin">
-                            {media.description}
-                        </p>
-                    </motion.div>
+                      <DirectLinksPanel media={media} />
                   </motion.div>
               </div>
 
-              <div className="flex-shrink-0 p-6 pt-2 flex items-center justify-between text-white">
-                  <div className="space-y-1">
-                      <h1 className="text-2xl font-bold leading-tight drop-shadow-lg">{media.title}</h1>
-                      <div className="flex items-center gap-4 text-white/90 text-sm">
-                          <div className="flex items-center gap-1.5">
-                          <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
-                          <span>{media.averageRating.toFixed(1)}</span>
-                          </div>
-                          {media.releaseDate && (
-                          <div className="flex items-center gap-1.5">
-                              <CalendarDays className="h-4 w-4" />
-                              <span>{new Date(media.releaseDate).getFullYear()}</span>
-                          </div>
-                          )}
-                      </div>
-                  </div>
+              <div className="w-full h-full flex flex-col justify-end">
+                <div className="relative w-full flex-grow flex items-center justify-center p-4 perspective-1000">
+                    <AnimatePresence>
+                      {showHeart && (
+                      <motion.div
+                          initial={{ opacity: 0, scale: 0.5 }}
+                          animate={{ opacity: 1, scale: 1.2, transition: { type: 'spring', stiffness: 200, damping: 10 } }}
+                          exit={{ opacity: 0, scale: 0 }}
+                          className="absolute inset-0 flex items-center justify-center pointer-events-none z-30"
+                      >
+                          <Heart className="h-24 w-24 text-white drop-shadow-lg" fill="currentColor" />
+                      </motion.div>
+                      )}
+                    </AnimatePresence>
+                    
+                    <motion.div 
+                      className="relative w-full max-w-[calc(90vh*0.66)] h-full max-h-[90vh] preserve-3d"
+                      animate={{ rotateY: isFlipped ? 180 : 0 }}
+                      transition={{ duration: 0.5, ease: 'easeInOut' }}
+                    >
+                      {/* Front of the card */}
+                       <motion.div 
+                          className="absolute w-full h-full backface-hidden cursor-pointer"
+                          onClick={() => setIsFlipped(true)}
+                       >
+                          <Image src={media.posterUrl} alt={`Affiche de ${media.title}`} fill className="object-contain rounded-2xl shadow-2xl" />
+                       </motion.div>
 
-                  <div className="flex flex-col items-center gap-4">
-                      <button onClick={handleLike} className="flex flex-col items-center gap-1.5 group">
-                          <div className={cn("h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center transition-colors group-hover:bg-white/30", isInList(media.id, 'toWatch') && "bg-red-500/80")}>
-                          <Heart className="h-7 w-7 transition-transform group-active:scale-90" fill={isInList(media.id, 'toWatch') ? "currentColor" : "none"} />
-                          </div>
-                      </button>
-                      <button onClick={handleWatched} className="flex flex-col items-center gap-1.5 group">
-                          <div className={cn("h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center transition-colors group-hover:bg-white/30", isInList(media.id, 'watched') && "bg-green-500/80")}>
-                          <Check className="h-7 w-7 transition-transform group-active:scale-90" />
-                          </div>
-                      </button>
-                  </div>
+                      {/* Back of the card */}
+                      <motion.div
+                          className="absolute w-full h-full backface-hidden p-6 bg-card rounded-2xl flex flex-col justify-center items-center text-card-foreground cursor-pointer"
+                          style={{ transform: 'rotateY(180deg)' }}
+                          onClick={() => setIsFlipped(false)}
+                      >
+                          <h3 className="text-xl font-bold mb-4">Synopsis</h3>
+                          <p className="text-sm text-center text-muted-foreground overflow-y-auto scrollbar-thin">
+                              {media.description}
+                          </p>
+                      </motion.div>
+                    </motion.div>
+                </div>
+
+                <div className="flex-shrink-0 p-6 pt-2 flex items-center justify-between text-white">
+                    <div className="space-y-1">
+                        <h1 className="text-2xl font-bold leading-tight drop-shadow-lg">{media.title}</h1>
+                        <div className="flex items-center gap-4 text-white/90 text-sm">
+                            <div className="flex items-center gap-1.5">
+                            <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+                            <span>{media.averageRating.toFixed(1)}</span>
+                            </div>
+                            {media.releaseDate && (
+                            <div className="flex items-center gap-1.5">
+                                <CalendarDays className="h-4 w-4" />
+                                <span>{new Date(media.releaseDate).getFullYear()}</span>
+                            </div>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="flex flex-col items-center gap-4">
+                        <button onClick={handleLike} className="flex flex-col items-center gap-1.5 group">
+                            <div className={cn("h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center transition-colors group-hover:bg-white/30", isInList(media.id, 'toWatch') && "bg-red-500/80")}>
+                            <Heart className="h-7 w-7 transition-transform group-active:scale-90" fill={isInList(media.id, 'toWatch') ? "currentColor" : "none"} />
+                            </div>
+                        </button>
+                        <button onClick={handleWatched} className="flex flex-col items-center gap-1.5 group">
+                            <div className={cn("h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center transition-colors group-hover:bg-white/30", isInList(media.id, 'watched') && "bg-green-500/80")}>
+                            <Check className="h-7 w-7 transition-transform group-active:scale-90" />
+                            </div>
+                        </button>
+                    </div>
+                </div>
               </div>
-               <p className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/30 text-xs animate-pulse hidden md:block">Glissez pour plus d'options</p>
-            </div>
-        </motion.div>
+            </motion.div>
+        </div>
     </section>
   );
 }
@@ -282,6 +314,12 @@ export default function VerticalDiscovery() {
       onScroll={handleScroll}
       className="h-full w-full overflow-y-auto overflow-x-hidden snap-y snap-mandatory"
     >
+      <div className="absolute top-4 left-4 z-50">
+        <Button variant="ghost" size="icon" onClick={() => history.back()} className="h-12 w-12 rounded-full bg-black/30 backdrop-blur-sm text-white hover:bg-black/50">
+          <ArrowLeft className="h-6 w-6" />
+        </Button>
+      </div>
+
       {movies.map((movie, index) => (
         <DiscoveryItem key={`${movie.id}-${index}`} media={movie} isActive={index === activeIndex}/>
       ))}
