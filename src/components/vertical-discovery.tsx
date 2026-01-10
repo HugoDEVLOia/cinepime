@@ -256,10 +256,10 @@ export default function VerticalDiscovery() {
   const rootRef = useRef<HTMLDivElement>(null);
   const isFetching = useRef(false);
 
-  const fetchMovies = useCallback(async (pageNum: number, isInitial = false) => {
+  const fetchMovies = useCallback(async (pageNum: number) => {
     if (isFetching.current) return;
     isFetching.current = true;
-    if(isInitial) setIsLoading(true);
+    if (pageNum === 1) setIsLoading(true);
 
     try {
       const { media: newMovies } = await getPopularMedia('movie', pageNum);
@@ -276,25 +276,19 @@ export default function VerticalDiscovery() {
         const uniqueNew = detailedMovies.filter(m => !existingIds.has(m.id));
         return [...prev, ...uniqueNew];
       });
-
-      if (page > 0) { // Only increment if not initial load
-        setPage(pageNum);
-      }
+      setPage(pageNum);
 
     } catch (error) {
       console.error("Erreur lors de la récupération des films:", error);
     } finally {
-      if(isInitial) setIsLoading(false);
-      setTimeout(() => {
-        isFetching.current = false;
-      }, 1000); // Cooldown to prevent rapid fetching
+      if (pageNum === 1) setIsLoading(false);
+      isFetching.current = false;
     }
-  }, [page]);
+  }, []);
 
   useEffect(() => {
-    // Start with page 1 for initial load
-    fetchMovies(1, true);
-  }, []); // Changed dependency to empty array to ensure it runs only once on mount
+    fetchMovies(1);
+  }, [fetchMovies]);
 
 
   const handleScroll = () => {
@@ -310,9 +304,7 @@ export default function VerticalDiscovery() {
     
     // Fetch more when user is 3 items away from the end of the list
     if (scrollTop + clientHeight >= scrollHeight - clientHeight * 3) {
-      if (!isFetching.current) {
-        fetchMovies(page + 1);
-      }
+      fetchMovies(page + 1);
     }
   };
 
@@ -325,7 +317,7 @@ export default function VerticalDiscovery() {
       {movies.map((movie, index) => (
         <DiscoveryItem key={`${movie.id}-${index}`} media={movie} isActive={index === activeIndex}/>
       ))}
-      {(isLoading || isFetching.current) && (
+      {(isLoading || (isFetching.current && movies.length > 0)) && (
         <div className="h-full w-full snap-start snap-always flex-shrink-0 flex items-center justify-center bg-black">
           <Loader2 className="h-16 w-16 text-primary animate-spin" />
         </div>
@@ -333,5 +325,6 @@ export default function VerticalDiscovery() {
     </div>
   );
 }
+
 
     
