@@ -2,14 +2,14 @@
 'use client';
 
 import type { ChangeEvent } from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useMediaLists, type Media } from '@/hooks/use-media-lists';
 import { useUser } from '@/contexts/user-provider';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Copy, AlertTriangle, Loader2, SettingsIcon, SunMoon, Heart, Coffee, LogOut, User as UserIcon } from 'lucide-react';
+import { Copy, AlertTriangle, Loader2, SettingsIcon, SunMoon, Heart, Coffee, LogOut, User as UserIcon, Save } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Textarea } from '@/components/ui/textarea';
@@ -25,17 +25,33 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import AvatarSelector from '@/components/avatar-selector';
 
 export default function SettingsPage() {
-  const { toWatchList, watchedList, setLists, isLoaded } = useMediaLists();
-  const { username, avatar, clearUserData } = useUser();
+  const { toWatchList, watchedList, setLists, isLoaded: listsAreLoaded } = useMediaLists();
+  const { username, avatar, setUsernameAndAvatar, clearUserData, isLoaded: userIsLoaded } = useUser();
   const { toast } = useToast();
 
   const [exportedCode, setExportedCode] = useState<string | null>(null);
   const [isExporting, setIsExporting] = useState(false);
+  
+  // State for profile editing
+  const [newUsername, setNewUsername] = useState(username || '');
+  const [newAvatar, setNewAvatar] = useState(avatar || '');
+  const [isEditing, setIsEditing] = useState(false);
+
+  useEffect(() => {
+    if (userIsLoaded) {
+      setNewUsername(username || '');
+      setNewAvatar(avatar || '');
+    }
+  }, [username, avatar, userIsLoaded]);
+
 
   const handleGenerateExportCode = () => {
-    if (!isLoaded || !username || !avatar) {
+    if (!listsAreLoaded || !userIsLoaded) {
       toast({ title: "Exportation impossible", description: "Les données ne sont pas encore chargées.", variant: "destructive" });
       return;
     }
@@ -68,6 +84,27 @@ export default function SettingsPage() {
     clearUserData();
     toast({ title: "Déconnecté", description: "Vos données locales ont été effacées."});
   };
+  
+  const handleProfileUpdate = () => {
+    if (!newUsername.trim()) {
+      toast({ title: 'Pseudo requis', description: 'Veuillez choisir un pseudo.', variant: 'destructive' });
+      return;
+    }
+    setUsernameAndAvatar(newUsername, newAvatar);
+    setIsEditing(false);
+    toast({ title: "Profil mis à jour !", description: "Votre pseudo et votre avatar ont été sauvegardés." });
+  };
+  
+  const handleCancelEdit = () => {
+    setNewUsername(username || '');
+    setNewAvatar(avatar || '');
+    setIsEditing(false);
+  }
+
+  const encodeAvatarPath = (path: string) => {
+    if (!path) return '';
+    return path.replace(/\s/g, '%20');
+  }
 
   return (
     <div className="space-y-10">
@@ -88,22 +125,44 @@ export default function SettingsPage() {
         </TabsList>
         
         <TabsContent value="profile" className="mt-8">
-            <Card className="max-w-md mx-auto shadow-lg rounded-xl">
-                <CardHeader className="items-center text-center">
-                    {avatar && (
-                        <div className="relative w-32 h-32 rounded-full border-4 border-primary shadow-lg">
+            <Card className="max-w-2xl mx-auto shadow-lg rounded-xl">
+                <CardHeader>
+                    <CardTitle className="text-2xl">Gérer mon profil</CardTitle>
+                    <CardDescription>Modifiez votre pseudo ou changez votre avatar ici.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                     <div className="flex flex-col items-center space-y-4">
+                        <div className="relative w-32 h-32">
                            <Image 
-                             src={avatar.startsWith('http') ? avatar : avatar.startsWith('/') ? avatar : `/${avatar}`}
-                             alt={username || 'Avatar'}
+                             src={encodeAvatarPath(newAvatar)}
+                             alt={newUsername || 'Avatar'}
                              fill
-                             className="rounded-full object-cover"
+                             className="rounded-full object-cover border-4 border-primary"
+                             key={newAvatar} // Force re-render on avatar change
                            />
                         </div>
+                        <h2 className="text-2xl font-bold">{newUsername}</h2>
+                    </div>
+
+                    {!isEditing ? (
+                        <Button onClick={() => setIsEditing(true)} className="w-full">Modifier le profil</Button>
+                    ) : (
+                        <div className="space-y-6 pt-4 border-t">
+                            <div className="space-y-2">
+                                <Label htmlFor="username" className="font-semibold">Pseudo</Label>
+                                <Input id="username" value={newUsername} onChange={(e) => setNewUsername(e.target.value)} />
+                            </div>
+
+                            <div className="space-y-2">
+                               <AvatarSelector currentAvatar={newAvatar} onSelectAvatar={setNewAvatar} />
+                            </div>
+                            
+                            <div className="flex flex-col sm:flex-row gap-2">
+                                <Button onClick={handleProfileUpdate} className="w-full"><Save className="mr-2 h-4 w-4" /> Enregistrer</Button>
+                                <Button onClick={handleCancelEdit} variant="outline" className="w-full">Annuler</Button>
+                            </div>
+                        </div>
                     )}
-                    <CardTitle className="text-3xl font-bold pt-4">{username || 'Utilisateur'}</CardTitle>
-                </CardHeader>
-                <CardContent className="text-center">
-                     <p className="text-muted-foreground">Voici votre espace personnel.</p>
                 </CardContent>
             </Card>
         </TabsContent>
@@ -167,7 +226,7 @@ export default function SettingsPage() {
               </Alert>
 
               <div>
-                <Button onClick={handleGenerateExportCode} variant="default" className="w-full sm:w-auto" disabled={!isLoaded || isExporting}>
+                <Button onClick={handleGenerateExportCode} variant="default" className="w-full sm:w-auto" disabled={!listsAreLoaded || isExporting}>
                   {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Copy className="mr-2 h-4 w-4" />}
                   Générer mon code de sauvegarde
                 </Button>

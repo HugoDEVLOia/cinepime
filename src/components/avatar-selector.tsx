@@ -1,23 +1,66 @@
-
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useUser } from '@/contexts/user-provider';
-import Image from 'next/image';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/hooks/use-toast';
-import { useMediaLists, type Media } from '@/hooks/use-media-lists';
-import { cn } from '@/lib/utils';
-import { User, LogIn, Loader2 } from 'lucide-react';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import AvatarSelector from '@/components/avatar-selector';
+import Image from 'next/image';
+import { cn } from '@/lib/utils';
+import { useState } from 'react';
 
+const disneyAvatars = [
+    "/assets/avatars/Disney+/disney channel_candace flynn-C1vj9fmL.png", "/assets/avatars/Disney+/disney channel_dipper pines-BH9djGet.png", "/assets/avatars/Disney+/disney channel_evie-TNF3SJ8P.png",
+    "/assets/avatars/Disney+/disney channel_ferb fletcher-DZxjCKPV.png", "/assets/avatars/Disney+/disney channel_hannah montana-BvGnM0-U.png", "/assets/avatars/Disney+/disney channel_kim possible-B91HQRHt.png",
+    "/assets/avatars/Disney+/disney channel_k_c_ cooper-BmtN-bxk.png", "/assets/avatars/Disney+/disney channel_louie-CxtRlxcg.png", "/assets/avatars/Disney+/disney channel_mabel pines-C91cQIYh.png",
+    "/assets/avatars/Disney+/disney channel_mal-DAOUr8oZ.png", "/assets/avatars/Disney+/disney channel_perry the platypus-CSWQoALe.png", "/assets/avatars/Disney+/disney channel_phineas flynn-Cn12S7N1.png",
+    "/assets/avatars/Disney+/disney channel_uma-Bvc6RyZN.png", "/assets/avatars/Disney+/disney classics_ariel-C9Wonnr0.png", "/assets/avatars/Disney+/disney classics_belle-DFBCGQvp.png",
+    "/assets/avatars/Disney+/disney classics_cheshire cat-C3AEK1_c.png", "/assets/avatars/Disney+/disney classics_cinderella-DOJ8JBgC.png", "/assets/avatars/Disney+/disney classics_eeyore-CxLkxMu0.png",
+    "/assets/avatars/Disney+/disney classics_genie-u0JKxzZZ.png", "/assets/avatars/Disney+/disney classics_jasmine-CsAtiRih.png", "/assets/avatars/Disney+/disney classics_lady-CgXXCizg.png",
+    "/assets/avatars/Disney+/disney classics_marie-oy9hM3KB.png", "/assets/avatars/Disney+/disney classics_peter pan-BiLDn6Nb.png", "/assets/avatars/Disney+/disney classics_robin hood-BrRoG_VQ.png",
+    "/assets/avatars/Disney+/disney classics_tinker bell-C1fqhqZv.png", "/assets/avatars/Disney+/disney classics_winnie the pooh-CeiAcVj8.png", "/assets/avatars/Disney+/disney princess_aurora-DzY4Z29x.png",
+    "/assets/avatars/Disney+/disney princess_merida-BWNVQO9j.png", "/assets/avatars/Disney+/disney princess_mulan-DA4ZeGpX.png", "/assets/avatars/Disney+/disney princess_pocahontas-CaGRvyaB.png",
+    "/assets/avatars/Disney+/disney princess_rapunzel-1dojiL-N.png", "/assets/avatars/Disney+/disney_asha-DItm9ikG.png", "/assets/avatars/Disney+/disney_baymax-BvTzDbJd.png",
+    "/assets/avatars/Disney+/disney_elsa-B0K-ra__.png", "/assets/avatars/Disney+/disney_ethan clade-B3DZN7w6.png", "/assets/avatars/Disney+/disney_minnie mouse-AyQKUyHK.png",
+    "/assets/avatars/Disney+/disney_mirabel-mEe4hjOj.png", "/assets/avatars/Disney+/disney_olaf-wHOckGMY.png", "/assets/avatars/Disney+/disney_penny proud-BU-pfqUF.png",
+    "/assets/avatars/Disney+/disney_pua-RjCBJVJv.png", "/assets/avatars/Disney+/disney_raya-BAX0IfR4.png", "/assets/avatars/Disney+/disney_sisu-D0fQ4i14.png",
+    "/assets/avatars/Disney+/disney_snow white-pYTcGIlI.png", "/assets/avatars/Disney+/disney_star-D2Q9ON8A.png", "/assets/avatars/Disney+/disney_tiana-DZiSKW-w.png",
+    "/assets/avatars/Disney+/ice age_buck-DxC_63h5.png", "/assets/avatars/Disney+/ice age_diego-J0vsYuSK.png", "/assets/avatars/Disney+/ice age_ellie-DuvaNJGC.png",
+    "/assets/avatars/Disney+/ice age_manny-BFjj6N3-.png", "/assets/avatars/Disney+/ice age_scrat-CYoKyCe5.png", "/assets/avatars/Disney+/ice age_sid-BujbNl-P.png",
+    "/assets/avatars/Disney+/kids_bandit-BCd5vUHX.png", "/assets/avatars/Disney+/kids_bingo-2-Cld1asjl.png", "/assets/avatars/Disney+/kids_bingo-B_zweNBe.png",
+    "/assets/avatars/Disney+/kids_bluey-BJCgiYXr.png", "/assets/avatars/Disney+/kids_chilli-D9BcExBE.png", "/assets/avatars/Disney+/kids_doc mcstuffins-D1FRCNex.png",
+    "/assets/avatars/Disney+/kids_elena-DedlhNO3.png", "/assets/avatars/Disney+/kids_gekko_greg-BoHODpbU.png", "/assets/avatars/Disney+/kids_kai brightstar-C-vZYVBa.png",
+    "/assets/avatars/Disney+/kids_kion-CCwKfeKi.png", "/assets/avatars/Disney+/kids_nash durango-DZsSVkUq.png", "/assets/avatars/Disney+/kids_nubs-Dt4vGu18.png",
+    "/assets/avatars/Disney+/kids_rolly-Dle0HjMY.png", "/assets/avatars/Disney+/kids_vampirina-Dht-838p.png", "/assets/avatars/Disney+/marvel_black widow-DE7KfpS4.png",
+    "/assets/avatars/Disney+/marvel_daredevil-C49aNhM3.png", "/assets/avatars/Disney+/marvel_doctor strange-Ck_xul1S.png", "/assets/avatars/Disney+/marvel_hulk-DeniYs9k.png",
+    "/assets/avatars/Disney+/marvel_kingpin-DN9sIAyf.png", "/assets/avatars/Disney+/marvel_loki-96Y1uRlE.png", "/assets/avatars/Disney+/marvel_moon knight-B62gPqOR.png",
+    "/assets/avatars/Disney+/marvel_ms_ marvel-BYgdOOhn.png", "/assets/avatars/Disney+/marvel_sam wilson-Bpuhv9GV.png", "/assets/avatars/Disney+/marvel_scarlet wanda-Bv_XKMyN.png",
+    "/assets/avatars/Disney+/marvel_sersi _ eternals movie --GcsGEc7.png", "/assets/avatars/Disney+/marvel_shang-chi-BrA0LmpI.png", "/assets/avatars/Disney+/marvel_she-hulk-BkyatXrc.png",
+    "/assets/avatars/Disney+/marvel_spider-man-m9bavF6V.png", "/assets/avatars/Disney+/marvel_thor-C6LxWX5t.png", "/assets/avatars/Disney+/mickey and friends_chip-BPsyIgJI.png",
+    "/assets/avatars/Disney+/mickey and friends_daisy duck-BosoJ6tY.png", "/assets/avatars/Disney+/mickey and friends_dale-Z72a2LEv.png", "/assets/avatars/Disney+/mickey and friends_dewey-DAnwX94O.png",
+    "/assets/avatars/Disney+/mickey and friends_donald duck-BiKubSvu.png", "/assets/avatars/Disney+/mickey and friends_goofy-A1kHiX5L.png", "/assets/avatars/Disney+/mickey and friends_huey-b82OA003.png",
+    "/assets/avatars/Disney+/mickey and friends_jose carioca-D_0lUAwp.png", "/assets/avatars/Disney+/mickey and friends_launchpad mcquack-BqRjSa3Y.png", "/assets/avatars/Disney+/mickey and friends_mickey mouse-i8Eaf_lM.png",
+    "/assets/avatars/Disney+/mickey and friends_pluto-DH6FKOrr.png", "/assets/avatars/Disney+/mickey and friends_scrooge mcduck-D6aF_Yhz.png", "/assets/avatars/Disney+/mickey and friends_webby vanderquack-BVxEzawC.png",
+    "/assets/avatars/Disney+/national geographic_dolphin-BzUjEwyG.png", "/assets/avatars/Disney+/national geographic_elephant-D_0_X1Qy.png", "/assets/avatars/Disney+/national geographic_gibbon-ytSlm-XH.png",
+    "/assets/avatars/Disney+/national geographic_jaguar-QPnA9B98.png", "/assets/avatars/Disney+/national geographic_panda-CSPv0eCu.png", "/assets/avatars/Disney+/national geographic_penguin-BseHmOOw.png",
+    "/assets/avatars/Disney+/national geographic_sharkfest - ensemble-KRHiTirZ.png", "/assets/avatars/Disney+/pixar_alberto scorfano-DXbyGNYx.png", "/assets/avatars/Disney+/pixar_anger-C_hApDjp.png",
+    "/assets/avatars/Disney+/pixar_buzz lightyear-CEfZt3E_.png", "/assets/avatars/Disney+/pixar_disgust-BKgFJc7Z.png", "/assets/avatars/Disney+/pixar_ember-DO7t0zxr.png",
+    "/assets/avatars/Disney+/pixar_fear-nMx_twgy.png", "/assets/avatars/Disney+/pixar_joe-DZDhv2RE.png", "/assets/avatars/Disney+/pixar_joy-CSSEgFN6.png",
+    "/assets/avatars/Disney+/pixar_lightning mcqueen-Dz8pO3Nx.png", "/assets/avatars/Disney+/pixar_luca - ensemble-2-DHE4t4fk.png", "/assets/avatars/Disney+/pixar_luca - ensemble-BlAeVwGy.png",
+    "/assets/avatars/Disney+/pixar_mater-DkIDQxez.png", "/assets/avatars/Disney+/pixar_meilin lee-DtW2RZ39.png", "/assets/avatars/Disney+/pixar_sadness-BvwEpNHK.png",
+    "/assets/avatars/Disney+/pixar_wade-CPqItv5G.png", "/assets/avatars/Disney+/star wars_ahsoka tano-CFOJ5rEd.png", "/assets/avatars/Disney+/star wars_bo-katan kryze-BwUWB3gh.png",
+    "/assets/avatars/Disney+/star wars_boba fett-C8QFzz1t.png", "/assets/avatars/Disney+/star wars_cassian andor-Bhd1zk_I.png", "/assets/avatars/Disney+/star wars_darth vader-DfWHA8t2.png",
+    "/assets/avatars/Disney+/star wars_huyang-BDSGsBAL.png", "/assets/avatars/Disney+/star wars_loth-cats-Cal1Sbu6.png", "/assets/avatars/Disney+/star wars_lys solay-BcFV39JZ.png",
+    "/assets/avatars/Disney+/star wars_obi-wan kenobi-rXXVGSdR.png", "/assets/avatars/Disney+/star wars_reva-JkoYPzQX.png", "/assets/avatars/Disney+/star wars_the child-D3HQIIdX.png",
+    "/assets/avatars/Disney+/star wars_the mandalorian-OTyLNb1m.png", "/assets/avatars/Disney+/the muppets_animal-Brzo_leC.png", "/assets/avatars/Disney+/the muppets_beaker-BsP3Ptfz.png",
+    "/assets/avatars/Disney+/the muppets_fozzie bear-BLRv-d_I.png", "/assets/avatars/Disney+/the muppets_gonzo-DIzZ66h0.png", "/assets/avatars/Disney+/the muppets_janice-w-AxFDCK.png",
+    "/assets/avatars/Disney+/the muppets_kermit the frog-CH96OK_o.png", "/assets/avatars/Disney+/the muppets_miss piggy-DIlkrb-d.png", "/assets/avatars/Disney+/the muppets_pepe the king prawn-B9W4U6Wt.png",
+    "/assets/avatars/Disney+/the muppets_scooter-HVVSgOCW.png", "/assets/avatars/Disney+/the muppets_the swedish chef-BqMefekp.png", "/assets/avatars/Disney+/the simpsons_bart simpson-DuomYjwc.png",
+    "/assets/avatars/Disney+/the simpsons_dr_ julius hibbert-DrNK5MU9.png", "/assets/avatars/Disney+/the simpsons_homer simpson-C2kqrGX6.png", "/assets/avatars/Disney+/the simpsons_krusty the clown-BNemYwrL.png",
+    "/assets/avatars/Disney+/the simpsons_lisa simpson-Br4660Vs.png", "/assets/avatars/Disney+/the simpsons_maggie simpson-DUv3_ncr.png", "/assets/avatars/Disney+/the simpsons_marge simpson-c35VK5WW.png",
+    "/assets/avatars/Disney+/the simpsons_ralph wiggum-CgPlT7xm.png", "/assets/avatars/Disney+/villains_cruella de vil _e stone-B2q8-4GK.png", "/assets/avatars/Disney+/villains_cruella de vil-XcYjh39j.png",
+    "/assets/avatars/Disney+/villains_dr_ doofenshmirtz-BR0uRk3P.png", "/assets/avatars/Disney+/villains_dr_ facilier-DVAwYBQ6.png", "/assets/avatars/Disney+/villains_gaston-DJ6JGKah.png",
+    "/assets/avatars/Disney+/villains_hades-fQ3GpMvc.png", "/assets/avatars/Disney+/villains_jafar-Q6BV869r.png", "/assets/avatars/Disney+/villains_maleficent-D6DUDWjO.png",
+    "/assets/avatars/Disney+/villains_mother gothel-CN_WTrdS.png", "/assets/avatars/Disney+/villains_queen of hearts-DczjZOhT.png", "/assets/avatars/Disney+/villains_queen _snow white-DNdpMTEv.png",
+    "/assets/avatars/Disney+/villains_randall boggs-CdFW7Din.png", "/assets/avatars/Disney+/villains_scar-CsaKuItO.png", "/assets/avatars/Disney+/villains_ursula-B_s7Eok2.png",
+    "/assets/avatars/Disney+/villains_yzma-XW5KIGRn.png"
+];
 const netflixAvatars = [
     "/assets/avatars/Netflix/aib_arisu-vieux-C_qonjjQ.png", "/assets/avatars/Netflix/aib_joker-Fe3fAlEV.png", "/assets/avatars/Netflix/aib_jsais-plus-Dcr6kVBs.png",
     "/assets/avatars/Netflix/aib_jsais-plus-non-plus-Ccxz9AYA.png", "/assets/avatars/Netflix/aib_kazuya-DOJ-XAOQ.png", "/assets/avatars/Netflix/aib_la-meuf-darisu-I9XuILj3.png",
@@ -117,106 +160,99 @@ const netflixAvatars = [
     "/assets/avatars/Netflix/umbrella-academy_viktor-DFa-gou4.png", "/assets/avatars/Netflix/wednesday_zombie-EFkfL8gF.png"
 ];
 
-export default function WelcomePage() {
-    const [username, setUsername] = useState('');
-    const [selectedAvatar, setSelectedAvatar] = useState(netflixAvatars[0]);
-    const [importCode, setImportCode] = useState('');
-    const [isImporting, setIsImporting] = useState(false);
+const encodeAvatarPath = (path: string) => path.replace(/\s/g, '%20');
 
-    const { setUsernameAndAvatar, markOnboardingAsComplete } = useUser();
-    const { setLists } = useMediaLists();
-    const { toast } = useToast();
-    const router = useRouter();
+// Helper to capitalize strings for titles
+const capitalize = (s: string) => {
+    if (!s) return '';
+    return s.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+};
 
+// Groups avatars by series based on filename
+const groupAvatarsBySeries = (avatarPaths: string[]): Record<string, string[]> => {
+  return avatarPaths.reduce((acc, path) => {
+    const filenameWithExtension = path.split('/').pop() || '';
+    // Extract series key before the first underscore, and replace dashes with spaces
+    const seriesKey = filenameWithExtension.split('_')[0].replace(/-/g, ' ');
+    const seriesTitle = capitalize(seriesKey);
 
-    const handleCreateProfile = () => {
-        if (!username.trim()) {
-            toast({ title: 'Pseudo requis', description: 'Veuillez choisir un pseudo.', variant: 'destructive' });
-            return;
-        }
-        if (!selectedAvatar) {
-            toast({ title: 'Avatar requis', description: 'Veuillez choisir un avatar.', variant: 'destructive' });
-            return;
-        }
-        setUsernameAndAvatar(username, selectedAvatar);
-        markOnboardingAsComplete();
-        router.push('/');
-    };
-    
-    const handleImportFromCode = () => {
-        if (!importCode.trim()) {
-          toast({ title: "Aucun code à importer", description: "Veuillez coller votre code.", variant: "destructive" });
-          return;
-        }
-        setIsImporting(true);
-        try {
-          const jsonString = decodeURIComponent(escape(atob(importCode.trim())));
-          const importedData = JSON.parse(jsonString);
+    if (!acc[seriesTitle]) {
+      acc[seriesTitle] = [];
+    }
+    acc[seriesTitle].push(path);
+    return acc;
+  }, {} as Record<string, string[]>);
+};
 
-          if (importedData.username && importedData.avatar && Array.isArray(importedData.toWatchList) && Array.isArray(importedData.watchedList)) {
-            const isValidMediaArray = (arr: any[]): arr is Media[] => arr.every(item => typeof item.id === 'string' && typeof item.title === 'string' && (item.mediaType === 'movie' || item.mediaType === 'tv'));
-            if (isValidMediaArray(importedData.toWatchList) && isValidMediaArray(importedData.watchedList)) {
-              setLists(importedData.toWatchList, importedData.watchedList);
-              setUsernameAndAvatar(importedData.username, importedData.avatar);
-              markOnboardingAsComplete();
-              router.push('/');
-            } else { throw new Error("Données de listes invalides."); }
-          } else { throw new Error("La structure du code est incorrecte."); }
-        } catch (error: any) {
-          toast({ title: "Erreur d'importation", description: "Le code est invalide ou corrompu.", variant: "destructive" });
-        } finally {
-          setIsImporting(false);
-        }
-    };
-    
+interface AvatarSelectorProps {
+    currentAvatar: string;
+    onSelectAvatar: (avatarPath: string) => void;
+}
+
+const AvatarGroup = ({ title, avatarPaths, selectedAvatar, onSelect }: { title: string, avatarPaths: string[], selectedAvatar: string, onSelect: (path: string) => void }) => {
     return (
-        <div className="min-h-screen w-full flex items-center justify-center bg-background p-4">
-            <Card className="w-full max-w-4xl shadow-2xl">
-                 <div className="p-4 sm:p-6 md:p-8">
-                     <div className="text-center mb-8">
-                        <Image src="/assets/mascotte/mascotte.svg" alt="Popito Mascotte" width={96} height={96} className="mx-auto mb-4" />
-                        <h1 className="text-3xl font-bold text-primary">Bienvenue sur CinéPrime !</h1>
-                        <p className="text-muted-foreground mt-2">Configurez votre profil pour commencer.</p>
-                    </div>
-                    <Tabs defaultValue="create" className="w-full">
-                        <TabsList className="grid w-full grid-cols-2">
-                            <TabsTrigger value="create"><User className="mr-2 h-4 w-4" /> Créer un profil</TabsTrigger>
-                            <TabsTrigger value="login"><LogIn className="mr-2 h-4 w-4" /> Se connecter</TabsTrigger>
-                        </TabsList>
-                        
-                        <TabsContent value="create" className="mt-6">
-                            <div className="flex flex-col h-[60vh] space-y-6">
-                                <div className="space-y-2">
-                                    <Label htmlFor="username" className="text-base font-semibold">1. Choisissez un pseudo</Label>
-                                    <Input id="username" placeholder="Ex: PopcornLover" value={username} onChange={(e) => setUsername(e.target.value)} />
-                                </div>
-                                <AvatarSelector currentAvatar={selectedAvatar} onSelectAvatar={setSelectedAvatar} />
-                                <div className="flex-shrink-0 pt-4">
-                                  <Button onClick={handleCreateProfile} className="w-full text-lg py-6">Commencer</Button>
-                                </div>
-                            </div>
-                        </TabsContent>
-
-                        <TabsContent value="login" className="mt-6">
-                           <div className="flex flex-col justify-center space-y-4 max-w-md mx-auto py-8">
-                                <CardHeader className="p-0 text-center mb-4">
-                                    <CardTitle>Restaurer vos données</CardTitle>
-                                    <CardDescription>Collez votre code de sauvegarde pour retrouver votre profil et vos listes.</CardDescription>
-                                </CardHeader>
-                                <div className="space-y-2">
-                                    <Label htmlFor="import-code" className="font-semibold">Code de sauvegarde</Label>
-                                    <Textarea id="import-code" placeholder="Collez votre code ici..." value={importCode} onChange={(e) => setImportCode(e.target.value)} className="min-h-[150px] font-mono text-xs" />
-                                </div>
-                                <Button onClick={handleImportFromCode} className="w-full text-lg py-6" disabled={isImporting}>
-                                    {isImporting ? <Loader2 className="animate-spin mr-2"/> : <LogIn className="mr-2"/>} Se Connecter
-                                </Button>
-                            </div>
-                        </TabsContent>
-                    </Tabs>
+        <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-foreground capitalize">{title}</h3>
+            <ScrollArea className="w-full whitespace-nowrap">
+                <div className="flex space-x-4 pb-4">
+                    {avatarPaths.map(src => (
+                        <button 
+                            key={src} 
+                            onClick={() => onSelect(src)} 
+                            className={cn(
+                                "rounded-full overflow-hidden border-4 flex-shrink-0 transition-all duration-200", 
+                                selectedAvatar === src ? 'border-primary ring-4 ring-primary/30' : 'border-transparent hover:border-primary/50'
+                            )}
+                        >
+                            <Image 
+                                src={encodeAvatarPath(src)} 
+                                alt={`Avatar de ${title}`} 
+                                width={80} 
+                                height={80} 
+                                className="hover:scale-110 transition-transform"
+                                unoptimized // Prevents Next.js from trying to optimize these static assets
+                            />
+                        </button>
+                    ))}
                 </div>
-            </Card>
+                <ScrollBar orientation="horizontal" />
+            </ScrollArea>
+        </div>
+    );
+};
+
+
+export default function AvatarSelector({ currentAvatar, onSelectAvatar }: AvatarSelectorProps) {
+    const groupedNetflixAvatars = groupAvatarsBySeries(netflixAvatars);
+    const groupedDisneyAvatars = groupAvatarsBySeries(disneyAvatars);
+
+    return (
+        <div className="space-y-2 flex-grow flex flex-col min-h-0">
+            <Label className="text-base font-semibold">Choisissez un avatar</Label>
+            <ScrollArea className="flex-grow rounded-md border p-4 h-96">
+                <div className="space-y-8">
+                    <h2 className="text-xl font-bold text-primary">Netflix</h2>
+                    {Object.entries(groupedNetflixAvatars).map(([series, avatars]) => (
+                        <AvatarGroup 
+                            key={series}
+                            title={series}
+                            avatarPaths={avatars}
+                            selectedAvatar={currentAvatar}
+                            onSelect={onSelectAvatar}
+                        />
+                    ))}
+                    <h2 className="text-xl font-bold text-primary mt-8">Disney+</h2>
+                        {Object.entries(groupedDisneyAvatars).map(([series, avatars]) => (
+                        <AvatarGroup 
+                            key={series}
+                            title={series}
+                            avatarPaths={avatars}
+                            selectedAvatar={currentAvatar}
+                            onSelect={onSelectAvatar}
+                        />
+                    ))}
+                </div>
+            </ScrollArea>
         </div>
     );
 }
-
-    
