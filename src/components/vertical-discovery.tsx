@@ -21,7 +21,7 @@ function DirectLinksPanel({ media }: { media: Media }) {
 
     return (
         <div className={cn(
-            "absolute inset-y-0 left-full w-full h-full bg-black/70 backdrop-blur-md p-6 flex flex-col justify-center items-center text-white"
+            "absolute inset-y-0 right-full w-full h-full bg-black/70 backdrop-blur-md p-6 flex flex-col justify-center items-center text-white"
         )}>
             <h3 className="text-2xl font-bold mb-6">Liens Directs</h3>
              <div className="flex flex-col gap-4 w-full max-w-xs">
@@ -120,19 +120,20 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent" />
         
         <motion.div
-            className="relative w-full h-full flex"
+            className="relative w-full h-full"
             animate={controls}
             transition={{ type: 'tween', ease: 'easeOut', duration: 0.4 }}
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={{ left: 0.2, right: 0.2 }}
+            onDragEnd={onDragEnd}
         >
-            {/* Main content panel that is draggable */}
-            <motion.div
-                className="w-full h-full flex-shrink-0 relative bg-black"
-                drag="x"
-                dragConstraints={{ left: 0, right: 0 }}
-                dragElastic={{ left: 0.2, right: 0.2 }}
-                onDragEnd={onDragEnd}
+            <DirectLinksPanel media={media} />
+
+            {/* Main content panel */}
+            <div
+                className="w-full h-full relative bg-black"
                 onDoubleClick={handleDoubleClick}
-                style={{ x: 0 }} // Initial position
             >
                 {/* Background image for the main panel */}
                 <Image
@@ -191,27 +192,10 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
                             </div>
                             <span className="text-xs font-semibold">Vu</span>
                         </button>
-                        <button onClick={() => router.push(`/media/movie/${media.id}`)} className="flex flex-col items-center gap-1.5 group">
-                            <div className="h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center transition-colors group-hover:bg-white/30">
-                            <Info className="h-7 w-7 transition-transform group-active:scale-90" />
-                            </div>
-                            <span className="text-xs font-semibold">Détails</span>
-                        </button>
                     </div>
                 </div>
                  <p className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/30 text-xs animate-pulse hidden md:block">Glissez pour plus d'options</p>
-            </motion.div>
-            
-            <motion.div
-                className="w-full h-full flex-shrink-0"
-                drag="x"
-                dragConstraints={{ left: 0, right: 0 }}
-                dragElastic={{ left: 0.5, right: 0.2 }}
-                onDragEnd={onPanelDragEnd}
-            >
-                <DirectLinksPanel media={media} />
-            </motion.div>
-
+            </div>
         </motion.div>
     </section>
   );
