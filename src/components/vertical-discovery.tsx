@@ -21,9 +21,9 @@ function DirectLinksPanel({ media }: { media: Media }) {
 
     return (
         <div className={cn(
-            "absolute inset-y-0 right-full w-full h-full bg-black/80 backdrop-blur-md p-6 flex flex-col justify-center items-center text-white"
+            "absolute inset-0 w-full h-full bg-black/80 backdrop-blur-md p-6 flex flex-col justify-center items-center text-white"
         )}>
-            <h3 className="text-2xl font-bold mb-6">Liens Directs</h3>
+            <h3 className="text-2xl font-bold mb-6 flex items-center gap-2"><Link2 /> Liens Directs</h3>
              <div className="flex flex-col gap-4 w-full max-w-xs text-sm">
                 <Button asChild size="lg" className="w-full" style={{ backgroundColor: '#1E1E1E' }}>
                     <a href={`https://cinepulse.lol/sheet/movie-${media.id}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 text-[#FF4545]">
@@ -65,7 +65,7 @@ function DirectLinksPanel({ media }: { media: Media }) {
                 </div>
             </div>
         </div>
-    )
+    );
 }
 
 
@@ -111,17 +111,14 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
     const swipeThreshold = 80;
 
     if (offset.x < -swipeThreshold || velocity.x < -300) {
-      // Swipe right to left -> Go to details
       router.push(`/media/movie/${media.id}?from=discover`);
     } else if (offset.x > swipeThreshold || velocity.x > 300) {
-      // Swipe left to right -> show links
-      controls.start({ x: '100%' });
+       controls.start({ x: '100%' });
     } else {
-      // Not enough swipe, snap back to center
       controls.start({ x: 0 });
     }
   };
-  
+
   const handleClosePanel = (event: MouseEvent | TouchEvent | PointerEvent, info: any) => {
     const { offset, velocity } = info;
     const swipeThreshold = 80;
@@ -139,106 +136,112 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
       className="relative h-full w-full snap-start snap-always flex-shrink-0 overflow-hidden bg-black"
     >
         <div className="absolute inset-0">
-          <Image src={media.posterUrl} alt={`Affiche de ${media.title}`} fill className="object-cover" />
+             <Image src={media.backdropUrl || media.posterUrl} alt={`Fond pour ${media.title}`} fill className="object-cover opacity-30" />
         </div>
         <div 
-          className="absolute inset-0 flex"
+          className="relative h-full flex flex-col"
           onDoubleClick={handleDoubleClick}
         >
-            <motion.div
-                className="relative w-full h-full flex-shrink-0"
+             <motion.div 
+                className="absolute inset-0 flex"
                 drag="x"
                 dragConstraints={{ left: 0, right: 0 }}
-                dragElastic={{ left: 0.2, right: 0.8 }}
+                dragElastic={{ left: 0.8, right: 0.2 }}
                 onDragEnd={handleDragEnd}
                 animate={controls}
                 transition={{ type: 'tween', ease: 'easeOut', duration: 0.4 }}
             >
-              <div className="absolute inset-y-0 left-0 w-full h-full flex flex-col justify-end" style={{ transform: 'translateX(-100%)' }}>
-                  <motion.div
-                      className="w-full h-full"
-                      drag="x"
-                      dragConstraints={{ left: 0, right: 0 }}
-                      dragElastic={{ left: 0.8, right: 0.2 }}
-                      onDragEnd={handleClosePanel}
-                  >
-                      <DirectLinksPanel media={media} />
-                  </motion.div>
-              </div>
-
-              <div className="w-full h-full flex flex-col justify-end">
-                <div className="relative w-full flex-grow flex items-center justify-center p-4 perspective-1000">
-                    <AnimatePresence>
-                      {showHeart && (
-                      <motion.div
-                          initial={{ opacity: 0, scale: 0.5 }}
-                          animate={{ opacity: 1, scale: 1.2, transition: { type: 'spring', stiffness: 200, damping: 10 } }}
-                          exit={{ opacity: 0, scale: 0 }}
-                          className="absolute inset-0 flex items-center justify-center pointer-events-none z-30"
-                      >
-                          <Heart className="h-24 w-24 text-white drop-shadow-lg" fill="currentColor" />
-                      </motion.div>
-                      )}
-                    </AnimatePresence>
-                    
-                    <motion.div 
-                      className="relative w-full max-w-[calc(90vh*0.66)] h-full max-h-[90vh] preserve-3d"
-                      animate={{ rotateY: isFlipped ? 180 : 0 }}
-                      transition={{ duration: 0.5, ease: 'easeInOut' }}
+                {/* Panel for Direct Links */}
+                <div className="absolute inset-y-0 left-0 w-full h-full" style={{ transform: 'translateX(-100%)' }}>
+                    <motion.div
+                        className="w-full h-full"
+                        drag="x"
+                        dragConstraints={{ left: 0, right: 0 }}
+                        dragElastic={{ left: 0.2, right: 0.8 }}
+                        onDragEnd={handleClosePanel}
                     >
-                      {/* Front of the card */}
-                       <motion.div 
-                          className="absolute w-full h-full backface-hidden cursor-pointer"
-                          onClick={() => setIsFlipped(true)}
-                       >
-                          <Image src={media.posterUrl} alt={`Affiche de ${media.title}`} fill className="object-contain rounded-2xl shadow-2xl" />
-                       </motion.div>
-
-                      {/* Back of the card */}
-                      <motion.div
-                          className="absolute w-full h-full backface-hidden p-6 bg-card rounded-2xl flex flex-col justify-center items-center text-card-foreground cursor-pointer"
-                          style={{ transform: 'rotateY(180deg)' }}
-                          onClick={() => setIsFlipped(false)}
-                      >
-                          <h3 className="text-xl font-bold mb-4">Synopsis</h3>
-                          <p className="text-sm text-center text-muted-foreground overflow-y-auto scrollbar-thin">
-                              {media.description}
-                          </p>
-                      </motion.div>
+                        <DirectLinksPanel media={media} />
                     </motion.div>
                 </div>
 
-                <div className="flex-shrink-0 p-6 pt-2 flex items-center justify-between text-white">
-                    <div className="space-y-1">
-                        <h1 className="text-2xl font-bold leading-tight drop-shadow-lg">{media.title}</h1>
-                        <div className="flex items-center gap-4 text-white/90 text-sm">
-                            <div className="flex items-center gap-1.5">
-                            <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
-                            <span>{media.averageRating.toFixed(1)}</span>
-                            </div>
-                            {media.releaseDate && (
-                            <div className="flex items-center gap-1.5">
-                                <CalendarDays className="h-4 w-4" />
-                                <span>{new Date(media.releaseDate).getFullYear()}</span>
-                            </div>
-                            )}
-                        </div>
+                {/* Main Content Panel */}
+                <div className="relative w-full h-full bg-black">
+                     <div className="absolute inset-0">
+                        <Image src={media.backdropUrl || media.posterUrl} alt={`Fond pour ${media.title}`} fill className="object-cover" />
+                        <div className="absolute inset-0 bg-black/40"></div>
                     </div>
+                     <div className="relative w-full h-full flex flex-col justify-end">
+                       <div className="relative w-full flex-grow flex items-center justify-center p-4 perspective-1000">
+                           <AnimatePresence>
+                            {showHeart && (
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.5 }}
+                                animate={{ opacity: 1, scale: 1.2, transition: { type: 'spring', stiffness: 200, damping: 10 } }}
+                                exit={{ opacity: 0, scale: 0 }}
+                                className="absolute inset-0 flex items-center justify-center pointer-events-none z-30"
+                            >
+                                <Heart className="h-24 w-24 text-white drop-shadow-lg" fill="currentColor" />
+                            </motion.div>
+                            )}
+                           </AnimatePresence>
+                           
+                           <motion.div 
+                            className="relative w-full max-w-[calc(90vh*0.66)] h-full max-h-[90vh] preserve-3d"
+                            animate={{ rotateY: isFlipped ? 180 : 0 }}
+                            transition={{ duration: 0.5, ease: 'easeInOut' }}
+                           >
+                            <motion.div 
+                                className="absolute w-full h-full backface-hidden cursor-pointer"
+                                onClick={() => setIsFlipped(true)}
+                            >
+                                <Image src={media.posterUrl} alt={`Affiche de ${media.title}`} fill className="object-contain rounded-2xl shadow-2xl" />
+                            </motion.div>
 
-                    <div className="flex flex-col items-center gap-4">
-                        <button onClick={handleLike} className="flex flex-col items-center gap-1.5 group">
-                            <div className={cn("h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center transition-colors group-hover:bg-white/30", isInList(media.id, 'toWatch') && "bg-red-500/80")}>
-                            <Heart className="h-7 w-7 transition-transform group-active:scale-90" fill={isInList(media.id, 'toWatch') ? "currentColor" : "none"} />
-                            </div>
-                        </button>
-                        <button onClick={handleWatched} className="flex flex-col items-center gap-1.5 group">
-                            <div className={cn("h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center transition-colors group-hover:bg-white/30", isInList(media.id, 'watched') && "bg-green-500/80")}>
-                            <Check className="h-7 w-7 transition-transform group-active:scale-90" />
-                            </div>
-                        </button>
+                            <motion.div
+                                className="absolute w-full h-full backface-hidden p-6 bg-card rounded-2xl flex flex-col justify-center items-center text-card-foreground cursor-pointer"
+                                style={{ transform: 'rotateY(180deg)' }}
+                                onClick={() => setIsFlipped(false)}
+                            >
+                                <h3 className="text-xl font-bold mb-4">Synopsis</h3>
+                                <p className="text-sm text-center text-muted-foreground overflow-y-auto scrollbar-thin">
+                                    {media.description}
+                                </p>
+                            </motion.div>
+                           </motion.div>
+                       </div>
+
+                       <div className="flex-shrink-0 p-6 pt-2 flex items-center justify-between text-white">
+                           <div className="space-y-1">
+                               <h1 className="text-2xl font-bold leading-tight drop-shadow-lg">{media.title}</h1>
+                               <div className="flex items-center gap-4 text-white/90 text-sm">
+                                   <div className="flex items-center gap-1.5">
+                                   <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+                                   <span>{media.averageRating.toFixed(1)}</span>
+                                   </div>
+                                   {media.releaseDate && (
+                                   <div className="flex items-center gap-1.5">
+                                       <CalendarDays className="h-4 w-4" />
+                                       <span>{new Date(media.releaseDate).getFullYear()}</span>
+                                   </div>
+                                   )}
+                               </div>
+                           </div>
+
+                           <div className="flex flex-col items-center gap-4">
+                               <button onClick={handleLike} className="flex flex-col items-center gap-1.5 group">
+                                   <div className={cn("h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center transition-colors group-hover:bg-white/30", isInList(media.id, 'toWatch') && "bg-red-500/80")}>
+                                   <Heart className="h-7 w-7 transition-transform group-active:scale-90" fill={isInList(media.id, 'toWatch') ? "currentColor" : "none"} />
+                                   </div>
+                               </button>
+                               <button onClick={handleWatched} className="flex flex-col items-center gap-1.5 group">
+                                   <div className={cn("h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center transition-colors group-hover:bg-white/30", isInList(media.id, 'watched') && "bg-green-500/80")}>
+                                   <Check className="h-7 w-7 transition-transform group-active:scale-90" />
+                                   </div>
+                               </button>
+                           </div>
+                       </div>
                     </div>
                 </div>
-              </div>
             </motion.div>
         </div>
     </section>
