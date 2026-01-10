@@ -21,7 +21,7 @@ function DirectLinksPanel({ media }: { media: Media }) {
 
     return (
         <div className={cn(
-            "absolute inset-y-0 right-full w-full h-full bg-black/70 backdrop-blur-md p-6 flex flex-col justify-center items-center text-white"
+            "absolute inset-y-0 left-full w-full h-full bg-black/70 backdrop-blur-md p-6 flex flex-col justify-center items-center text-white"
         )}>
             <h3 className="text-2xl font-bold mb-6">Liens Directs</h3>
              <div className="flex flex-col gap-4 w-full max-w-xs">
@@ -113,17 +113,8 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
     <section 
       className="relative h-full w-full snap-start snap-always flex-shrink-0 overflow-hidden"
     >
-        <Image
-            src={media.posterUrl}
-            alt={`Arrière plan flouté pour ${media.title}`}
-            fill
-            className="object-cover object-center scale-125 blur-xl"
-            priority={isActive}
-        />
-        <div className="absolute inset-0 bg-black/40" />
-        
         <motion.div
-            className="absolute inset-0 flex items-center justify-center"
+            className="absolute inset-0 flex"
             animate={controls}
             transition={{ type: 'tween', ease: 'easeOut', duration: 0.4 }}
             drag="x"
@@ -134,7 +125,7 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
             <DirectLinksPanel media={media} />
 
             <div
-                className="w-full h-full flex flex-col justify-end"
+                className="w-full h-full flex-shrink-0 flex flex-col justify-end bg-black"
                 onDoubleClick={handleDoubleClick}
             >
               <div className="relative w-full flex-grow flex items-center justify-center p-4 perspective-1000">
@@ -158,7 +149,7 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
                   >
                     {/* Front of the card */}
                      <motion.div 
-                        className="absolute w-full h-full backface-hidden"
+                        className="absolute w-full h-full backface-hidden cursor-pointer"
                         onClick={() => setIsFlipped(true)}
                      >
                         <Image src={media.posterUrl} alt={`Affiche de ${media.title}`} fill className="object-contain rounded-2xl shadow-2xl" />
@@ -166,12 +157,12 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
 
                     {/* Back of the card */}
                     <motion.div
-                        className="absolute w-full h-full backface-hidden p-6 bg-black/60 backdrop-blur-md rounded-2xl flex flex-col justify-center items-center text-white"
+                        className="absolute w-full h-full backface-hidden p-6 bg-card rounded-2xl flex flex-col justify-center items-center text-card-foreground cursor-pointer"
                         style={{ transform: 'rotateY(180deg)' }}
                         onClick={() => setIsFlipped(false)}
                     >
                         <h3 className="text-xl font-bold mb-4">Synopsis</h3>
-                        <p className="text-sm text-center text-white/90 overflow-y-auto scrollbar-thin">
+                        <p className="text-sm text-center text-muted-foreground overflow-y-auto scrollbar-thin">
                             {media.description}
                         </p>
                     </motion.div>
