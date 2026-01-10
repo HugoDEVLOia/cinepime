@@ -50,6 +50,7 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
   const { toast } = useToast();
   const router = useRouter();
   const [showHeart, setShowHeart] = useState(false);
+  const [isFlipped, setIsFlipped] = useState(false);
   const controls = useAnimation();
 
 
@@ -78,6 +79,7 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
   };
   
   const onDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    event.stopPropagation();
     const { offset, velocity } = info;
     const swipeThreshold = 80;
 
@@ -94,6 +96,7 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
   };
   
   const onPanelDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    event.stopPropagation();
     const { offset, velocity } = info;
     const swipeThreshold = 80;
 
@@ -111,16 +114,16 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
       className="relative h-full w-full snap-start snap-always flex-shrink-0 overflow-hidden"
     >
         <Image
-            src={media.backdropUrl || media.posterUrl}
-            alt={`Arrière plan pour ${media.title}`}
+            src={media.posterUrl}
+            alt={`Arrière plan flouté pour ${media.title}`}
             fill
-            className="object-cover object-center"
+            className="object-cover object-center scale-125 blur-xl"
             priority={isActive}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent" />
+        <div className="absolute inset-0 bg-black/40" />
         
         <motion.div
-            className="relative w-full h-full"
+            className="absolute inset-0 flex items-center justify-center"
             animate={controls}
             transition={{ type: 'tween', ease: 'easeOut', duration: 0.4 }}
             drag="x"
@@ -130,71 +133,82 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
         >
             <DirectLinksPanel media={media} />
 
-            {/* Main content panel */}
             <div
-                className="w-full h-full relative bg-black"
+                className="w-full h-full flex flex-col justify-end"
                 onDoubleClick={handleDoubleClick}
             >
-                {/* Background image for the main panel */}
-                <Image
-                    src={media.backdropUrl || media.posterUrl}
-                    alt={`Arrière plan pour ${media.title}`}
-                    fill
-                    className="object-cover object-center opacity-40"
-                    priority={isActive}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10" />
-                <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent" />
-
-                <AnimatePresence>
+              <div className="relative w-full flex-grow flex items-center justify-center p-4 perspective-1000">
+                  <AnimatePresence>
                     {showHeart && (
                     <motion.div
                         initial={{ opacity: 0, scale: 0.5 }}
                         animate={{ opacity: 1, scale: 1.2, transition: { type: 'spring', stiffness: 200, damping: 10 } }}
                         exit={{ opacity: 0, scale: 0 }}
-                        className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                        className="absolute inset-0 flex items-center justify-center pointer-events-none z-30"
                     >
                         <Heart className="h-24 w-24 text-white drop-shadow-lg" fill="currentColor" />
                     </motion.div>
                     )}
-                </AnimatePresence>
+                  </AnimatePresence>
+                  
+                  <motion.div 
+                    className="relative w-full max-w-[calc(90vh*0.66)] h-full max-h-[90vh] preserve-3d"
+                    animate={{ rotateY: isFlipped ? 180 : 0 }}
+                    transition={{ duration: 0.5, ease: 'easeInOut' }}
+                  >
+                    {/* Front of the card */}
+                     <motion.div 
+                        className="absolute w-full h-full backface-hidden"
+                        onClick={() => setIsFlipped(true)}
+                     >
+                        <Image src={media.posterUrl} alt={`Affiche de ${media.title}`} fill className="object-contain rounded-2xl shadow-2xl" />
+                     </motion.div>
 
-                <div className="absolute bottom-0 left-0 right-0 p-6 flex items-end gap-6 text-white z-10">
-                    <div className="flex-grow space-y-3">
-                        <h1 className="text-3xl md:text-4xl font-bold leading-tight drop-shadow-lg">{media.title}</h1>
-                        <div className="flex items-center gap-4 text-white/90 text-sm">
-                            <div className="flex items-center gap-1.5">
-                            <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
-                            <span>{media.averageRating.toFixed(1)}</span>
-                            </div>
-                            {media.releaseDate && (
-                            <div className="flex items-center gap-1.5">
-                                <CalendarDays className="h-4 w-4" />
-                                <span>{new Date(media.releaseDate).getFullYear()}</span>
-                            </div>
-                            )}
-                        </div>
-                        <p className="text-white/80 text-sm leading-relaxed line-clamp-3 md:line-clamp-4 max-w-2xl drop-shadow-md">
+                    {/* Back of the card */}
+                    <motion.div
+                        className="absolute w-full h-full backface-hidden p-6 bg-black/60 backdrop-blur-md rounded-2xl flex flex-col justify-center items-center text-white"
+                        style={{ transform: 'rotateY(180deg)' }}
+                        onClick={() => setIsFlipped(false)}
+                    >
+                        <h3 className="text-xl font-bold mb-4">Synopsis</h3>
+                        <p className="text-sm text-center text-white/90 overflow-y-auto scrollbar-thin">
                             {media.description}
                         </p>
-                    </div>
+                    </motion.div>
+                  </motion.div>
+              </div>
 
-                    <div className="flex flex-col items-center gap-5">
-                        <button onClick={handleLike} className="flex flex-col items-center gap-1.5 group">
-                            <div className={cn("h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center transition-colors group-hover:bg-white/30", isInList(media.id, 'toWatch') && "bg-red-500/80")}>
-                            <Heart className="h-7 w-7 transition-transform group-active:scale-90" fill={isInList(media.id, 'toWatch') ? "currentColor" : "none"} />
-                            </div>
-                            <span className="text-xs font-semibold">Aimer</span>
-                        </button>
-                        <button onClick={handleWatched} className="flex flex-col items-center gap-1.5 group">
-                            <div className={cn("h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center transition-colors group-hover:bg-white/30", isInList(media.id, 'watched') && "bg-green-500/80")}>
-                            <Check className="h-7 w-7 transition-transform group-active:scale-90" />
-                            </div>
-                            <span className="text-xs font-semibold">Vu</span>
-                        </button>
-                    </div>
-                </div>
-                 <p className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/30 text-xs animate-pulse hidden md:block">Glissez pour plus d'options</p>
+              <div className="flex-shrink-0 p-6 pt-2 flex items-center justify-between text-white bg-gradient-to-t from-black/80 to-transparent">
+                  <div className="space-y-1">
+                      <h1 className="text-2xl font-bold leading-tight drop-shadow-lg">{media.title}</h1>
+                      <div className="flex items-center gap-4 text-white/90 text-sm">
+                          <div className="flex items-center gap-1.5">
+                          <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+                          <span>{media.averageRating.toFixed(1)}</span>
+                          </div>
+                          {media.releaseDate && (
+                          <div className="flex items-center gap-1.5">
+                              <CalendarDays className="h-4 w-4" />
+                              <span>{new Date(media.releaseDate).getFullYear()}</span>
+                          </div>
+                          )}
+                      </div>
+                  </div>
+
+                  <div className="flex flex-col items-center gap-4">
+                      <button onClick={handleLike} className="flex flex-col items-center gap-1.5 group">
+                          <div className={cn("h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center transition-colors group-hover:bg-white/30", isInList(media.id, 'toWatch') && "bg-red-500/80")}>
+                          <Heart className="h-7 w-7 transition-transform group-active:scale-90" fill={isInList(media.id, 'toWatch') ? "currentColor" : "none"} />
+                          </div>
+                      </button>
+                      <button onClick={handleWatched} className="flex flex-col items-center gap-1.5 group">
+                          <div className={cn("h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center transition-colors group-hover:bg-white/30", isInList(media.id, 'watched') && "bg-green-500/80")}>
+                          <Check className="h-7 w-7 transition-transform group-active:scale-90" />
+                          </div>
+                      </button>
+                  </div>
+              </div>
+               <p className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/30 text-xs animate-pulse hidden md:block">Glissez pour plus d'options</p>
             </div>
         </motion.div>
     </section>
@@ -217,7 +231,7 @@ export default function VerticalDiscovery() {
     try {
       const { media: newMovies } = await getPopularMedia('movie', pageNum);
        const detailedMoviesPromises = newMovies
-        .filter(m => m.backdropUrl && !m.backdropUrl.includes('picsum.photos'))
+        .filter(m => m.posterUrl && !m.posterUrl.includes('picsum.photos'))
         .map(m => getMediaDetails(m.id, m.mediaType as 'movie' | 'tv'));
       
       const detailedMoviesResponses = await Promise.all(detailedMoviesPromises);
