@@ -3,7 +3,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams, notFound, useRouter } from 'next/navigation';
+import { useParams, notFound, useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
@@ -33,6 +33,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Command, CommandInput, CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command"
 import { useDebounce } from '@/hooks/use-debounce';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { motion, PanInfo } from 'framer-motion';
 
 interface ProviderCategoryProps {
   title: string;
@@ -238,9 +239,11 @@ function CompareDialog({ mediaToCompare, onCompare }: { mediaToCompare: Media, o
 
 export default function MediaDetailsPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const router = useRouter();
   const mediaId = params.id as string;
   const mediaType = params.mediaType as 'movie' | 'tv';
+  const cameFromDiscover = searchParams.get('from') === 'discover';
 
   const [media, setMedia] = useState<Media | null>(null);
   const [actors, setActors] = useState<Actor[]>([]);
@@ -341,6 +344,12 @@ export default function MediaDetailsPage() {
     if(amount === undefined || amount === 0) return 'N/A';
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', notation: 'compact' }).format(amount);
   }
+  
+  const handleDragBack = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    if (cameFromDiscover && info.offset.x > 100 && info.velocity.x > 200) {
+      router.back();
+    }
+  };
 
   if (isLoading) {
     return <MediaDetailsSkeleton mediaType={mediaType} />;
@@ -392,7 +401,13 @@ export default function MediaDetailsPage() {
   };
 
   return (
-    <div className="space-y-12 md:space-y-16">
+    <motion.div 
+      drag={cameFromDiscover ? "x" : false}
+      dragConstraints={{ left: 0, right: 0 }}
+      dragElastic={{ left: 0.5, right: 0 }}
+      onDragEnd={handleDragBack}
+      className="space-y-12 md:space-y-16"
+    >
       <section className="grid md:grid-cols-12 gap-8 md:gap-12 items-start">
         <div className="md:col-span-4 xl:col-span-3 flex justify-center md:justify-start">
           <Card className="overflow-hidden shadow-xl rounded-xl w-[250px] sm:w-[300px] md:w-full">
@@ -741,7 +756,7 @@ export default function MediaDetailsPage() {
           </div>
         </section>
       )}
-    </div>
+    </motion.div>
   );
 }
 
@@ -869,6 +884,7 @@ function getSafeProfileImageUrl(path: string | null | undefined): string {
     
 
     
+
 
 
 

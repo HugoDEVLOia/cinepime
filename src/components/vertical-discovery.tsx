@@ -1,13 +1,13 @@
 
+
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { getPopularMedia, type Media, getMediaDetails } from '@/services/tmdb';
 import { Button } from '@/components/ui/button';
-import { Loader2, Heart, Check, Info, Star, CalendarDays, ArrowLeft } from 'lucide-react';
+import { Loader2, Heart, Check, Info, Star, CalendarDays, ArrowLeft, Link2 } from 'lucide-react';
 import { useMediaLists } from '@/hooks/use-media-lists';
 import { useToast } from '@/hooks/use-toast';
 import { AnimatePresence, motion, useAnimation, PanInfo } from 'framer-motion';
@@ -15,13 +15,13 @@ import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 
 
-function DirectLinksPanel({ media, isVisible }: { media: Media, isVisible: boolean }) {
+function DirectLinksPanel({ media }: { media: Media }) {
     const isAnimation = media.genres?.some(g => g.id === 16);
     const animeSamaUrl = `https://anime-sama.tv/catalogue/${media.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}/`;
 
     return (
         <div className={cn(
-            "absolute inset-y-0 right-[-100%] w-full h-full bg-black/70 backdrop-blur-md p-6 flex flex-col justify-center items-center text-white"
+            "absolute inset-y-0 left-full w-full h-full bg-black/70 backdrop-blur-md p-6 flex flex-col justify-center items-center text-white"
         )}>
             <h3 className="text-2xl font-bold mb-6">Liens Directs</h3>
              <div className="flex flex-col gap-4 w-full max-w-xs">
@@ -41,7 +41,6 @@ function DirectLinksPanel({ media, isVisible }: { media: Media, isVisible: boole
                 )}
                  <p className="text-xs text-center text-muted-foreground mt-2">D'autres liens sont disponibles sur la page détaillée du film.</p>
             </div>
-            <p className="absolute bottom-6 text-sm text-white/50 flex items-center gap-2"><ArrowLeft className="h-4 w-4"/> Glissez pour fermer</p>
         </div>
     )
 }
@@ -51,7 +50,6 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
   const { toast } = useToast();
   const router = useRouter();
   const [showHeart, setShowHeart] = useState(false);
-  const [panel, setPanel] = useState<'links' | null>(null);
   const controls = useAnimation();
 
 
@@ -82,25 +80,30 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
   const onDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     const { offset, velocity } = info;
     const swipeThreshold = 80;
-    
-    if (panel === 'links') {
-        if (offset.x > swipeThreshold || velocity.x > 300) {
-            setPanel(null);
-            controls.start({ x: 0 });
-        } else {
-            controls.start({ x: '-100%' });
-        }
+
+    if (offset.x < -swipeThreshold || velocity.x < -300) {
+        // Swipe right to left -> Go to details
+        router.push(`/media/movie/${media.id}?from=discover`);
+    } else if (offset.x > swipeThreshold || velocity.x > 300) {
+        // Swipe left to right -> Show links
+        controls.start({ x: '100%' });
     } else {
-        if (offset.x > swipeThreshold || velocity.x > 300) {
-            router.push(`/media/movie/${media.id}`);
-        } else if (offset.x < -swipeThreshold || velocity.x < -300) {
-            setPanel('links');
-            controls.start({ x: '-100%' });
-        } else {
-            controls.start({ x: 0 });
-        }
+        // Not enough swipe, snap back
+        controls.start({ x: 0 });
     }
   };
+  
+  const onPanelDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    const { offset, velocity } = info;
+    const swipeThreshold = 80;
+
+    if (offset.x < -swipeThreshold || velocity.x < -300) {
+        // Swipe left on panel, close it
+        controls.start({ x: 0 });
+    } else {
+        controls.start({ x: '100%' });
+    }
+  }
 
 
   return (
@@ -118,18 +121,29 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
         
         <motion.div
             className="relative w-full h-full flex"
-            drag="x"
-            dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.2}
-            onDragEnd={onDragEnd}
             animate={controls}
-            transition={{ type: 'tween', ease: 'circOut', duration: 0.4 }}
-            onDoubleClick={handleDoubleClick}
+            transition={{ type: 'tween', ease: 'easeOut', duration: 0.4 }}
         >
-            <div className="w-full h-full flex-shrink-0 relative">
-                {/* Main content panel */}
-                <div className={cn("absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10 transition-opacity duration-300", panel && "opacity-0")} />
-                <div className={cn("absolute inset-0 bg-gradient-to-r from-black/50 to-transparent transition-opacity duration-300", panel && "opacity-0")} />
+            {/* Main content panel that is draggable */}
+            <motion.div
+                className="w-full h-full flex-shrink-0 relative bg-black"
+                drag="x"
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={{ left: 0.2, right: 0.2 }}
+                onDragEnd={onDragEnd}
+                onDoubleClick={handleDoubleClick}
+                style={{ x: 0 }} // Initial position
+            >
+                {/* Background image for the main panel */}
+                <Image
+                    src={media.backdropUrl || media.posterUrl}
+                    alt={`Arrière plan pour ${media.title}`}
+                    fill
+                    className="object-cover object-center opacity-40"
+                    priority={isActive}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10" />
+                <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent" />
 
                 <AnimatePresence>
                     {showHeart && (
@@ -144,7 +158,7 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
                     )}
                 </AnimatePresence>
 
-                <div className={cn("absolute bottom-0 left-0 right-0 p-6 flex items-end gap-6 text-white z-10 transition-opacity duration-300", panel && "opacity-0 pointer-events-none")}>
+                <div className="absolute bottom-0 left-0 right-0 p-6 flex items-end gap-6 text-white z-10">
                     <div className="flex-grow space-y-3">
                         <h1 className="text-3xl md:text-4xl font-bold leading-tight drop-shadow-lg">{media.title}</h1>
                         <div className="flex items-center gap-4 text-white/90 text-sm">
@@ -177,18 +191,27 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
                             </div>
                             <span className="text-xs font-semibold">Vu</span>
                         </button>
-                        <Link href={`/media/movie/${media.id}`} className="flex flex-col items-center gap-1.5 group" target="_blank" onClick={(e) => e.stopPropagation()}>
+                        <button onClick={() => router.push(`/media/movie/${media.id}`)} className="flex flex-col items-center gap-1.5 group">
                             <div className="h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center transition-colors group-hover:bg-white/30">
                             <Info className="h-7 w-7 transition-transform group-active:scale-90" />
                             </div>
                             <span className="text-xs font-semibold">Détails</span>
-                        </Link>
+                        </button>
                     </div>
                 </div>
-                {!panel && <p className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/30 text-xs animate-pulse hidden md:block">Glissez pour plus d'options</p>}
-            </div>
+                 <p className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/30 text-xs animate-pulse hidden md:block">Glissez pour plus d'options</p>
+            </motion.div>
+            
+            <motion.div
+                className="w-full h-full flex-shrink-0"
+                drag="x"
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={{ left: 0.5, right: 0.2 }}
+                onDragEnd={onPanelDragEnd}
+            >
+                <DirectLinksPanel media={media} />
+            </motion.div>
 
-            <DirectLinksPanel media={media} isVisible={panel === 'links'} />
         </motion.div>
     </section>
   );
