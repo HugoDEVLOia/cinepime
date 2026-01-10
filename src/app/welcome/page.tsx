@@ -12,8 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { useMediaLists } from '@/hooks/use-media-lists';
-import { type Media } from '@/services/tmdb';
+import { useMediaLists, type Media } from '@/hooks/use-media-lists';
 import { cn } from '@/lib/utils';
 import { User, LogIn, Loader2 } from 'lucide-react';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
@@ -123,7 +122,7 @@ const netflixAvatars = [
     "/assets/avatars/Netflix/love_-death-_-robots_femme_dore-TpSMvU3f.png", "/assets/avatars/Netflix/love_-death-_-robots_k-vrc-CI3EjJxi.png", "/assets/avatars/Netflix/love_-death-_-robots_le_tmoin-BWZzDex5.png",
     "/assets/avatars/Netflix/love_-death-_-robots_rose-BLDKtgb3.png", "/assets/avatars/Netflix/love_-death-_-robots_sonnie-Drxladsv.png", "/assets/avatars/Netflix/love_-death-_-robots_zima-C9kMTjCI.png",
     "/assets/avatars/Netflix/lucifer_amenadiel-FUjMj8Ie.png", "/assets/avatars/Netflix/lucifer_avatar_de_profil-BVPOZ7pe.png", "/assets/avatars/Netflix/lucifer_chloe-BWPfxgiF.png",
-    "/assets/avatars/Netflix/lucifer_dan-BOIL3RRA.png", "/assets_avatars/Netflix/lucifer_ella-BOdOij9A.png", "/assets/avatars/Netflix/lucifer_linda-Bzeu93IU.png",
+    "/assets/avatars/Netflix/lucifer_dan-BOIL3RRA.png", "/assets/avatars/Netflix/lucifer_ella-BOdOij9A.png", "/assets/avatars/Netflix/lucifer_linda-Bzeu93IU.png",
     "/assets/avatars/Netflix/lucifer_lucifer--Byu8K_6.png", "/assets/avatars/Netflix/lucifer_maze-B5jcY7lM.png", "/assets/avatars/Netflix/lupin_assane_lagent_de_scurit-EKvN3SY1.png",
     "/assets/avatars/Netflix/lupin_assane_lboueur-Dp9hmYaZ.png", "/assets/avatars/Netflix/lupin_assane_le_geek-D4DDIUtS.png", "/assets/avatars/Netflix/lupin_assane_le_gentleman_cambrioleur-5DFQOIid.png",
     "/assets/avatars/Netflix/lupin_assane_le_sapeur-B4A-DDfk.png", "/assets/avatars/Netflix/lupin_assane_le_vieil_homme-BtjVJLdJ.png", "/assets/avatars/Netflix/lupin_assane_le_voyou-M-Q_sV52.png",
@@ -146,17 +145,17 @@ const netflixAvatars = [
     "/assets/avatars/Netflix/perdus-dans-l'espace_dr_smith-BTlBTzFX.png", "/assets/avatars/Netflix/perdus-dans-l'espace_john-BZYRZLib.png", "/assets/avatars/Netflix/perdus-dans-l'espace_judy-BwuqNCJy.png",
     "/assets/avatars/Netflix/perdus-dans-l'espace_maureen-CGV-vqEJ.png", "/assets/avatars/Netflix/perdus-dans-l'espace_penny-D-go35yj.png", "/assets/avatars/Netflix/perdus-dans-l'espace_poulet_lis-B17mx2NS.png",
     "/assets/avatars/Netflix/perdus-dans-l'espace_robot-CHE3HMNR.png", "/assets/avatars/Netflix/perdus-dans-l'espace_will-0K7QIXGq.png", "/assets/avatars/Netflix/wednesday_pere-BLyrNjnT.png",
-    "/assets/avatars/Netflix/sandman_dsir-DnxUY3UM.png", "/assets/avatars/Netflix/sandman_irving-1EzJyEFi.png", "/assets_avatars/Netflix/sandman_johanna-DxnibDOk.png",
+    "/assets/avatars/Netflix/sandman_dsir-DnxUY3UM.png", "/assets/avatars/Netflix/sandman_irving-1EzJyEFi.png", "/assets/avatars/Netflix/sandman_johanna-DxnibDOk.png",
     "/assets/avatars/Netflix/sandman_lucienne-BxIaHZwB.png", "/assets/avatars/Netflix/sandman_lucifer-DmwDDrz8.png", "/assets/avatars/Netflix/sandman_matthew-D9F-jzj_.png",
     "/assets/avatars/Netflix/sandman_mort-By1bJhMV.png", "/assets/avatars/Netflix/sandman_rve-BgZfIS2j.png", "/assets/avatars/Netflix/sex-education_adam-DiAaOFAg.png",
     "/assets/avatars/Netflix/sex-education_aimee-BBIMyO9O.png", "/assets/avatars/Netflix/sex-education_anwar-CePcnt9w.png", "/assets/avatars/Netflix/sex-education_cal-CfEztvy1.png",
     "/assets/avatars/Netflix/sex-education_eric-Du6CUSXu.png", "/assets/avatars/Netflix/sex-education_isaac-CWjZtNWu.png", "/assets/avatars/Netflix/sex-education_jackson-DePbQVic.png",
     "/assets/avatars/Netflix/sex-education_jean-Do8Pu5Su.png", "/assets/avatars/Netflix/sex-education_lily-DNuQSyls.png", "/assets/avatars/Netflix/sex-education_maeve-Bp5yrey-.png",
     "/assets/avatars/Netflix/sex-education_ola-q_onlDEE.png", "/assets/avatars/Netflix/sex-education_olivia-DEDSRX6j.png", "/assets/avatars/Netflix/sex-education_otis-dHH7FTff.png",
-    "/assets/avatars/Netflix/sex-education_rahim-QOGHJLlT.png", "/assets_avatars/Netflix/sex-education_ruby-Dmb-BZbU.png", "/assets/avatars/Netflix/sex-education_viv-Cq0Mlnzr.png",
+    "/assets/avatars/Netflix/sex-education_rahim-QOGHJLlT.png", "/assets/avatars/Netflix/sex-education_ruby-Dmb-BZbU.png", "/assets/avatars/Netflix/sex-education_viv-Cq0Mlnzr.png",
     "/assets/avatars/Netflix/wednesday_sirenejcrois-CYkuW-P2.png", "/assets/avatars/Netflix/squid-game_alvole-C4FlkKLj.png", "/assets/avatars/Netflix/squid-game_avatar_de_profil-DwcN9Ip_.png",
     "/assets/avatars/Netflix/squid-game_gi-hun-LUj9vumu.png", "/assets/avatars/Netflix/squid-game_gi-hun_saison_2-t9K3hHbc.png", "/assets/avatars/Netflix/squid-game_hyun-ju-BWXQi48P.png",
-    "/assets/avatars/Netflix/squid-game_in-ho-BF_JtXyF.png", "/assets/avatars/Netflix/squid-game_jun-hee-Bq_D-P6z.png", "/assets_avatars/Netflix/squid-game_jun-ho-D95wdo2A.png",
+    "/assets/avatars/Netflix/squid-game_in-ho-BF_JtXyF.png", "/assets/avatars/Netflix/squid-game_jun-hee-Bq_D-P6z.png", "/assets/avatars/Netflix/squid-game_jun-ho-D95wdo2A.png",
     "/assets/avatars/Netflix/squid-game_leader-DV-KDfCW.png", "/assets/avatars/Netflix/squid-game_manager_masqu-DRAHBYmp.png", "/assets/avatars/Netflix/squid-game_masked_worker-CpZk2pPA.png",
     "/assets/avatars/Netflix/squid-game_myung-gi-BxBTL3Kh.png", "/assets/avatars/Netflix/squid-game_no-eul-cTX0eQtB.png", "/assets/avatars/Netflix/squid-game_officier_masqu-xzED9ZZr.png",
     "/assets/avatars/Netflix/squid-game_recruteur-B3mVjqKy.png", "/assets/avatars/Netflix/squid-game_soldat_masqu-B3Ko69Hg.png", "/assets/avatars/Netflix/squid-game_thanos-DmmMtF-t.png",
@@ -166,24 +165,25 @@ const netflixAvatars = [
     "/assets/avatars/Netflix/stranger-things_nancy-DoF9kIUP.png", "/assets/avatars/Netflix/stranger-things_onze-rlZ3jnlV.png", "/assets/avatars/Netflix/stranger-things_will-BRTmbT4m.png",
     "/assets/avatars/Netflix/the-witcher_ablette-BQOgPuhI.png", "/assets/avatars/Netflix/the-witcher_ciri-B55Q2n5R.png", "/assets/avatars/Netflix/the-witcher_deux_pes-Fbn765Nk.png",
     "/assets/avatars/Netflix/the-witcher_geralt-Bd-LkC5G.png", "/assets/avatars/Netflix/the-witcher_jaskier-uT0u4zQ8.png", "/assets/avatars/Netflix/the-witcher_kikimorrhe-D_0ywMke.png",
-    "/assets/avatars/Netflix/the-witcher_lchi-BblvP8CG.png", "/assets/avatars/Netflix/the-witcher_logo_the_witcher-BAfbp8BI.png", "/assets_avatars/Netflix/the-witcher_nivellen-BjyvAFcn.png",
+    "/assets/avatars/Netflix/the-witcher_lchi-BblvP8CG.png", "/assets/avatars/Netflix/the-witcher_logo_the_witcher-BAfbp8BI.png", "/assets/avatars/Netflix/the-witcher_nivellen-BjyvAFcn.png",
     "/assets/avatars/Netflix/the-witcher_pe_joyeuse-BSkBdUvI.png", "/assets/avatars/Netflix/the-witcher_yennefer-DqVqze_8.png", "/assets/avatars/Netflix/umbrella-academy_allison-71Eo86NH.png",
     "/assets/avatars/Netflix/umbrella-academy_ben-C9TTb2AQ.png", "/assets/avatars/Netflix/umbrella-academy_cinq-BLl7wvPx.png", "/assets/avatars/Netflix/umbrella-academy_diego-R7kEepk3.png",
     "/assets/avatars/Netflix/umbrella-academy_klaus-BwqcPTcY.png", "/assets/avatars/Netflix/umbrella-academy_luther-DpBi0VzS.png", "/assets/avatars/Netflix/umbrella-academy_pogo-CuZ5SV8w.png",
     "/assets/avatars/Netflix/umbrella-academy_viktor-DFa-gou4.png", "/assets/avatars/Netflix/wednesday_zombie-EFkfL8gF.png"
 ];
 
-
+// Helper to capitalize strings for titles
 const capitalize = (s: string) => {
     if (!s) return '';
     return s.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 };
 
+// Groups avatars by series based on filename
 const groupAvatarsBySeries = (avatarPaths: string[]): Record<string, string[]> => {
   return avatarPaths.reduce((acc, path) => {
     const filenameWithExtension = path.split('/').pop() || '';
-    const filename = filenameWithExtension.substring(0, filenameWithExtension.lastIndexOf('.'));
-    const seriesKey = filename.split('_')[0].replace(/-/g, ' ');
+    // Extract series key before the first underscore, and replace dashes with spaces
+    const seriesKey = filenameWithExtension.split('_')[0].replace(/-/g, ' ');
     const seriesTitle = capitalize(seriesKey);
 
     if (!acc[seriesTitle]) {
@@ -194,28 +194,39 @@ const groupAvatarsBySeries = (avatarPaths: string[]): Record<string, string[]> =
   }, {} as Record<string, string[]>);
 };
 
-const AvatarGroup = ({ title, avatarPaths, selectedAvatar, onSelect }: { title: string, avatarPaths: string[], selectedAvatar: string, onSelect: (path: string) => void }) => (
-    <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-foreground capitalize">{title}</h3>
-        <ScrollArea className="w-full whitespace-nowrap">
-            <div className="flex space-x-4 pb-4">
-                {avatarPaths.map(src => (
-                    <button 
-                        key={src} 
-                        onClick={() => onSelect(src)} 
-                        className={cn(
-                            "rounded-full overflow-hidden border-4 flex-shrink-0 transition-all duration-200", 
-                            selectedAvatar === src ? 'border-primary ring-4 ring-primary/30' : 'border-transparent hover:border-primary/50'
-                        )}
-                    >
-                        <Image src={src} alt={`Avatar de ${title}`} width={80} height={80} className="hover:scale-110 transition-transform"/>
-                    </button>
-                ))}
-            </div>
-            <ScrollBar orientation="horizontal" />
-        </ScrollArea>
-    </div>
-);
+const AvatarGroup = ({ title, avatarPaths, selectedAvatar, onSelect }: { title: string, avatarPaths: string[], selectedAvatar: string, onSelect: (path: string) => void }) => {
+    const encodeAvatarPath = (path: string) => path.replace(/ /g, '%20');
+
+    return (
+        <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-foreground capitalize">{title}</h3>
+            <ScrollArea className="w-full whitespace-nowrap">
+                <div className="flex space-x-4 pb-4">
+                    {avatarPaths.map(src => (
+                        <button 
+                            key={src} 
+                            onClick={() => onSelect(src)} 
+                            className={cn(
+                                "rounded-full overflow-hidden border-4 flex-shrink-0 transition-all duration-200", 
+                                selectedAvatar === src ? 'border-primary ring-4 ring-primary/30' : 'border-transparent hover:border-primary/50'
+                            )}
+                        >
+                            <Image 
+                                src={encodeAvatarPath(src)} 
+                                alt={`Avatar de ${title}`} 
+                                width={80} 
+                                height={80} 
+                                className="hover:scale-110 transition-transform"
+                                unoptimized // Prevents Next.js from trying to optimize these static assets
+                            />
+                        </button>
+                    ))}
+                </div>
+                <ScrollBar orientation="horizontal" />
+            </ScrollArea>
+        </div>
+    );
+};
 
 
 export default function WelcomePage() {
@@ -347,3 +358,5 @@ export default function WelcomePage() {
         </div>
     );
 }
+
+    
