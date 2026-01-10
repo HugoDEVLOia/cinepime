@@ -4,6 +4,7 @@ import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
+import { Label } from './ui/label';
 
 const disneyAvatars = [
     "/assets/avatars/Disney+/disney channel_candace flynn-C1vj9fmL.png", "/assets/avatars/Disney+/disney channel_dipper pines-BH9djGet.png", "/assets/avatars/Disney+/disney channel_evie-TNF3SJ8P.png",
@@ -160,7 +161,10 @@ const netflixAvatars = [
     "/assets/avatars/Netflix/umbrella-academy_viktor-DFa-gou4.png", "/assets/avatars/Netflix/wednesday_zombie-EFkfL8gF.png"
 ];
 
-const encodeAvatarPath = (path: string) => path.replace(/\s/g, '%20');
+export const encodeAvatarPath = (path: string | null) => {
+    if (!path) return null;
+    return path.replace(/\s/g, '%20');
+}
 
 // Helper to capitalize strings for titles
 const capitalize = (s: string) => {
@@ -195,25 +199,30 @@ const AvatarGroup = ({ title, avatarPaths, selectedAvatar, onSelect }: { title: 
             <h3 className="text-lg font-semibold text-foreground capitalize">{title}</h3>
             <ScrollArea className="w-full whitespace-nowrap">
                 <div className="flex space-x-4 pb-4">
-                    {avatarPaths.map(src => (
-                        <button 
-                            key={src} 
-                            onClick={() => onSelect(src)} 
-                            className={cn(
-                                "rounded-full overflow-hidden border-4 flex-shrink-0 transition-all duration-200", 
-                                selectedAvatar === src ? 'border-primary ring-4 ring-primary/30' : 'border-transparent hover:border-primary/50'
-                            )}
-                        >
-                            <Image 
-                                src={encodeAvatarPath(src)} 
-                                alt={`Avatar de ${title}`} 
-                                width={80} 
-                                height={80} 
-                                className="hover:scale-110 transition-transform"
-                                unoptimized // Prevents Next.js from trying to optimize these static assets
-                            />
-                        </button>
-                    ))}
+                    {avatarPaths.map(src => {
+                        const encodedSrc = encodeAvatarPath(src);
+                        if (!encodedSrc) return null;
+                        
+                        return (
+                            <button 
+                                key={src} 
+                                onClick={() => onSelect(src)} 
+                                className={cn(
+                                    "rounded-full overflow-hidden border-4 flex-shrink-0 transition-all duration-200", 
+                                    selectedAvatar === src ? 'border-primary ring-4 ring-primary/30' : 'border-transparent hover:border-primary/50'
+                                )}
+                            >
+                                <Image 
+                                    src={encodedSrc}
+                                    alt={`Avatar de ${title}`} 
+                                    width={80} 
+                                    height={80} 
+                                    className="hover:scale-110 transition-transform"
+                                    unoptimized // Prevents Next.js from trying to optimize these static assets
+                                />
+                            </button>
+                        )
+                    })}
                 </div>
                 <ScrollBar orientation="horizontal" />
             </ScrollArea>

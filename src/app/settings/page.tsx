@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import AvatarSelector from '@/components/avatar-selector';
+import AvatarSelector, { encodeAvatarPath } from '@/components/avatar-selector';
 
 export default function SettingsPage() {
   const { toWatchList, watchedList, setLists, isLoaded: listsAreLoaded } = useMediaLists();
@@ -101,11 +101,6 @@ export default function SettingsPage() {
     setIsEditing(false);
   }
 
-  const encodeAvatarPath = (path: string) => {
-    if (!path) return '';
-    return path.replace(/\s/g, '%20');
-  }
-
   return (
     <div className="space-y-10">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
@@ -133,15 +128,17 @@ export default function SettingsPage() {
                 <CardContent className="space-y-6">
                      <div className="flex flex-col items-center space-y-4">
                         <div className="relative w-32 h-32">
-                           <Image 
-                             src={encodeAvatarPath(newAvatar)}
-                             alt={newUsername || 'Avatar'}
-                             fill
-                             className="rounded-full object-cover border-4 border-primary"
-                             key={newAvatar} // Force re-render on avatar change
-                           />
+                           {newAvatar && (
+                            <Image 
+                                src={encodeAvatarPath(newAvatar)}
+                                alt={newUsername || 'Avatar'}
+                                fill
+                                className="rounded-full object-cover border-4 border-primary"
+                                key={newAvatar} // Force re-render on avatar change
+                            />
+                           )}
                         </div>
-                        <h2 className="text-2xl font-bold">{newUsername}</h2>
+                        <h2 className="text-2xl font-bold">{newUsername || "Chargement..."}</h2>
                     </div>
 
                     {!isEditing ? (
