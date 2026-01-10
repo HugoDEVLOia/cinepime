@@ -119,7 +119,7 @@ export default function SettingsPage() {
           </TabsTrigger>
         </TabsList>
         
-        <TabsContent value="profile" className="mt-8">
+        <TabsContent value="profile" className="mt-8 space-y-8">
             <Card className="max-w-2xl mx-auto shadow-lg rounded-xl">
                 <CardHeader>
                     <CardTitle className="text-2xl">Gérer mon profil</CardTitle>
@@ -162,9 +162,79 @@ export default function SettingsPage() {
                     )}
                 </CardContent>
             </Card>
+
+            <Card className="max-w-2xl mx-auto shadow-lg rounded-xl">
+              <CardHeader>
+                <CardTitle className="text-xl font-semibold flex items-center gap-2 text-foreground">
+                  <Copy className="h-6 w-6 text-primary"/>Gérer mes données
+                </CardTitle>
+                <CardDescription>
+                  Exportez toutes vos données (profil et listes) sous forme d'un code de sauvegarde unique.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <Alert variant="default" className="bg-accent/20 border-accent/50 text-accent-foreground [&>svg]:text-accent">
+                  <AlertTriangle className="h-5 w-5" />
+                  <AlertTitle className="font-semibold">Important : Code de Sauvegarde</AlertTitle>
+                  <AlertDescription>
+                    Ce code contient TOUTES vos données. Conservez-le précieusement pour vous connecter sur un autre appareil ou navigateur. N'utilisez la fonction d'importation que sur la page de bienvenue.
+                  </AlertDescription>
+                </Alert>
+
+                <div>
+                  <Button onClick={handleGenerateExportCode} variant="default" className="w-full sm:w-auto" disabled={!listsAreLoaded || isExporting}>
+                    {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Copy className="mr-2 h-4 w-4" />}
+                    Générer mon code de sauvegarde
+                  </Button>
+                  {exportedCode && (
+                    <div className="mt-4 space-y-2">
+                      <Textarea
+                        readOnly
+                        value={exportedCode}
+                        className="h-32 resize-none bg-muted/50 font-mono text-xs"
+                        aria-label="Code de sauvegarde généré"
+                      />
+                      <Button onClick={handleCopyToClipboard} variant="outline" size="sm" className="w-full sm:w-auto">
+                        <Copy className="mr-2 h-4 w-4" /> Copier le code
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="max-w-2xl mx-auto shadow-lg rounded-xl border-destructive/50">
+                <CardHeader>
+                    <CardTitle className="text-xl font-semibold flex items-center gap-2 text-destructive">
+                      <LogOut className="h-6 w-6"/> Zone de Danger
+                    </CardTitle>
+                    <CardDescription>
+                      Cette action est irréversible. Elle supprimera toutes vos données locales (profil et listes) de ce navigateur.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <Button variant="destructive">Se déconnecter</Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Êtes-vous absolument sûr ?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    Cette action supprimera votre profil et toutes vos listes de ce navigateur. Assurez-vous d'avoir sauvegardé votre code si vous souhaitez les récupérer plus tard.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                <AlertDialogAction onClick={handleLogout}>Oui, me déconnecter</AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+                </CardContent>
+            </Card>
         </TabsContent>
         
-        <TabsContent value="settings" className="mt-6 space-y-8">
+        <TabsContent value="settings" className="mt-6 space-y-8 max-w-2xl mx-auto">
            <Card className="shadow-md rounded-xl">
             <CardHeader>
               <CardTitle className="text-xl font-semibold flex items-center gap-2 text-foreground">
@@ -202,76 +272,6 @@ export default function SettingsPage() {
             <CardContent>
               <ThemeSwitcher />
             </CardContent>
-          </Card>
-
-          <Card className="shadow-md rounded-xl">
-            <CardHeader>
-              <CardTitle className="text-xl font-semibold flex items-center gap-2 text-foreground">
-                <Copy className="h-6 w-6 text-primary"/>Gérer mes données
-              </CardTitle>
-              <CardDescription>
-                Exportez toutes vos données (profil et listes) sous forme d'un code de sauvegarde unique.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <Alert variant="default" className="bg-accent/20 border-accent/50 text-accent-foreground [&>svg]:text-accent">
-                <AlertTriangle className="h-5 w-5" />
-                <AlertTitle className="font-semibold">Important : Code de Sauvegarde</AlertTitle>
-                <AlertDescription>
-                  Ce code contient TOUTES vos données. Conservez-le précieusement pour vous connecter sur un autre appareil ou navigateur. N'utilisez la fonction d'importation que sur la page de bienvenue.
-                </AlertDescription>
-              </Alert>
-
-              <div>
-                <Button onClick={handleGenerateExportCode} variant="default" className="w-full sm:w-auto" disabled={!listsAreLoaded || isExporting}>
-                  {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Copy className="mr-2 h-4 w-4" />}
-                  Générer mon code de sauvegarde
-                </Button>
-                {exportedCode && (
-                  <div className="mt-4 space-y-2">
-                    <Textarea
-                      readOnly
-                      value={exportedCode}
-                      className="h-32 resize-none bg-muted/50 font-mono text-xs"
-                      aria-label="Code de sauvegarde généré"
-                    />
-                    <Button onClick={handleCopyToClipboard} variant="outline" size="sm" className="w-full sm:w-auto">
-                      <Copy className="mr-2 h-4 w-4" /> Copier le code
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="shadow-md rounded-xl border-destructive/50">
-              <CardHeader>
-                  <CardTitle className="text-xl font-semibold flex items-center gap-2 text-destructive">
-                    <LogOut className="h-6 w-6"/> Zone de Danger
-                  </CardTitle>
-                  <CardDescription>
-                    Cette action est irréversible. Elle supprimera toutes vos données locales (profil et listes) de ce navigateur.
-                  </CardDescription>
-              </CardHeader>
-              <CardContent>
-                  <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                          <Button variant="destructive">Se déconnecter</Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                          <AlertDialogHeader>
-                              <AlertDialogTitle>Êtes-vous absolument sûr ?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                  Cette action supprimera votre profil et toutes vos listes de ce navigateur. Assurez-vous d'avoir sauvegardé votre code si vous souhaitez les récupérer plus tard.
-                              </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                              <AlertDialogCancel>Annuler</AlertDialogCancel>
-                              <AlertDialogAction onClick={handleLogout}>Oui, me déconnecter</AlertDialogAction>
-                          </AlertDialogFooter>
-                      </AlertDialogContent>
-                  </AlertDialog>
-              </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
