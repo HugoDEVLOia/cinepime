@@ -20,8 +20,8 @@ function DirectLinksPanel({ media, isVisible }: { media: Media, isVisible: boole
 
     return (
         <div className={cn(
-            "absolute inset-y-0 left-full w-full h-full bg-black/70 backdrop-blur-md p-6 flex flex-col justify-center items-center text-white transition-opacity duration-300",
-            isVisible ? "opacity-100" : "opacity-0 pointer-events-none"
+            "absolute inset-y-0 w-full h-full bg-black/70 backdrop-blur-md p-6 flex flex-col justify-center items-center text-white",
+            "left-full" // Positioned to the right of the main view
         )}>
             <h3 className="text-2xl font-bold mb-6">Liens Directs</h3>
              <div className="flex flex-col gap-4 w-full max-w-xs">
@@ -51,8 +51,8 @@ function DetailsPanel({ media, isVisible }: { media: Media, isVisible: boolean }
 
   return (
     <div className={cn(
-        "absolute inset-y-0 right-full w-full h-full bg-black/70 backdrop-blur-md p-6 flex flex-col justify-center items-start text-white transition-opacity duration-300 overflow-y-auto",
-        isVisible ? "opacity-100" : "opacity-0 pointer-events-none"
+        "absolute inset-y-0 w-full h-full bg-black/70 backdrop-blur-md p-6 flex flex-col justify-center items-start text-white overflow-y-auto",
+        "right-full" // Positioned to the left of the main view
     )}>
       <h3 className="text-2xl font-bold mb-4">Détails</h3>
       <div className="space-y-4 text-sm w-full">
@@ -100,7 +100,7 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
   const [showHeart, setShowHeart] = useState(false);
   const [panel, setPanel] = useState<'details' | 'links' | null>(null);
   const controls = useAnimation();
-  const itemRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
 
   const handleLike = () => {
@@ -130,20 +130,19 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
   const onDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     const { offset, velocity } = info;
     const swipeThreshold = 80;
-    const itemWidth = itemRef.current?.clientWidth || window.innerWidth;
+    const itemWidth = containerRef.current?.clientWidth || window.innerWidth;
     
-    // Only handle drag if no panel is open
     if (!panel) {
         if (offset.x > swipeThreshold || velocity.x > 300) {
             setPanel('details');
-            controls.start({ x: itemWidth * 0.85 });
+            controls.start({ x: itemWidth });
         } else if (offset.x < -swipeThreshold || velocity.x < -300) {
             setPanel('links');
-            controls.start({ x: -itemWidth * 0.85 });
+            controls.start({ x: -itemWidth });
         } else {
             controls.start({ x: 0 });
         }
-    } else { // If a panel is open, handle closing it
+    } else { 
         if (panel === 'details' && (offset.x < -swipeThreshold || velocity.x < -300)) {
             setPanel(null);
             controls.start({ x: 0 });
@@ -151,8 +150,7 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
             setPanel(null);
             controls.start({ x: 0 });
         } else {
-            // Snap back to open state
-            controls.start({ x: panel === 'details' ? itemWidth * 0.85 : -itemWidth * 0.85 });
+            controls.start({ x: panel === 'details' ? itemWidth : -itemWidth });
         }
     }
   };
@@ -171,78 +169,81 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent" />
         
-        <DetailsPanel media={media} isVisible={panel === 'details'} />
-        <DirectLinksPanel media={media} isVisible={panel === 'links'} />
-
         <motion.div
-            ref={itemRef}
+            ref={containerRef}
             className="relative w-full h-full"
             drag="x"
             dragConstraints={{ left: 0, right: 0 }}
             dragElastic={0.2}
             onDragEnd={onDragEnd}
             animate={controls}
-            transition={{ type: 'tween', ease: 'easeInOut', duration: 0.4 }}
+            transition={{ type: 'tween', ease: 'circOut', duration: 0.4 }}
             onDoubleClick={handleDoubleClick}
         >
-          <div className={cn("absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10 transition-opacity duration-300", panel && "opacity-0")} />
-          <div className={cn("absolute inset-0 bg-gradient-to-r from-black/50 to-transparent transition-opacity duration-300", panel && "opacity-0")} />
+            <DetailsPanel media={media} isVisible={panel === 'details'} />
+            <DirectLinksPanel media={media} isVisible={panel === 'links'} />
 
-           <AnimatePresence>
-            {showHeart && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.5 }}
-                animate={{ opacity: 1, scale: 1.2, transition: { type: 'spring', stiffness: 200, damping: 10 } }}
-                exit={{ opacity: 0, scale: 0 }}
-                className="absolute inset-0 flex items-center justify-center pointer-events-none"
-              >
-                <Heart className="h-24 w-24 text-white drop-shadow-lg" fill="currentColor" />
-              </motion.div>
-            )}
-           </AnimatePresence>
+            {/* Main content panel that moves */}
+            <div className="absolute inset-0 w-full h-full">
+                <div className={cn("absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10 transition-opacity duration-300", panel && "opacity-0")} />
+                <div className={cn("absolute inset-0 bg-gradient-to-r from-black/50 to-transparent transition-opacity duration-300", panel && "opacity-0")} />
 
-            <div className={cn("absolute bottom-0 left-0 right-0 p-6 flex items-end gap-6 text-white z-10 transition-opacity duration-300", panel && "opacity-0 pointer-events-none")}>
-                <div className="flex-grow space-y-3">
-                <h1 className="text-3xl md:text-4xl font-bold leading-tight drop-shadow-lg">{media.title}</h1>
-                <div className="flex items-center gap-4 text-white/90 text-sm">
-                    <div className="flex items-center gap-1.5">
-                    <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
-                    <span>{media.averageRating.toFixed(1)}</span>
-                    </div>
-                    {media.releaseDate && (
-                    <div className="flex items-center gap-1.5">
-                        <CalendarDays className="h-4 w-4" />
-                        <span>{new Date(media.releaseDate).getFullYear()}</span>
-                    </div>
+                <AnimatePresence>
+                    {showHeart && (
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.5 }}
+                        animate={{ opacity: 1, scale: 1.2, transition: { type: 'spring', stiffness: 200, damping: 10 } }}
+                        exit={{ opacity: 0, scale: 0 }}
+                        className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                    >
+                        <Heart className="h-24 w-24 text-white drop-shadow-lg" fill="currentColor" />
+                    </motion.div>
                     )}
-                </div>
-                <p className="text-white/80 text-sm leading-relaxed line-clamp-3 md:line-clamp-4 max-w-2xl drop-shadow-md">
-                    {media.description}
-                </p>
-                </div>
+                </AnimatePresence>
 
-                <div className="flex flex-col items-center gap-5">
-                <button onClick={handleLike} className="flex flex-col items-center gap-1.5 group">
-                    <div className={cn("h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center transition-colors group-hover:bg-white/30", isInList(media.id, 'toWatch') && "bg-red-500/80")}>
-                    <Heart className="h-7 w-7 transition-transform group-active:scale-90" fill={isInList(media.id, 'toWatch') ? "currentColor" : "none"} />
+                <div className={cn("absolute bottom-0 left-0 right-0 p-6 flex items-end gap-6 text-white z-10 transition-opacity duration-300", panel && "opacity-0 pointer-events-none")}>
+                    <div className="flex-grow space-y-3">
+                        <h1 className="text-3xl md:text-4xl font-bold leading-tight drop-shadow-lg">{media.title}</h1>
+                        <div className="flex items-center gap-4 text-white/90 text-sm">
+                            <div className="flex items-center gap-1.5">
+                            <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+                            <span>{media.averageRating.toFixed(1)}</span>
+                            </div>
+                            {media.releaseDate && (
+                            <div className="flex items-center gap-1.5">
+                                <CalendarDays className="h-4 w-4" />
+                                <span>{new Date(media.releaseDate).getFullYear()}</span>
+                            </div>
+                            )}
+                        </div>
+                        <p className="text-white/80 text-sm leading-relaxed line-clamp-3 md:line-clamp-4 max-w-2xl drop-shadow-md">
+                            {media.description}
+                        </p>
                     </div>
-                    <span className="text-xs font-semibold">Aimer</span>
-                </button>
-                <button onClick={handleWatched} className="flex flex-col items-center gap-1.5 group">
-                    <div className={cn("h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center transition-colors group-hover:bg-white/30", isInList(media.id, 'watched') && "bg-green-500/80")}>
-                    <Check className="h-7 w-7 transition-transform group-active:scale-90" />
+
+                    <div className="flex flex-col items-center gap-5">
+                        <button onClick={handleLike} className="flex flex-col items-center gap-1.5 group">
+                            <div className={cn("h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center transition-colors group-hover:bg-white/30", isInList(media.id, 'toWatch') && "bg-red-500/80")}>
+                            <Heart className="h-7 w-7 transition-transform group-active:scale-90" fill={isInList(media.id, 'toWatch') ? "currentColor" : "none"} />
+                            </div>
+                            <span className="text-xs font-semibold">Aimer</span>
+                        </button>
+                        <button onClick={handleWatched} className="flex flex-col items-center gap-1.5 group">
+                            <div className={cn("h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center transition-colors group-hover:bg-white/30", isInList(media.id, 'watched') && "bg-green-500/80")}>
+                            <Check className="h-7 w-7 transition-transform group-active:scale-90" />
+                            </div>
+                            <span className="text-xs font-semibold">Vu</span>
+                        </button>
+                        <Link href={`/media/movie/${media.id}`} className="flex flex-col items-center gap-1.5 group" target="_blank" onClick={(e) => e.stopPropagation()}>
+                            <div className="h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center transition-colors group-hover:bg-white/30">
+                            <Info className="h-7 w-7 transition-transform group-active:scale-90" />
+                            </div>
+                            <span className="text-xs font-semibold">Détails</span>
+                        </Link>
                     </div>
-                    <span className="text-xs font-semibold">Vu</span>
-                </button>
-                <Link href={`/media/movie/${media.id}`} className="flex flex-col items-center gap-1.5 group" target="_blank" onClick={(e) => e.stopPropagation()}>
-                    <div className="h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center transition-colors group-hover:bg-white/30">
-                    <Info className="h-7 w-7 transition-transform group-active:scale-90" />
-                    </div>
-                    <span className="text-xs font-semibold">Détails</span>
-                </Link>
                 </div>
+                {!panel && <p className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/30 text-xs animate-pulse hidden md:block">Glissez pour plus d'options</p>}
             </div>
-            {!panel && <p className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/30 text-xs animate-pulse hidden md:block">Glissez pour plus d'options</p>}
         </motion.div>
     </section>
   );
@@ -284,11 +285,13 @@ export default function VerticalDiscovery() {
       if (pageNum === 1) setIsLoading(false);
       isFetching.current = false;
     }
-  }, [page]); // dépendance à page ajoutée
+  }, []);
 
   useEffect(() => {
-    fetchMovies(1);
-  }, [fetchMovies]);
+    if(page === 0) {
+      fetchMovies(1);
+    }
+  }, [fetchMovies, page]);
 
 
   const handleScroll = () => {
@@ -302,9 +305,8 @@ export default function VerticalDiscovery() {
         setActiveIndex(newIndex);
     }
     
-    // Fetch more when user is 3 items away from the end of the list
     if (scrollTop + clientHeight >= scrollHeight - clientHeight * 3) {
-      if (!isFetching.current) { // Check to prevent multiple fetches
+      if (!isFetching.current) {
           fetchMovies(page + 1);
       }
     }
