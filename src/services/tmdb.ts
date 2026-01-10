@@ -247,42 +247,51 @@ export async function getPopularMedia(
     rating?: number
 ): Promise<{ media: Media[], totalPages: number }> {
     let endpoint;
-    let params = `api_key=${API_KEY}&language=${LANGUAGE}&page=${page}`;
+    let params = new URLSearchParams({
+        api_key: API_KEY,
+        language: LANGUAGE,
+        page: page.toString(),
+    });
 
     if (mediaType !== 'person' && (genreId || decade || popularity || rating)) {
         endpoint = `/discover/${mediaType}`;
         const sortBy = popularity === 'niche' ? 'popularity.asc' : 'popularity.desc';
-        params += `&sort_by=${sortBy}`;
+        params.set('sort_by', sortBy);
         
         if (genreId) {
-            params += `&with_genres=${genreId}`;
+            params.set('with_genres', genreId.toString());
         }
         if (decade) {
             const startDate = `${decade}-01-01`;
             const endDate = `${decade + 9}-12-31`;
             const dateParam = mediaType === 'movie' ? 'primary_release_date' : 'first_air_date';
-            params += `&${dateParam}.gte=${startDate}&${dateParam}.lte=${endDate}`;
+            params.set(`${dateParam}.gte`, startDate);
+            params.set(`${dateParam}.lte`, endDate);
         }
         if (rating) {
-            params += `&vote_average.gte=${rating}`;
+            params.set('vote_average.gte', rating.toString());
         }
-        // Add a minimum vote count to avoid obscure, unrated titles
-        params += '&vote_count.gte=100'; 
+        params.set('vote_count.gte', '100'); 
     } else {
         endpoint = `/${mediaType}/popular`;
     }
 
     try {
-        const response = await fetch(`${BASE_URL}${endpoint}?${params}`);
+        const response = await fetch(`${BASE_URL}${endpoint}?${params.toString()}`);
         if (!response.ok) {
             console.error(`Failed to fetch popular ${mediaType} with filters:`, response.status, await response.text());
             return { media: [], totalPages: 1 };
         }
         const data = await response.json();
-        const media = data.results
-            .filter((item: any) => item.poster_path || item.profile_path) // Filter out items with no poster/profile
-            .map((item: any) => mapApiMediaToMedia(item, mediaType));
-        return { media, totalPages: data.total_pages };
+
+        // Fetch details for each item to get credits
+        const detailedMediaPromises = data.results
+            .filter((item: any) => item.poster_path || item.profile_path)
+            .map((item: any) => getMediaDetails(item.id.toString(), mediaType as 'movie' | 'tv'));
+
+        const detailedMedia = (await Promise.all(detailedMediaPromises)).filter(Boolean) as Media[];
+
+        return { media: detailedMedia, totalPages: data.total_pages };
     } catch (error) {
         console.error(`Error fetching popular ${mediaType} with filters:`, error);
         return { media: [], totalPages: 1 };
