@@ -37,6 +37,8 @@ function AppLayout({ children }: { children: React.ReactNode }) {
     }
   }, [isLoaded, hasCompletedOnboarding, pathname, router]);
 
+  const showChatbot = pathname !== '/discover';
+
   if (!hasCompletedOnboarding && pathname !== '/welcome') {
     return (
        <div className="flex items-center justify-center min-h-screen bg-background">
@@ -45,7 +47,7 @@ function AppLayout({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (pathname === '/welcome') {
+  if (pathname === '/welcome' || pathname === '/discover') {
     return <main>{children}</main>;
   }
 
@@ -195,7 +197,7 @@ function AppLayout({ children }: { children: React.ReactNode }) {
         </div>
       </footer>
       <Toaster />
-      <Chatbot />
+      {showChatbot && <Chatbot />}
     </>
   );
 }
@@ -242,3 +244,5 @@ export default function RootLayout({
     </html>
   );
 }
+
+    
