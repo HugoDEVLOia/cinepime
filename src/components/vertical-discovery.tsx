@@ -46,7 +46,7 @@ function DirectLinksPanel({ media }: { media: Media }) {
 }
 
 function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean }) {
-  const { addToList, isInList } = useMediaLists();
+  const { addToList, removeFromList, isInList } = useMediaLists();
   const { toast } = useToast();
   const router = useRouter();
   const [showHeart, setShowHeart] = useState(false);
@@ -55,25 +55,29 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
 
 
   const handleLike = () => {
-    if (isInList(media.id, 'toWatch')) return;
-    addToList(media, 'toWatch');
-    toast({
-      title: "Ajouté !",
-      description: `${media.title} a été ajouté à votre liste "À Regarder".`,
-    });
+    if (isInList(media.id, 'toWatch')) {
+      removeFromList(media.id, 'toWatch');
+      toast({ title: "Retiré", description: `${media.title} a été retiré de votre liste "À Regarder".` });
+    } else {
+      addToList(media, 'toWatch');
+      toast({ title: "Ajouté !", description: `${media.title} a été ajouté à votre liste "À Regarder".` });
+    }
   };
 
   const handleWatched = () => {
-    if (isInList(media.id, 'watched')) return;
-    addToList(media, 'watched');
-    toast({
-      title: "Marqué comme vu !",
-      description: `Vous avez déjà vu ${media.title}.`,
-    });
+    if (isInList(media.id, 'watched')) {
+      removeFromList(media.id, 'watched');
+      toast({ title: "Retiré", description: `${media.title} a été retiré de vos "Vus".` });
+    } else {
+      addToList(media, 'watched');
+      toast({ title: "Marqué comme vu !", description: `Vous avez déjà vu ${media.title}.` });
+    }
   };
 
   const handleDoubleClick = () => {
-    handleLike();
+    if (!isInList(media.id, 'toWatch')) {
+      handleLike();
+    }
     setShowHeart(true);
     setTimeout(() => setShowHeart(false), 800);
   };
@@ -83,12 +87,12 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
     const { offset, velocity } = info;
     const swipeThreshold = 80;
 
-    if (offset.x < -swipeThreshold || velocity.x < -300) {
+    if (offset.x > swipeThreshold || velocity.x > 300) {
+        // Swipe left to right -> show links
+        controls.start({ x: '100%' });
+    } else if (offset.x < -swipeThreshold || velocity.x < -300) {
         // Swipe right to left -> Go to details
         router.push(`/media/movie/${media.id}?from=discover`);
-    } else if (offset.x > swipeThreshold || velocity.x > 300) {
-        // Swipe left to right -> Show links
-        controls.start({ x: '100%' });
     } else {
         // Not enough swipe, snap back
         controls.start({ x: 0 });
@@ -113,6 +117,9 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
     <section 
       className="relative h-full w-full snap-start snap-always flex-shrink-0 overflow-hidden"
     >
+        <div className="absolute inset-0 bg-black">
+          <Image src={media.posterUrl} alt={`Affiche de ${media.title}`} fill className="object-cover opacity-30" />
+        </div>
         <motion.div
             className="absolute inset-0 flex"
             animate={controls}
@@ -125,7 +132,7 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
             <DirectLinksPanel media={media} />
 
             <div
-                className="w-full h-full flex-shrink-0 flex flex-col justify-end bg-black"
+                className="w-full h-full flex-shrink-0 flex flex-col justify-end"
                 onDoubleClick={handleDoubleClick}
             >
               <div className="relative w-full flex-grow flex items-center justify-center p-4 perspective-1000">
@@ -169,7 +176,7 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
                   </motion.div>
               </div>
 
-              <div className="flex-shrink-0 p-6 pt-2 flex items-center justify-between text-white bg-gradient-to-t from-black/80 to-transparent">
+              <div className="flex-shrink-0 p-6 pt-2 flex items-center justify-between text-white">
                   <div className="space-y-1">
                       <h1 className="text-2xl font-bold leading-tight drop-shadow-lg">{media.title}</h1>
                       <div className="flex items-center gap-4 text-white/90 text-sm">

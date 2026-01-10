@@ -382,16 +382,22 @@ export default function MediaDetailsPage() {
   const handleToggleList = async (listType: 'toWatch' | 'watched') => {
     if (!media) return;
     setIsTogglingList(true);
+
     if (isInList(media.id, listType)) {
       removeFromList(media.id, listType);
+      toast({
+        title: "Retiré de la liste",
+        description: `"${media.title}" a été retiré de vos ${listType === 'watched' ? 'Vus' : 'À Regarder'}.`,
+      });
     } else {
       await addToList(media, listType); 
-      if (listType === 'watched' && isInList(media.id, 'toWatch')) {
-        removeFromList(media.id, 'toWatch');
-      } else if (listType === 'toWatch' && isInList(media.id, 'watched')) {
-        removeFromList(media.id, 'watched');
-      }
+      toast({
+        title: "Ajouté à la liste",
+        description: `"${media.title}" a été ajouté à vos ${listType === 'watched' ? 'Vus' : 'À Regarder'}.`,
+      });
+      // Logic to move between lists is handled in addToList hook
     }
+
     setIsTogglingList(false);
   };
   
@@ -508,7 +514,7 @@ export default function MediaDetailsPage() {
               className="gap-2 w-full sm:w-auto py-3 px-6 text-base"
               disabled={isTogglingList}
             >
-              {isTogglingList && isInList(media.id, 'toWatch') === false ? <Loader2 className="h-5 w-5 animate-spin" /> : <Eye className="h-5 w-5" />}
+              {isTogglingList && !isInList(media.id, 'toWatch') ? <Loader2 className="h-5 w-5 animate-spin" /> : <Eye className="h-5 w-5" />}
               {isToWatch ? 'Dans "À Regarder"' : 'Ajouter à "À Regarder"'}
             </Button>
             <Button 
@@ -519,7 +525,7 @@ export default function MediaDetailsPage() {
               className="gap-2 w-full sm:w-auto py-3 px-6 text-base"
               disabled={isTogglingList}
             >
-              {isTogglingList && isInList(media.id, 'watched') === false ? <Loader2 className="h-5 w-5 animate-spin" /> : <CheckCircle className="h-5 w-5" />}
+              {isTogglingList && !isInList(media.id, 'watched') ? <Loader2 className="h-5 w-5 animate-spin" /> : <CheckCircle className="h-5 w-5" />}
               {isWatched ? 'Déjà Vu' : 'Marquer comme Vu'}
             </Button>
             {mediaType === 'movie' && (
@@ -884,6 +890,7 @@ function getSafeProfileImageUrl(path: string | null | undefined): string {
     
 
     
+
 
 
 
