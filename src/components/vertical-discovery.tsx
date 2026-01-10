@@ -4,9 +4,9 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { getPopularMedia, type Media } from '@/services/tmdb';
+import { getPopularMedia, type Media, getMediaDetails } from '@/services/tmdb';
 import { Button } from '@/components/ui/button';
-import { Loader2, Heart, Check, Info, Star, CalendarDays, Users, User, ArrowLeft, ArrowRight, PlaySquare } from 'lucide-react';
+import { Loader2, Heart, Check, Info, Star, CalendarDays, ArrowLeft, ArrowRight, PlaySquare } from 'lucide-react';
 import { useMediaLists } from '@/hooks/use-media-lists';
 import { useToast } from '@/hooks/use-toast';
 import { AnimatePresence, motion, useAnimation, PanInfo } from 'framer-motion';
@@ -251,7 +251,7 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
 export default function VerticalDiscovery() {
   const [movies, setMovies] = useState<Media[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(0);
   const [activeIndex, setActiveIndex] = useState(0);
   const rootRef = useRef<HTMLDivElement>(null);
   const isFetching = useRef(false);
@@ -262,14 +262,13 @@ export default function VerticalDiscovery() {
     if(isInitial) setIsLoading(true);
 
     try {
-      const randomPage = Math.floor(Math.random() * 20) + 1;
-      const { media: newMovies } = await getPopularMedia('movie', randomPage);
+      const { media: newMovies } = await getPopularMedia('movie', pageNum);
        const detailedMoviesPromises = newMovies
         .filter(m => m.backdropUrl && !m.backdropUrl.includes('picsum.photos'))
-        .map(m => getPopularMedia('movie', undefined, undefined, m.genres?.[0].id)); // Fetch with details
+        .map(m => getMediaDetails(m.id, m.mediaType as 'movie' | 'tv'));
       
       const detailedMoviesResponses = await Promise.all(detailedMoviesPromises);
-      const detailedMovies = detailedMoviesResponses.flatMap(res => res.media);
+      const detailedMovies = detailedMoviesResponses.filter((m): m is Media => m !== null);
 
 
       setMovies(prev => {
@@ -278,19 +277,25 @@ export default function VerticalDiscovery() {
         return [...prev, ...uniqueNew];
       });
 
-      setPage(pageNum);
+      if (page > 0) { // Only increment if not initial load
+        setPage(pageNum);
+      }
 
     } catch (error) {
       console.error("Erreur lors de la récupération des films:", error);
     } finally {
       if(isInitial) setIsLoading(false);
-      isFetching.current = false;
+      setTimeout(() => {
+        isFetching.current = false;
+      }, 1000); // Cooldown to prevent rapid fetching
     }
-  }, []);
+  }, [page]);
 
   useEffect(() => {
+    // Start with page 1 for initial load
     fetchMovies(1, true);
-  }, [fetchMovies]);
+  }, []); // Changed dependency to empty array to ensure it runs only once on mount
+
 
   const handleScroll = () => {
     const root = rootRef.current;
@@ -298,9 +303,12 @@ export default function VerticalDiscovery() {
 
     const { scrollTop, scrollHeight, clientHeight } = root;
     const newIndex = Math.round(scrollTop / clientHeight);
-    setActiveIndex(newIndex);
     
-    // Fetch more when user is near the end of the list
+    if (newIndex !== activeIndex) {
+        setActiveIndex(newIndex);
+    }
+    
+    // Fetch more when user is 3 items away from the end of the list
     if (scrollTop + clientHeight >= scrollHeight - clientHeight * 3) {
       if (!isFetching.current) {
         fetchMovies(page + 1);
@@ -317,7 +325,7 @@ export default function VerticalDiscovery() {
       {movies.map((movie, index) => (
         <DiscoveryItem key={`${movie.id}-${index}`} media={movie} isActive={index === activeIndex}/>
       ))}
-      {isLoading && (
+      {(isLoading || isFetching.current) && (
         <div className="h-full w-full snap-start snap-always flex-shrink-0 flex items-center justify-center bg-black">
           <Loader2 className="h-16 w-16 text-primary animate-spin" />
         </div>
@@ -325,3 +333,5 @@ export default function VerticalDiscovery() {
     </div>
   );
 }
+
+    
