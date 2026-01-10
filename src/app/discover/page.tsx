@@ -1,12 +1,11 @@
-
 'use client';
 
-import DiscoveryDeck from '@/components/discovery-deck';
+import VerticalDiscovery from '@/components/vertical-discovery';
 
 export default function DiscoverPage() {
   return (
-    <div className="fixed inset-0 top-[var(--header-height)] flex items-center justify-center bg-background">
-      <DiscoveryDeck />
+    <div className="fixed inset-0 top-[var(--header-height)] bg-black">
+      <VerticalDiscovery />
     </div>
   );
 }
