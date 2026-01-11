@@ -633,12 +633,12 @@ export default function MediaDetailsPage() {
                   
                   <Button asChild style={{ backgroundColor: '#4c1d95', color: '#fff' }} className="hover:bg-purple-900">
                       <a
-                          href={`https://xalaflix.men/`}
+                          href={`https://xalaflix.io/`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex items-center"
                       >
-                          <Image src="https://xalaflix.men/upload/images/logo/1.png" alt="Xalaflix Logo" width={20} height={20} className="mr-2 rounded-sm"/>
+                          <Image src="https://xalaflix.io/upload/images/logo/1.png" alt="Xalaflix Logo" width={20} height={20} className="mr-2 rounded-sm"/>
                           Xalaflix
                       </a>
                   </Button>
@@ -890,6 +890,7 @@ function getSafeProfileImageUrl(path: string | null | undefined): string {
     
 
     
+
 
 
 

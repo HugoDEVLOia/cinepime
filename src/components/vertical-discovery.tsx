@@ -20,9 +20,7 @@ function DirectLinksPanel({ media }: { media: Media }) {
     const animeSamaUrl = `https://anime-sama.tv/catalogue/${media.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}/`;
 
     return (
-        <div className={cn(
-            "absolute inset-0 w-full h-full bg-black/80 backdrop-blur-md p-6 flex flex-col justify-center items-center text-white"
-        )}>
+        <div className="w-full h-full bg-black/80 backdrop-blur-md p-6 flex flex-col justify-center items-center text-white">
             <h3 className="text-2xl font-bold mb-6 flex items-center gap-2"><Link2 /> Liens Directs</h3>
              <div className="flex flex-col gap-4 w-full max-w-xs text-sm">
                 <Button asChild size="lg" className="w-full" style={{ backgroundColor: '#1E1E1E' }}>
@@ -41,8 +39,8 @@ function DirectLinksPanel({ media }: { media: Media }) {
                     </Button>
                     
                     <Button asChild style={{ backgroundColor: '#4c1d95', color: '#fff' }} className="hover:bg-purple-900">
-                        <a href="https://xalaflix.men/" target="_blank" rel="noopener noreferrer" className="flex items-center">
-                            <Image src="https://xalaflix.men/upload/images/logo/1.png" alt="Xalaflix Logo" width={16} height={16} className="mr-2 rounded-sm"/>
+                        <a href="https://xalaflix.io/" target="_blank" rel="noopener noreferrer" className="flex items-center">
+                            <Image src="https://xalaflix.io/upload/images/logo/1.png" alt="Xalaflix Logo" width={16} height={16} className="mr-2 rounded-sm"/>
                             Xalaflix
                         </a>
                     </Button>
@@ -110,12 +108,12 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
     const { offset, velocity } = info;
     const swipeThreshold = 80;
 
-    if (offset.x < -swipeThreshold || velocity.x < -300) {
+    if (offset.x > swipeThreshold || velocity.x > 300) { // Swipe right to show links
+       controls.start({ x: '100vw' });
+    } else if (offset.x < -swipeThreshold || velocity.x < -300) { // Swipe left for details page
       router.push(`/media/movie/${media.id}?from=discover`);
-    } else if (offset.x > swipeThreshold || velocity.x > 300) {
-       controls.start({ x: '100%' });
     } else {
-      controls.start({ x: 0 });
+      controls.start({ x: 0 }); // Snap back to center
     }
   };
 
@@ -126,7 +124,7 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
     if (offset.x < -swipeThreshold || velocity.x < -300) {
       controls.start({ x: 0 });
     } else {
-      controls.start({ x: '100%' });
+      controls.start({ x: '100vw' });
     }
   }
 
@@ -134,115 +132,111 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
   return (
     <section 
       className="relative h-full w-full snap-start snap-always flex-shrink-0 overflow-hidden bg-black"
+      onDoubleClick={handleDoubleClick}
     >
-        <div className="absolute inset-0">
-             <Image src={media.backdropUrl || media.posterUrl} alt={`Fond pour ${media.title}`} fill className="object-cover opacity-30" />
-        </div>
-        <div 
-          className="relative h-full flex flex-col"
-          onDoubleClick={handleDoubleClick}
-        >
-             <motion.div 
+      <div className="absolute inset-0">
+         <Image src={media.posterUrl} alt={`Fond pour ${media.title}`} fill className="object-cover opacity-30 blur-md" />
+         <div className="absolute inset-0 bg-black/60"></div>
+      </div>
+       <div className="relative h-full flex flex-col items-center justify-center p-4">
+            
+            <motion.div 
                 className="absolute inset-0 flex"
                 drag="x"
                 dragConstraints={{ left: 0, right: 0 }}
-                dragElastic={{ left: 0.8, right: 0.2 }}
+                dragElastic={{ left: 0.2, right: 0.8 }}
                 onDragEnd={handleDragEnd}
                 animate={controls}
                 transition={{ type: 'tween', ease: 'easeOut', duration: 0.4 }}
             >
-                {/* Panel for Direct Links */}
-                <div className="absolute inset-y-0 left-0 w-full h-full" style={{ transform: 'translateX(-100%)' }}>
-                    <motion.div
-                        className="w-full h-full"
-                        drag="x"
-                        dragConstraints={{ left: 0, right: 0 }}
-                        dragElastic={{ left: 0.2, right: 0.8 }}
-                        onDragEnd={handleClosePanel}
-                    >
-                        <DirectLinksPanel media={media} />
-                    </motion.div>
-                </div>
+                {/* Main Content Panel - This is what moves */}
+                <div className="relative w-full h-full flex flex-col items-center justify-center">
 
-                {/* Main Content Panel */}
-                <div className="relative w-full h-full bg-black">
-                     <div className="absolute inset-0">
-                        <Image src={media.backdropUrl || media.posterUrl} alt={`Fond pour ${media.title}`} fill className="object-cover" />
-                        <div className="absolute inset-0 bg-black/40"></div>
+                   {/* Background Panel for Direct Links */}
+                    <div className="absolute inset-y-0 right-full w-screen h-full">
+                       <motion.div
+                         className="w-full h-full"
+                         drag="x"
+                         dragConstraints={{ left: 0, right: 0 }}
+                         dragElastic={{ left: 0.8, right: 0.2 }}
+                         onDragEnd={handleClosePanel}
+                       >
+                         <DirectLinksPanel media={media} />
+                       </motion.div>
                     </div>
-                     <div className="relative w-full h-full flex flex-col justify-end">
-                       <div className="relative w-full flex-grow flex items-center justify-center p-4 perspective-1000">
-                           <AnimatePresence>
-                            {showHeart && (
-                            <motion.div
-                                initial={{ opacity: 0, scale: 0.5 }}
-                                animate={{ opacity: 1, scale: 1.2, transition: { type: 'spring', stiffness: 200, damping: 10 } }}
-                                exit={{ opacity: 0, scale: 0 }}
-                                className="absolute inset-0 flex items-center justify-center pointer-events-none z-30"
-                            >
-                                <Heart className="h-24 w-24 text-white drop-shadow-lg" fill="currentColor" />
-                            </motion.div>
-                            )}
-                           </AnimatePresence>
-                           
-                           <motion.div 
-                            className="relative w-full max-w-[calc(90vh*0.66)] h-full max-h-[90vh] preserve-3d"
-                            animate={{ rotateY: isFlipped ? 180 : 0 }}
-                            transition={{ duration: 0.5, ease: 'easeInOut' }}
-                           >
-                            <motion.div 
-                                className="absolute w-full h-full backface-hidden cursor-pointer"
-                                onClick={() => setIsFlipped(true)}
-                            >
-                                <Image src={media.posterUrl} alt={`Affiche de ${media.title}`} fill className="object-contain rounded-2xl shadow-2xl" />
-                            </motion.div>
 
-                            <motion.div
-                                className="absolute w-full h-full backface-hidden p-6 bg-card rounded-2xl flex flex-col justify-center items-center text-card-foreground cursor-pointer"
-                                style={{ transform: 'rotateY(180deg)' }}
-                                onClick={() => setIsFlipped(false)}
-                            >
-                                <h3 className="text-xl font-bold mb-4">Synopsis</h3>
-                                <p className="text-sm text-center text-muted-foreground overflow-y-auto scrollbar-thin">
-                                    {media.description}
-                                </p>
-                            </motion.div>
-                           </motion.div>
-                       </div>
+                    {/* Actual visible content */}
+                    <div className="relative w-full h-full flex flex-col items-center justify-center">
+                        <AnimatePresence>
+                        {showHeart && (
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.5 }}
+                            animate={{ opacity: 1, scale: 1.2, transition: { type: 'spring', stiffness: 200, damping: 10 } }}
+                            exit={{ opacity: 0, scale: 0 }}
+                            className="absolute inset-0 flex items-center justify-center pointer-events-none z-30"
+                        >
+                            <Heart className="h-24 w-24 text-white drop-shadow-lg" fill="currentColor" />
+                        </motion.div>
+                        )}
+                       </AnimatePresence>
+                       
+                       <motion.div 
+                        className="relative w-full max-w-[calc(90vh*0.66)] h-full max-h-[90vh] preserve-3d"
+                        animate={{ rotateY: isFlipped ? 180 : 0 }}
+                        transition={{ duration: 0.5, ease: 'easeInOut' }}
+                       >
+                        <motion.div 
+                            className="absolute w-full h-full backface-hidden cursor-pointer"
+                            onClick={() => setIsFlipped(true)}
+                        >
+                            <Image src={media.posterUrl} alt={`Affiche de ${media.title}`} fill className="object-contain rounded-2xl shadow-2xl" />
+                        </motion.div>
 
-                       <div className="flex-shrink-0 p-6 pt-2 flex items-center justify-between text-white">
-                           <div className="space-y-1">
-                               <h1 className="text-2xl font-bold leading-tight drop-shadow-lg">{media.title}</h1>
-                               <div className="flex items-center gap-4 text-white/90 text-sm">
-                                   <div className="flex items-center gap-1.5">
-                                   <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
-                                   <span>{media.averageRating.toFixed(1)}</span>
-                                   </div>
-                                   {media.releaseDate && (
-                                   <div className="flex items-center gap-1.5">
-                                       <CalendarDays className="h-4 w-4" />
-                                       <span>{new Date(media.releaseDate).getFullYear()}</span>
-                                   </div>
-                                   )}
-                               </div>
-                           </div>
-
-                           <div className="flex flex-col items-center gap-4">
-                               <button onClick={handleLike} className="flex flex-col items-center gap-1.5 group">
-                                   <div className={cn("h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center transition-colors group-hover:bg-white/30", isInList(media.id, 'toWatch') && "bg-red-500/80")}>
-                                   <Heart className="h-7 w-7 transition-transform group-active:scale-90" fill={isInList(media.id, 'toWatch') ? "currentColor" : "none"} />
-                                   </div>
-                               </button>
-                               <button onClick={handleWatched} className="flex flex-col items-center gap-1.5 group">
-                                   <div className={cn("h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center transition-colors group-hover:bg-white/30", isInList(media.id, 'watched') && "bg-green-500/80")}>
-                                   <Check className="h-7 w-7 transition-transform group-active:scale-90" />
-                                   </div>
-                               </button>
-                           </div>
-                       </div>
+                        <motion.div
+                            className="absolute w-full h-full backface-hidden p-6 bg-card rounded-2xl flex flex-col justify-center items-center text-card-foreground cursor-pointer"
+                            style={{ transform: 'rotateY(180deg)' }}
+                            onClick={() => setIsFlipped(false)}
+                        >
+                            <h3 className="text-xl font-bold mb-4">Synopsis</h3>
+                            <p className="text-sm text-center text-muted-foreground overflow-y-auto scrollbar-thin">
+                                {media.description}
+                            </p>
+                        </motion.div>
+                       </motion.div>
                     </div>
                 </div>
             </motion.div>
+
+           <div className="absolute bottom-6 left-6 right-6 flex items-end justify-between text-white z-20 pointer-events-none">
+               <div className="space-y-1">
+                   <h1 className="text-2xl font-bold leading-tight drop-shadow-lg">{media.title}</h1>
+                   <div className="flex items-center gap-4 text-white/90 text-sm">
+                       <div className="flex items-center gap-1.5">
+                       <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+                       <span>{media.averageRating.toFixed(1)}</span>
+                       </div>
+                       {media.releaseDate && (
+                       <div className="flex items-center gap-1.5">
+                           <CalendarDays className="h-4 w-4" />
+                           <span>{new Date(media.releaseDate).getFullYear()}</span>
+                       </div>
+                       )}
+                   </div>
+               </div>
+
+               <div className="flex flex-col items-center gap-4 pointer-events-auto">
+                   <button onClick={handleLike} className="flex flex-col items-center gap-1.5 group">
+                       <div className={cn("h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center transition-colors group-hover:bg-white/30", isInList(media.id, 'toWatch') && "bg-red-500/80")}>
+                       <Heart className="h-7 w-7 transition-transform group-active:scale-90" fill={isInList(media.id, 'toWatch') ? "currentColor" : "none"} />
+                       </div>
+                   </button>
+                   <button onClick={handleWatched} className="flex flex-col items-center gap-1.5 group">
+                       <div className={cn("h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center transition-colors group-hover:bg-white/30", isInList(media.id, 'watched') && "bg-green-500/80")}>
+                       <Check className="h-7 w-7 transition-transform group-active:scale-90" />
+                       </div>
+                   </button>
+               </div>
+           </div>
         </div>
     </section>
   );
