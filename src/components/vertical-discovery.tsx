@@ -7,22 +7,20 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { getPopularMedia, type Media, getMediaDetails } from '@/services/tmdb';
 import { Button } from '@/components/ui/button';
-import { Loader2, Heart, Check, Info, Star, CalendarDays, ArrowLeft, Link2 } from 'lucide-react';
+import { Loader2, Heart, Check, Star, CalendarDays, ArrowLeft, Link2 } from 'lucide-react';
 import { useMediaLists } from '@/hooks/use-media-lists';
 import { useToast } from '@/hooks/use-toast';
-import { AnimatePresence, motion, useAnimation } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { Badge } from '@/components/ui/badge';
-
 
 function DirectLinksPanel({ media }: { media: Media }) {
     const isAnimation = media.genres?.some(g => g.id === 16);
-    const animeSamaUrl = `https://anime-sama.tv/catalogue/${media.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}/`;
+    const animeSamaUrl = `https://anime-sama.si/catalogue/${media.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}/`;
 
     return (
-        <div className="w-full h-full bg-black/80 backdrop-blur-md p-6 flex flex-col justify-center items-center text-white">
+        <div className="absolute inset-y-0 left-full w-screen h-full bg-black/80 backdrop-blur-md p-6 flex flex-col justify-center items-center text-white">
             <h3 className="text-2xl font-bold mb-6 flex items-center gap-2"><Link2 /> Liens Directs</h3>
-             <div className="flex flex-col gap-4 w-full max-w-xs text-sm">
+            <div className="flex flex-col gap-4 w-full max-w-xs text-sm">
                 <Button asChild size="lg" className="w-full" style={{ backgroundColor: '#1E1E1E' }}>
                     <a href={`https://cinepulse.lol/sheet/movie-${media.id}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 text-[#FF4545]">
                         <Image src="https://cinepulse.lol/favicons/favicon.svg" alt="Cinepulse Logo" width={20} height={20}/>
@@ -55,7 +53,7 @@ function DirectLinksPanel({ media }: { media: Media }) {
                     {isAnimation && (
                         <Button asChild variant="secondary">
                         <a href={animeSamaUrl} target="_blank" rel="noopener noreferrer" className="flex items-center">
-                            <Image src="https://anime-sama.tv/img/favicon.ico" alt="Anime-Sama Logo" width={16} height={16} className="mr-2 rounded-sm"/>
+                            <Image src="https://anime-sama.si/img/favicon.ico" alt="Anime-Sama Logo" width={16} height={16} className="mr-2 rounded-sm"/>
                             Anime-Sama
                         </a>
                         </Button>
@@ -66,18 +64,19 @@ function DirectLinksPanel({ media }: { media: Media }) {
     );
 }
 
-
 function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean }) {
   const { addToList, removeFromList, isInList } = useMediaLists();
   const { toast } = useToast();
   const router = useRouter();
   const [showHeart, setShowHeart] = useState(false);
   const [isFlipped, setIsFlipped] = useState(false);
+  const [isPanelOpen, setIsPanelOpen] = useState<'links' | null>(null);
+
   const controls = useAnimation();
 
-
   const handleLike = () => {
-    if (isInList(media.id, 'toWatch')) {
+    const isAlreadyInList = isInList(media.id, 'toWatch');
+    if (isAlreadyInList) {
       removeFromList(media.id, 'toWatch');
       toast({ title: "Retiré", description: `${media.title} a été retiré de votre liste "À Regarder".` });
     } else {
@@ -87,7 +86,8 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
   };
 
   const handleWatched = () => {
-    if (isInList(media.id, 'watched')) {
+    const isAlreadyInList = isInList(media.id, 'watched');
+     if (isAlreadyInList) {
       removeFromList(media.id, 'watched');
       toast({ title: "Retiré", description: `${media.title} a été retiré de vos "Vus".` });
     } else {
@@ -106,27 +106,27 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
   
   const handleDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: any) => {
     const { offset, velocity } = info;
-    const swipeThreshold = 80;
+    const swipeThreshold = 100;
 
-    if (offset.x > swipeThreshold || velocity.x > 300) { // Swipe right to show links
-       controls.start({ x: '100vw' });
-    } else if (offset.x < -swipeThreshold || velocity.x < -300) { // Swipe left for details page
+    if (offset.x > swipeThreshold || velocity.x > 300) { // Swipe right for links
+      controls.start({ x: '85vw' });
+      setIsPanelOpen('links');
+    } else if (offset.x < -swipeThreshold || velocity.x < -300) { // Swipe left for details
       router.push(`/media/movie/${media.id}?from=discover`);
-    } else {
-      controls.start({ x: 0 }); // Snap back to center
+    } else { // Snap back to center
+      controls.start({ x: 0 });
+      setIsPanelOpen(null);
     }
   };
 
-  const handleClosePanel = (event: MouseEvent | TouchEvent | PointerEvent, info: any) => {
-    const { offset, velocity } = info;
-    const swipeThreshold = 80;
-
-    if (offset.x < -swipeThreshold || velocity.x < -300) {
-      controls.start({ x: 0 });
+  const handlePanelDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: any) => {
+     if (isPanelOpen === 'links' && (info.offset.x < -100 || info.velocity.x < -300)) {
+        controls.start({ x: 0 });
+        setIsPanelOpen(null);
     } else {
-      controls.start({ x: '100vw' });
+        controls.start({ x: '85vw' });
     }
-  }
+  };
 
 
   return (
@@ -135,76 +135,60 @@ function DiscoveryItem({ media, isActive }: { media: Media, isActive: boolean })
       onDoubleClick={handleDoubleClick}
     >
       <div className="absolute inset-0">
-         <Image src={media.posterUrl} alt={`Fond pour ${media.title}`} fill className="object-cover opacity-30 blur-md" />
+         <Image src={media.backdropUrl || media.posterUrl} alt={`Fond pour ${media.title}`} fill className="object-cover" />
          <div className="absolute inset-0 bg-black/60"></div>
       </div>
        <div className="relative h-full flex flex-col items-center justify-center p-4">
             
+            <div className="absolute inset-y-0 -left-full w-screen h-full">
+                <DirectLinksPanel media={media} />
+            </div>
+
             <motion.div 
-                className="absolute inset-0 flex"
+                className="relative w-full h-full flex flex-col items-center justify-center"
                 drag="x"
                 dragConstraints={{ left: 0, right: 0 }}
                 dragElastic={{ left: 0.2, right: 0.8 }}
-                onDragEnd={handleDragEnd}
+                onDragEnd={isPanelOpen ? handlePanelDragEnd : handleDragEnd}
                 animate={controls}
                 transition={{ type: 'tween', ease: 'easeOut', duration: 0.4 }}
             >
-                {/* Main Content Panel - This is what moves */}
-                <div className="relative w-full h-full flex flex-col items-center justify-center">
+                <AnimatePresence>
+                {showHeart && (
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{ opacity: 1, scale: 1.2, transition: { type: 'spring', stiffness: 200, damping: 10 } }}
+                    exit={{ opacity: 0, scale: 0 }}
+                    className="absolute inset-0 flex items-center justify-center pointer-events-none z-30"
+                >
+                    <Heart className="h-24 w-24 text-white drop-shadow-lg" fill="currentColor" />
+                </motion.div>
+                )}
+                </AnimatePresence>
+                
+                <motion.div 
+                className="relative w-full max-w-[calc(90vh*0.66)] h-full max-h-[90vh] preserve-3d"
+                animate={{ rotateY: isFlipped ? 180 : 0 }}
+                transition={{ duration: 0.5, ease: 'easeInOut' }}
+                >
+                <motion.div 
+                    className="absolute w-full h-full backface-hidden cursor-pointer"
+                    onClick={() => setIsFlipped(true)}
+                >
+                    <Image src={media.posterUrl} alt={`Affiche de ${media.title}`} fill className="object-contain rounded-2xl shadow-2xl" />
+                </motion.div>
 
-                   {/* Background Panel for Direct Links */}
-                    <div className="absolute inset-y-0 right-full w-screen h-full">
-                       <motion.div
-                         className="w-full h-full"
-                         drag="x"
-                         dragConstraints={{ left: 0, right: 0 }}
-                         dragElastic={{ left: 0.8, right: 0.2 }}
-                         onDragEnd={handleClosePanel}
-                       >
-                         <DirectLinksPanel media={media} />
-                       </motion.div>
-                    </div>
-
-                    {/* Actual visible content */}
-                    <div className="relative w-full h-full flex flex-col items-center justify-center">
-                        <AnimatePresence>
-                        {showHeart && (
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.5 }}
-                            animate={{ opacity: 1, scale: 1.2, transition: { type: 'spring', stiffness: 200, damping: 10 } }}
-                            exit={{ opacity: 0, scale: 0 }}
-                            className="absolute inset-0 flex items-center justify-center pointer-events-none z-30"
-                        >
-                            <Heart className="h-24 w-24 text-white drop-shadow-lg" fill="currentColor" />
-                        </motion.div>
-                        )}
-                       </AnimatePresence>
-                       
-                       <motion.div 
-                        className="relative w-full max-w-[calc(90vh*0.66)] h-full max-h-[90vh] preserve-3d"
-                        animate={{ rotateY: isFlipped ? 180 : 0 }}
-                        transition={{ duration: 0.5, ease: 'easeInOut' }}
-                       >
-                        <motion.div 
-                            className="absolute w-full h-full backface-hidden cursor-pointer"
-                            onClick={() => setIsFlipped(true)}
-                        >
-                            <Image src={media.posterUrl} alt={`Affiche de ${media.title}`} fill className="object-contain rounded-2xl shadow-2xl" />
-                        </motion.div>
-
-                        <motion.div
-                            className="absolute w-full h-full backface-hidden p-6 bg-card rounded-2xl flex flex-col justify-center items-center text-card-foreground cursor-pointer"
-                            style={{ transform: 'rotateY(180deg)' }}
-                            onClick={() => setIsFlipped(false)}
-                        >
-                            <h3 className="text-xl font-bold mb-4">Synopsis</h3>
-                            <p className="text-sm text-center text-muted-foreground overflow-y-auto scrollbar-thin">
-                                {media.description}
-                            </p>
-                        </motion.div>
-                       </motion.div>
-                    </div>
-                </div>
+                <motion.div
+                    className="absolute w-full h-full backface-hidden p-6 bg-card rounded-2xl flex flex-col justify-center items-center text-card-foreground cursor-pointer"
+                    style={{ transform: 'rotateY(180deg)' }}
+                    onClick={() => setIsFlipped(false)}
+                >
+                    <h3 className="text-xl font-bold mb-4">Synopsis</h3>
+                    <p className="text-sm text-center text-muted-foreground overflow-y-auto scrollbar-thin">
+                        {media.description}
+                    </p>
+                </motion.div>
+                </motion.div>
             </motion.div>
 
            <div className="absolute bottom-6 left-6 right-6 flex items-end justify-between text-white z-20 pointer-events-none">

@@ -376,7 +376,7 @@ export default function MediaDetailsPage() {
   const isWatched = isInList(media.id, 'watched');
   const trailerToDisplay = findBestTrailer(media.videos);
   const isAnimation = media.genres?.some(g => g.id === 16);
-  const animeSamaUrl = `https://anime-sama.tv/catalogue/${media.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}/`;
+  const animeSamaUrl = `https://anime-sama.si/catalogue/${media.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}/`;
 
 
   const handleToggleList = async (listType: 'toWatch' | 'watched') => {
@@ -663,7 +663,7 @@ export default function MediaDetailsPage() {
                         rel="noopener noreferrer"
                         className="flex items-center"
                       >
-                         <Image src="https://anime-sama.tv/img/favicon.ico" alt="Anime-Sama Logo" width={20} height={20} className="mr-2 rounded-sm"/>
+                         <Image src="https://anime-sama.si/img/favicon.ico" alt="Anime-Sama Logo" width={20} height={20} className="mr-2 rounded-sm"/>
                         Anime-Sama
                       </a>
                     </Button>
@@ -890,6 +890,7 @@ function getSafeProfileImageUrl(path: string | null | undefined): string {
     
 
     
+
 
 
 
