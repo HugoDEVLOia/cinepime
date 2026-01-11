@@ -52,6 +52,12 @@ const nextConfig: NextConfig = {
         hostname: 'anime-sama.si',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.statically.io',
+        port: '',
+        pathname: '/**',
       }
     ],
   },
