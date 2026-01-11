@@ -101,6 +101,8 @@ export default function SettingsPage() {
     setIsEditing(false);
   }
 
+  const encodedAvatar = encodeAvatarPath(newAvatar);
+
   return (
     <div className="space-y-10">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
@@ -128,9 +130,9 @@ export default function SettingsPage() {
                 <CardContent className="space-y-6">
                      <div className="flex flex-col items-center space-y-4">
                         <div className="relative w-32 h-32">
-                           {newAvatar && (
+                           {encodedAvatar && (
                             <Image 
-                                src={encodeAvatarPath(newAvatar)}
+                                src={encodedAvatar}
                                 alt={newUsername || 'Avatar'}
                                 fill
                                 className="rounded-full object-cover border-4 border-primary"
