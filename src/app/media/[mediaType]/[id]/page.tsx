@@ -375,7 +375,7 @@ export default function MediaDetailsPage() {
   const isToWatch = isInList(media.id, 'toWatch');
   const isWatched = isInList(media.id, 'watched');
   const trailerToDisplay = findBestTrailer(media.videos);
-  const isAnimation = media.genres?.some(g => g.id === 16);
+  const isAnime = media.keywords?.some(k => k.id === 210024);
   const animeSamaUrl = `https://anime-sama.si/catalogue/${media.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}/`;
 
 
@@ -655,7 +655,7 @@ export default function MediaDetailsPage() {
                       </a>
                   </Button>
 
-                  {isAnimation && (
+                  {isAnime && (
                     <Button asChild variant="secondary">
                       <a 
                         href={animeSamaUrl}
@@ -890,6 +890,7 @@ function getSafeProfileImageUrl(path: string | null | undefined): string {
     
 
     
+
 
 
 

@@ -14,7 +14,7 @@ import { AnimatePresence, motion, useAnimation } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 function DirectLinksPanel({ media }: { media: Media }) {
-    const isAnimation = media.genres?.some(g => g.id === 16);
+    const isAnime = media.keywords?.some(k => k.id === 210024);
     const animeSamaUrl = `https://anime-sama.si/catalogue/${media.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}/`;
 
     return (
@@ -50,7 +50,7 @@ function DirectLinksPanel({ media }: { media: Media }) {
                         </a>
                     </Button>
 
-                    {isAnimation && (
+                    {isAnime && (
                         <Button asChild variant="secondary">
                         <a href={animeSamaUrl} target="_blank" rel="noopener noreferrer" className="flex items-center">
                             <Image src="https://cdn.statically.io/gh/Anime-Sama/IMG/img/autres/logo_icon.png" alt="Anime-Sama Logo" width={16} height={16} className="mr-2 rounded-sm"/>

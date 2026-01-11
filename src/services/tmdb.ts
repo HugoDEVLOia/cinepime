@@ -53,6 +53,7 @@ export interface Media {
   runtime?: number; // in minutes for movies
   numberOfSeasons?: number; // for tv shows
   genres?: { id: number; name: string; }[];
+  keywords?: { id: number; name: string; }[];
   cast?: Actor[];
   videos?: Video[];
   credits?: { 
@@ -204,6 +205,7 @@ const mapApiMediaToMedia = (item: any, mediaType: MediaType): Media => {
   // Standardize "Tous publics"
   if (contentRating === 'U') contentRating = 'TP';
 
+  const keywords_results = item.keywords?.keywords || item.keywords?.results || [];
 
   return {
     id: item.id.toString(),
@@ -217,6 +219,7 @@ const mapApiMediaToMedia = (item: any, mediaType: MediaType): Media => {
     runtime: item.runtime,
     numberOfSeasons: item.number_of_seasons,
     genres: item.genres || [],
+    keywords: keywords_results,
     cast: item.credits?.cast ? item.credits.cast.slice(0, 10).map(mapApiActorToActor) : (item.cast || []),
     videos: item.videos?.results ? item.videos.results.map(mapApiVideoToVideo).filter((v: Video) => v.site === 'YouTube') : [],
     credits: item.credits ? {
@@ -382,7 +385,7 @@ export async function getTrendingMedia(page: number = 1, timeWindow: Exclude<Tim
 export async function getMediaDetails(mediaId: string, mediaType: 'movie' | 'tv'): Promise<Media | null> {
   try {
     // Added release_dates for movies and content_ratings for TV for certification info
-    const appendToResponse = 'credits,videos,watch/providers' +
+    const appendToResponse = 'credits,videos,watch/providers,keywords' +
                              (mediaType === 'movie' ? ',release_dates' : '') +
                              (mediaType === 'tv' ? ',content_ratings' : '');
 
