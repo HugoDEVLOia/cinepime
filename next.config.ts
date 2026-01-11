@@ -49,7 +49,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'anime-sama.tv',
+        hostname: 'anime-sama.si',
         port: '',
         pathname: '/**',
       }
