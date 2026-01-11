@@ -37,7 +37,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'xalaflix.men',
+        hostname: 'xalaflix.io',
         port: '',
         pathname: '/**',
       },
